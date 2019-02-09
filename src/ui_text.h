@@ -66,9 +66,9 @@ enum
 	UI_imperfectsound,
 	UI_nosound,
 	UI_nococktail,
+	UI_no_serialization,
 	UI_brokengame,
 	UI_brokenprotection,
-	UI_no_serialization,
 	UI_workingclones,
 
 	/* main menu */

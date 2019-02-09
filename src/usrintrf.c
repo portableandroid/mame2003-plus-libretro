@@ -21,7 +21,6 @@
 
 #define MAX_MESSAGE_LENGTH 2014
 
-static char message_buffer[MAX_MESSAGE_LENGTH];
 static char messagetext[MAX_MESSAGE_LENGTH];
 static int  messagecounter;
 static bool generate_DAT;           /* allows us to display a UI message before and while the DAT is generated */
@@ -2380,6 +2379,7 @@ static int displaygameinfo(struct mame_bitmap *bitmap,int selected)
 
 void generate_gameinfo(void)
 {
+  static char message_buffer[MAX_MESSAGE_LENGTH];
 	int i;
 	char buf2[32];
   
@@ -2409,7 +2409,6 @@ void generate_gameinfo(void)
 		}
 
 		strcat(message_buffer,"\n");
-
 		i++;
 	}
 
@@ -2488,163 +2487,126 @@ void generate_gameinfo(void)
 		sprintf(&message_buffer[strlen(message_buffer)],"%d colors ",Machine->drv->total_colors);
 #endif
 	}
+  log_cb(RETRO_LOG_INFO, LOGPRE "\n\n%s\n", message_buffer);
 }
 
 
 void ui_copyright_and_warnings(void)
 {
-  char buffer[MAX_MESSAGE_LENGTH];
-  int i;
-  char warning_buffer[MAX_MESSAGE_LENGTH];
+  static char message_buffer[MAX_MESSAGE_LENGTH];
   bool first_warning = true;
 
-  warning_buffer[0] = '\0';
-  buffer[0]='\0';
-  if(!options.skip_disclaimer)
-    snprintf(buffer, MAX_MESSAGE_LENGTH, "%s", ui_getstring(UI_copyright));
-  
-	if (Machine->gamedrv->flags &
-			(GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_WRONG_COLORS | GAME_IMPERFECT_COLORS |
-			  GAME_NO_SOUND | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL ))
-  {
+  message_buffer[0] = '\0';
 
-    strcat(warning_buffer, ui_getstring(UI_knownproblems));
+  if(!options.skip_disclaimer)
+    frontend_message_cb(ui_getstring(UI_copyright), 180);
+
+  if (Machine->gamedrv->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION)) /* major problems */
+  {
+    const struct GameDriver *maindrv;
+    bool foundworking = false;
+    int i = 0;
+    
+    if (Machine->gamedrv->flags & GAME_NOT_WORKING)
+      strcpy(message_buffer, ui_getstring (UI_brokengame));
+    else if (Machine->gamedrv->flags & GAME_UNEMULATED_PROTECTION)
+      strcat(message_buffer, ui_getstring (UI_brokenprotection));
+
+    if (Machine->gamedrv->clone_of && !(Machine->gamedrv->clone_of->flags & NOT_A_DRIVER))
+      maindrv = Machine->gamedrv->clone_of;
+    else
+      maindrv = Machine->gamedrv;
+
+    while (drivers[i])
+    {
+      if (drivers[i] == maindrv || drivers[i]->clone_of == maindrv)
+      {
+        if ((drivers[i]->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION)) == 0)
+        {
+          if (foundworking == false)
+          {
+            strcat(message_buffer, ui_getstring (UI_workingclones));
+            sprintf(&message_buffer[strlen(message_buffer)]," %s",drivers[i]->name);
+            foundworking = true;
+          }
+          sprintf(&message_buffer[strlen(message_buffer)],", %s",drivers[i]->name); /* if this isn't the first listed clone, add a comma before the space */
+        }
+      }
+      i++;
+    }
+    frontend_message_cb(message_buffer, 360); /* always display a message for 360 frames if the game does not work */
+  }
+	else if ( Machine->gamedrv->flags &
+			 ( GAME_WRONG_COLORS | GAME_IMPERFECT_COLORS | GAME_NO_SOUND |
+       GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL ) )
+  {
+    strcat(message_buffer, ui_getstring(UI_knownproblems));
 
     if (Machine->gamedrv->flags & GAME_IMPERFECT_COLORS)
     {
-      strcat(warning_buffer, ui_getstring(UI_imperfectcolors));
+      strcat(message_buffer, ui_getstring(UI_imperfectcolors));
       first_warning = false;
     }
 
     if (Machine->gamedrv->flags & GAME_WRONG_COLORS)
     {
       if(!first_warning)
-        strcat(warning_buffer, ", ");
+        strcat(message_buffer, ", ");
 
-      strcat(warning_buffer, ui_getstring (UI_wrongcolors));
+      strcat(message_buffer, ui_getstring (UI_wrongcolors));
       first_warning = false;
     }
 
     if (Machine->gamedrv->flags & GAME_IMPERFECT_GRAPHICS)
     {
       if(!first_warning)
-        strcat(warning_buffer, ", ");
+        strcat(message_buffer, ", ");
 
-      strcat(warning_buffer, ui_getstring (UI_imperfectgraphics));
+      strcat(message_buffer, ui_getstring (UI_imperfectgraphics));
       first_warning = false;
     }
 
     if (Machine->gamedrv->flags & GAME_IMPERFECT_SOUND)
     {
       if(!first_warning)
-        strcat(warning_buffer, ", ");
+        strcat(message_buffer, ", ");
 
-      strcat(warning_buffer, ui_getstring (UI_imperfectsound));
+      strcat(message_buffer, ui_getstring (UI_imperfectsound));
       first_warning = false;
     }
 
     if (Machine->gamedrv->flags & GAME_NO_SOUND)
     {
       if(!first_warning)
-        strcat(warning_buffer, ", ");
+        strcat(message_buffer, ", ");
 
-      strcat(warning_buffer, ui_getstring (UI_nosound));
+      strcat(message_buffer, ui_getstring (UI_nosound));
       first_warning = false;
     }
 
     if (Machine->gamedrv->flags & GAME_NO_COCKTAIL)
     {
       if(!first_warning)
-        strcat(warning_buffer, ", ");
+        strcat(message_buffer, ", ");
 
-      strcat(warning_buffer, ui_getstring (UI_nococktail));
+      strcat(message_buffer, ui_getstring (UI_nococktail));
       first_warning = false;
     }
 
     if (Machine->gamedrv->flags & GAME_DOESNT_SERIALIZE)
     {
       if(!first_warning)
-        strcat(warning_buffer, ", ");
+        strcat(message_buffer, ", ");
 
-      strcat(warning_buffer, ui_getstring (UI_no_serialization));
+      strcat(message_buffer, ui_getstring (UI_no_serialization));
       first_warning = false;
     }
 
-    if (Machine->gamedrv->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION)) /* major problems */
-    {
-      const struct GameDriver *maindrv;
-      int foundworking;
-      
-      if (Machine->gamedrv->flags & GAME_NOT_WORKING)
-      {
-        if(!first_warning)
-          strcat(warning_buffer, ", ");
-
-        strcpy(warning_buffer, ui_getstring (UI_brokengame));
-        first_warning = false;
-      }
-
-      if (Machine->gamedrv->flags & GAME_UNEMULATED_PROTECTION)
-      {
-        if(!first_warning)
-          strcat(warning_buffer, ", ");
-
-        strcat(warning_buffer, ui_getstring (UI_brokenprotection));
-        first_warning = false;
-      }
-      if(!options.skip_warnings) /* send the warnings to the frontend before looking up alternatives */
-      {
-        frontend_message_cb(warning_buffer, 180);
-      }
-      if (Machine->gamedrv->clone_of && !(Machine->gamedrv->clone_of->flags & NOT_A_DRIVER))
-      {
-        maindrv = Machine->gamedrv->clone_of;
-      }
-      else
-      {
-        maindrv = Machine->gamedrv;
-      }
-
-      foundworking = 0;
-      i = 0;
-      while (drivers[i])
-      {
-        if (drivers[i] == maindrv || drivers[i]->clone_of == maindrv)
-        {
-          if ((drivers[i]->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION)) == 0)
-          {
-            if (foundworking == 0)
-            {
-              strcat(warning_buffer,"\n\n");
-              strcat(warning_buffer, ui_getstring (UI_workingclones));
-              strcat(warning_buffer,"\n\n");
-            }
-            foundworking = 1;
-
-            sprintf(&warning_buffer[strlen(warning_buffer)],"%s\n",drivers[i]->name);
-          }
-        }
-        i++;
-      }
-    }
-    else /* there is not a GAME_NOT_WORKING or GAME_UNEMULATED_PROTECTION flag set */
-    {
-      if(!options.skip_warnings) /* send the warnings to the frontend */
-      {
-        frontend_message_cb(warning_buffer, 180);
-      }
-    }
-   
-    log_cb(RETRO_LOG_WARN, LOGPRE "\n\n%s", warning_buffer); /* log warning list to the console */
-
+    if(!options.skip_warnings)
+      frontend_message_cb(message_buffer, 240);
   }
- 
-  generate_gameinfo();
-  log_cb(RETRO_LOG_INFO, LOGPRE "\n\n%s", message_buffer);
-  
-  if(strlen(buffer))
-    usrintf_showmessage_secs(8, "%s", buffer);
-  
+
+  log_cb(RETRO_LOG_WARN, LOGPRE "\n\n%s\n", message_buffer); /* log warning list to the console */   
 }
 
 /* Word-wraps the text in the specified buffer to fit in maxwidth characters per line.

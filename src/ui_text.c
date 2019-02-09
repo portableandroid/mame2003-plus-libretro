@@ -19,7 +19,7 @@ static const char *mame_default_text[] =
 	"MAME",
 
 	/* copyright stuff */
-	"Copyright Warning:\nCopying game data without permission is forbidden by copyright law. If you are not entitled to emulate this system, please exit now.\n",
+	"Copying game data without permission is forbidden by copyright law. If you are not entitled to emulate this system, please exit now.\n",
 
 	/* misc stuff */
 	"Return to Main Menu",
@@ -67,10 +67,10 @@ static const char *mame_default_text[] =
 	"imperfect sound",
 	"missing sound",
 	"missing cocktail mode",
-	"game does not work",
-	"unimplemented protection",
 	"missing serialization",
-	"There are working clones of this game:",
+	"This game does not work.",
+	"This game has unimplemented protection.",
+	" There are working clones:",
 
 	/* main menu */
 	"Input (general)",

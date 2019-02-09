@@ -458,6 +458,7 @@ static int run_machine(void)
 					}
 
 				ui_copyright_and_warnings();
+        generate_gameinfo();
         pause_action = pause_action_start_emulator;
 				return 0;
 			}
