@@ -9,6 +9,10 @@
 #include "usrintrf.h"
 #include "driver.h"
 
+#ifdef PORTANDROID
+#include "emu_init.h"
+#endif
+
 #define MAX_LED 8
 
 extern retro_log_printf_t log_cb;
@@ -388,8 +392,12 @@ const int frameskip_table[12][12] =
 
 int osd_skip_this_frame(void)
 {
+#ifdef PORTANDROID
+   return cb_context.video_skip;
+#else
    static unsigned frameskip_counter = 0;
    return frameskip_table[options.frameskip][frameskip_counter++ % 12];
+#endif
 }
 
 void osd_update_video_and_audio(struct mame_display *display)

@@ -23,6 +23,11 @@
 #include "controls.h"
 #include "usrintrf.h"
 
+#ifdef PORTANDROID
+#include "emu_init.h"
+static short *audio_buffer;
+#endif
+
 int  pressure_check =  1.28 * 20;
 int convert_analog_scale(int input);
 
@@ -1357,10 +1362,10 @@ int osd_start_audio_stream(int stereo)
   orig_samples_per_frame = samples_per_frame;
 
   if (Machine->sample_rate == 0) return 0;
-
+#ifndef PORTANDROID
   samples_buffer = (short *) calloc(samples_per_frame+16, 2 + usestereo * 2);
   if (!usestereo) conversion_buffer = (short *) calloc(samples_per_frame+16, 4);
-  
+#endif
   return samples_per_frame;
 }
 
@@ -1370,6 +1375,20 @@ int osd_update_audio_stream(INT16 *buffer)
 	int i,j;
 	if ( Machine->sample_rate !=0 && buffer )
 	{
+#ifdef PORTANDROID
+	  if(usestereo){
+	    memcpy(cb_context.audio_buffer, buffer, samples_per_frame << 2);
+	  }else{
+	    audio_buffer = cb_context.audio_buffer;
+      for (i = 0, j = 0; i < samples_per_frame; i++)
+      {
+        audio_buffer[j++] = buffer[i];
+        audio_buffer[j++] = buffer[i];
+      }
+	  }
+
+    cb_itf.cb_frame_audio_update(cb_context.frame_index, samples_per_frame<<2);
+#else
    		memcpy(samples_buffer, buffer, samples_per_frame * (usestereo ? 4 : 2));
 		if (usestereo)
 			audio_batch_cb(samples_buffer, samples_per_frame);
@@ -1383,7 +1402,8 @@ int osd_update_audio_stream(INT16 *buffer)
          		audio_batch_cb(conversion_buffer,samples_per_frame);
 		}	
 		
-			
+#endif
+
 		//process next frame
 			
 		if ( samples_per_frame  != orig_samples_per_frame ) samples_per_frame = orig_samples_per_frame;
