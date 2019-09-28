@@ -1115,6 +1115,7 @@ void retro_run (void)
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
 		update_variables(false);
 
+	#ifndef PORTANDROID
 	/* Keyboard */
 	thisInput = retroKeys;
 	while(thisInput->name)
@@ -1122,7 +1123,8 @@ void retro_run (void)
 		retroKeyState[thisInput->code] = input_cb(0, RETRO_DEVICE_KEYBOARD, 0, thisInput->code);
 		thisInput ++;
 	}
-   
+#endif
+
 	for (i = 0; i < 4; i ++)
 	{
 		unsigned int offset = (i * 26);
