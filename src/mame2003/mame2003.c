@@ -25,7 +25,7 @@
 
 #ifdef PORTANDROID
 #include "emu_init.h"
-static short *audio_buffer;
+static short *audio_buffer = NULL;
 #endif
 
 int  pressure_check =  1.28 * 20;
