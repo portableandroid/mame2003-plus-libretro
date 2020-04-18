@@ -144,6 +144,7 @@ const struct GameDriver *test_drivers[] =
 	/* Epos games */
 	DRIVER( megadon )	/* (c) 1982 */
 	DRIVER( catapult )	/* (c) 1982 */
+  DRIVER( eeekk )     /* (c) 1983 */
 	DRIVER( suprglob )	/* (c) 1983 */
 	DRIVER( theglob )	/* (c) 1983 */
 	DRIVER( theglob2 )	/* (c) 1983 */
@@ -783,6 +784,15 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( idsoccer )	/* (c) 1985 */
 
 	/* Nintendo games */
+	DRIVER( spacefev )  /* (c) 1979 Nintendo */
+	DRIVER( spacefevo ) /* (c) 1979 Nintendo */
+	DRIVER( highsplt )  /* (c) 1979 Nintendo */
+	DRIVER( highspla )  /* (c) 1979 Nintendo */
+	DRIVER( spacelnc )  /* (c) 1979 Nintendo */
+	DRIVER( sheriff )   /* (c) 1979 Nintendo */
+	DRIVER( bandido )   /* (c) 1980 Exidy */
+	DRIVER( helifire )  /* (c) 1980 Nintendo */
+	DRIVER( helifira )  /* (c) 1980 Nintendo */
 	DRIVER( radarscp )	/* (c) 1980 Nintendo */
 	DRIVER( dkong )		/* (c) 1981 Nintendo of America */
 	DRIVER( dkongpe )		
@@ -994,8 +1004,6 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( desterth )	/* bootleg */
 	DRIVER( cosmicmo )	/* Universal */
 	DRIVER( rollingc )	/* Nichibutsu */
-	DRIVER( sheriff )	/* (c) Nintendo */
-	DRIVER( bandido )	/* (c) Exidy */
 	DRIVER( ozmawars )	/* Shin Nihon Kikaku (SNK) */
 	DRIVER( ozmawar2 )	/* Shin Nihon Kikaku (SNK) */
 	DRIVER( solfight )	/* bootleg */
@@ -1003,11 +1011,6 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( schaser )	/* RT  Taito */
 	DRIVER( schasrcv )	/* RT  Taito */
 	DRIVER( lupin3 )	/* LP  (c) 1980 Taito */
-	DRIVER( helifire )	/* (c) Nintendo */
-	DRIVER( helifira )	/* (c) Nintendo */
-	DRIVER( spacefev )
-	DRIVER( sfeverbw )
-	DRIVER( spacelnc )
 	DRIVER( spclaser )
 	DRIVER( laser )
 	DRIVER( spcewarl )
@@ -1386,6 +1389,7 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( flstoryj )	/* A45 (c) 1985 Taito Corporation (Japan) */
 	DRIVER( onna34ro )	/* A52 (c) 1985 Taito Corporation (Japan) */
 	DRIVER( onna34ra )	/* A52 (c) 1985 Taito Corporation (Japan) */
+  DRIVER( rumba )	    /* ??? (c) 1984 Taito Corporation (Japan) */
 	DRIVER( gladiatr )	/* ??? (c) 1986 Taito America Corporation (US) */
 	DRIVER( ogonsiro )	/* ??? (c) 1986 Taito Corporation (Japan) */
 	DRIVER( nycaptor )	/* A50 (c) 1985 Taito Corporation */
@@ -2061,6 +2065,7 @@ V-V                           TP-027
 	DRIVER( ffightu )	/* 12/1989 (c) (US)    */
 	DRIVER( ffightj )	/* 12/1989 (c) (Japan) */
 	DRIVER( ffightj1 )	/* 12/1989 (c) (Japan) */
+  DRIVER( ffightae )  /* 12/1989 (c) 1989 (World) 3P */
 	DRIVER( 1941 )		/*  2/1990 (c) 1990 (World) */
 	DRIVER( 1941j )		/*  2/1990 (c) 1990 (Japan) */
 	DRIVER( mercs )		/* 02/03/1990 (c) 1990 (World) */
@@ -4291,6 +4296,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( maniach )	/* TA-0017 (c) 1986 + Taito America license */
 	DRIVER( maniach2 )	/* TA-0017 (c) 1986 + Taito America license */
 	DRIVER( renegade )	/* TA-0018 (c) 1986 + Taito America license */
+  DRIVER( renegadeb )	/* bootleg */
 	DRIVER( kuniokun )	/* TA-0018 (c) 1986 */
 	DRIVER( kuniokub )	/* bootleg */
 	DRIVER( xsleena )	/* TA-0019 (c) 1986 */
@@ -4405,6 +4411,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( hachamfb )	/* bootleg */
 	DRIVER( macross )	/* (c) 1992 Banpresto */
 	DRIVER( gunnail )	/* (c) 1993 NMK / Tecmo */
+  DRIVER( gunnailp )	/* (c) 1993 Tecmo (Location Test)*/
 	DRIVER( macross2 )	/* (c) 1993 Banpresto */
 	DRIVER( sabotenb )	/* (c) 1992 NMK / Tecmo */
 	DRIVER( sabotnba )	/* (c) 1992 NMK / Tecmo */
@@ -5685,6 +5692,7 @@ Other Sun games
 	DRIVER( rbff2 )		/* 0240 (c) 1998 SNK */
 	DRIVER( rbff2a )	/* 0240 (c) 1998 SNK */
 	DRIVER( mslug2 )	/* 0241 (c) 1998 SNK */
+  DRIVER( mslug2t )	/* 0941 (c) 2015 Trap15 Hack */
 	DRIVER( kof98 )		/* 0242 (c) 1998 SNK */
 	DRIVER( kof98n )	/* 0242 (c) 1998 SNK */
 	DRIVER( lastbld2 )	/* 0243 (c) 1998 SNK */

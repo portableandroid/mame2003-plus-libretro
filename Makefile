@@ -124,13 +124,18 @@ else ifneq (,$(findstring ios,$(platform)))
    TARGET = $(TARGET_NAME)_libretro_ios.dylib
    fpic = -fPIC
    LDFLAGS += $(fpic) -dynamiclib
-   PLATCFLAGS += -D__IOS__
+   PLATCFLAGS += -D__IOS__ -Wcast-align -Wall -Wno-error=implicit-function-declaration
 ifeq ($(IOSSDK),)
      IOSSDK := $(shell xcodebuild -version -sdk iphoneos Path)
 endif
+ifeq ($(platform),ios-arm64)
+   CC = cc -arch arm64 -isysroot $(IOSSDK)
+   LD = cc -arch arm64 -isysroot $(IOSSDK)
+else
    CC = cc -arch armv7 -isysroot $(IOSSDK)
    LD = cc -arch armv7 -isysroot $(IOSSDK)
-ifeq ($(platform),ios9)
+endif
+ifeq ($(platform),$(filter $(platform),ios9 ios-arm64))
      fpic += -miphoneos-version-min=8.0
      CC += -miphoneos-version-min=8.0
      LD += -miphoneos-version-min=8.0
@@ -138,6 +143,16 @@ else
      fpic += -miphoneos-version-min=5.0
      CC += -miphoneos-version-min=5.0
      LD += -miphoneos-version-min=5.0
+endif
+
+# tvOS
+else ifeq ($(platform), tvos-arm64)
+   TARGET = $(TARGET_NAME)_libretro_tvos.dylib
+   fpic = -fPIC
+   LDFLAGS += $(fpic) -dynamiclib
+   PLATCFLAGS += -D__IOS__ -Wcast-align -Wall -Wno-error=implicit-function-declaration
+ifeq ($(IOSSDK),)
+     IOSSDK := $(shell xcodebuild -version -sdk appletvos Path)
 endif
 
 # 3DS
@@ -315,8 +330,8 @@ else ifeq ($(platform), vita)
    TARGET = $(TARGET_NAME)_libretro_$(platform).a
    CC = arm-vita-eabi-gcc$(EXE_EXT)
    AR = arm-vita-eabi-ar$(EXE_EXT)
-   PLATCFLAGS += -DVITA
-   CFLAGS += -mthumb -mfloat-abi=hard -fsingle-precision-constant
+   PLATCFLAGS += -DVITA -mthumb
+   CFLAGS += -mfloat-abi=hard -fsingle-precision-constant
    CFLAGS += -Wall -mword-relocations
    CFLAGS += -fomit-frame-pointer -ffast-math
    CFLAGS += -fno-unwind-tables -fno-asynchronous-unwind-tables
@@ -326,7 +341,9 @@ else ifeq ($(platform), vita)
    HAVE_RZLIB := 1
    ARM = 1
    STATIC_LINKING := 1
-		
+   USE_CYCLONE := 1
+   USE_DRZ80 := 1
+
 else ifneq (,$(findstring armv,$(platform)))
    TARGET = $(TARGET_NAME)_libretro.so
    CFLAGS += -fPIC
@@ -483,7 +500,7 @@ else ifneq (,$(findstring windows_msvc2017,$(platform)))
 	reg_query = $(call filter_out2,$(subst $2,,$(shell reg query "$2" -v "$1" 2>nul)))
 	fix_path = $(subst $(SPACE),\ ,$(subst \,/,$1))
 
-	ProgramFiles86w := $(shell cmd /c "echo %PROGRAMFILES(x86)%")
+	ProgramFiles86w := $(shell cmd //c "echo %PROGRAMFILES(x86)%")
 	ProgramFiles86 := $(shell cygpath "$(ProgramFiles86w)")
 
 	WindowsSdkDir ?= $(call reg_query,InstallationFolder,HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v10.0)
@@ -565,7 +582,9 @@ endif
 
 # explictly use -fsigned-char on all platforms to solve problems with code written/tested on x86 but used on ARM
 # for example, audio on rtype leo is wrong on ARM without this flag
+ifeq (,$(findstring msvc,$(platform)))
 CFLAGS += -fsigned-char
+endif
 
 # Use position-independent code for all platforms
 CFLAGS += $(fpic)
@@ -612,7 +631,7 @@ CFLAGS += $(INCFLAGS) $(INCFLAGS_PLATFORM)
 # combine the various definitions to one
 CDEFS = $(DEFS) $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS) $(DBGDEFS)
 
-OBJECTS := $(SOURCES_C:.c=.o)
+OBJECTS := $(SOURCES_C:.c=.o) $(SOURCES_ASM:.s=.o)
 
 OBJOUT   = -o
 LINKOUT  = -o
@@ -662,6 +681,9 @@ CFLAGS += $(PLATCFLAGS) $(CDEFS)
 %.o: %.c
 	@echo Compiling $<...
 	$(HIDE)$(CC) -c $(OBJOUT)$@ $< $(CFLAGS)
+
+%.o: %.s
+	$(CC) -c $(OBJOUT)$@ $< $(CFLAGS)
 
 $(OBJ)/%.a:
 	@echo Archiving $@...
