@@ -56,7 +56,7 @@ int16_t             analogjoy[4][4]= {0};
 struct ipd          *default_inputs; /* pointer the array of structs with default MAME input mappings and labels */
 int                 running = 0;
 int                 control_flag=-1;
-int                 legacy_flag=-1;    
+int                 legacy_flag=-1;
 static struct retro_input_descriptor empty[] = { { 0 } };
 
 retro_log_printf_t                 log_cb;
@@ -501,9 +501,9 @@ static void update_variables(bool first_time)
           {
             if( options.analog !=1 && control_flag !=-1) control_flag =1;
             options.analog = 1;
-            if (running && control_flag == 1) 
+            if (running && control_flag == 1)
             {
-              change_control_type(); 
+              change_control_type();
               control_flag =0;
             }
           }
@@ -511,9 +511,9 @@ static void update_variables(bool first_time)
           {
             if(options.analog !=0 && control_flag !=-1)  control_flag =1;
             options.analog = 0;
-            if (running && control_flag == 1) 
+            if (running && control_flag == 1)
             {
-              change_control_type(); 
+              change_control_type();
               control_flag =0;
             }
           }
@@ -537,32 +537,32 @@ static void update_variables(bool first_time)
           if(strcmp(var.value, "640x480") == 0)
           {
             options.vector_width=640;
-            options.vector_height=480; 
+            options.vector_height=480;
           }
           else if(strcmp(var.value, "1024x768") == 0)
           {
             options.vector_width=1024;
-            options.vector_height=768; 
+            options.vector_height=768;
           }
           else if(strcmp(var.value, "1280x960") == 0)
           {
             options.vector_width=1280;
-            options.vector_height=960; 
+            options.vector_height=960;
           }
           else if(strcmp(var.value, "1440x1080") == 0)
           {
             options.vector_width=1440;
-            options.vector_height=1080; 
+            options.vector_height=1080;
           }
           else if(strcmp(var.value, "1600x1200") == 0)
           {
             options.vector_width=1600;
-            options.vector_height=1200; 
+            options.vector_height=1200;
           }
-          else 
+          else
           {
             options.vector_width=0; // mame will set this from the driver resolution set
-            options.vector_height=0; 
+            options.vector_height=0;
           }
           break;
 
@@ -649,13 +649,13 @@ static void update_variables(bool first_time)
             options.cheat_input_ports = true;
           else
             options.cheat_input_ports = false;
-          break;		
+          break;
 	    case OPT_Machine_Timing:
           if(strcmp(var.value, "enabled") == 0)
             options.machine_timing = true;
           else
             options.machine_timing = false;
-          break;	
+          break;
 	  }
     }
   }
@@ -677,24 +677,24 @@ static void update_variables(bool first_time)
 
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
-  mame2003_video_get_geometry(&info->geometry);  
+  mame2003_video_get_geometry(&info->geometry);
   if(options.machine_timing)
   {
     if (Machine->drv->frames_per_second < 60.0 )
-      info->timing.fps = 60.0; 
-    else 
+      info->timing.fps = 60.0;
+    else
       info->timing.fps = Machine->drv->frames_per_second; /* qbert is 61 fps */
 
-    if ( (Machine->drv->frames_per_second * 1000 < options.samplerate) || ( Machine->drv->frames_per_second < 60) ) 
+    if ( (Machine->drv->frames_per_second * 1000 < options.samplerate) || ( Machine->drv->frames_per_second < 60) )
     {
       info->timing.sample_rate = Machine->drv->frames_per_second * 1000;
       log_cb(RETRO_LOG_INFO, LOGPRE "Sample timing rate too high for framerate required dropping to %f",  Machine->drv->frames_per_second * 1000);
-    }       
+    }
 
     else
     {
       info->timing.sample_rate = options.samplerate;
-      log_cb(RETRO_LOG_INFO, LOGPRE "Sample rate set to %d\n",options.samplerate); 
+      log_cb(RETRO_LOG_INFO, LOGPRE "Sample rate set to %d\n",options.samplerate);
     }
   }
 
@@ -705,7 +705,7 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     if ( Machine->drv->frames_per_second * 1000 < options.samplerate)
      info->timing.sample_rate = 22050;
 
-    else 
+    else
      info->timing.sample_rate = options.samplerate;
   }
 
@@ -725,7 +725,7 @@ void retro_get_system_info(struct retro_system_info *info)
 #ifndef GIT_VERSION
 #define GIT_VERSION ""
 #endif
-  info->library_version = GIT_VERSION;
+  info->library_version = STRINGIZE_VALUE_OF(GIT_VERSION);
   info->valid_extensions = "zip";
   info->need_fullpath = true;
   info->block_extract = true;
@@ -778,7 +778,7 @@ bool retro_load_game(const struct retro_game_info *game)
     log_cb(RETRO_LOG_ERROR, LOGPRE "Content path is not valid. Exiting!");
     return false;
   }
-  log_cb(RETRO_LOG_INFO, LOGPRE "Git Version %s\n",GIT_VERSION);
+  log_cb(RETRO_LOG_INFO, LOGPRE "Git Version %s\n",STRINGIZE_VALUE_OF(GIT_VERSION));
   driver_lookup = strdup(path_basename(game->path));
   path_remove_extension(driver_lookup);
 
@@ -840,7 +840,7 @@ bool retro_load_game(const struct retro_game_info *game)
          default:
             break;
          }
-			
+
          break;
 		}
 	}
@@ -859,7 +859,7 @@ bool retro_load_game(const struct retro_game_info *game)
 #endif
 			   {
 				   *type=CPU_CYCLONE;
-                   log_cb(RETRO_LOG_INFO, LOGPRE "Replaced CPU_CYCLONE\n"); 
+                   log_cb(RETRO_LOG_INFO, LOGPRE "Replaced CPU_CYCLONE\n");
 			   }
         if(!(*type)){
           break;
@@ -878,7 +878,7 @@ bool retro_load_game(const struct retro_game_info *game)
 			if (type==CPU_Z80)
 			{
 				*type=CPU_DRZ80;
-        log_cb(RETRO_LOG_INFO, LOGPRE "Replaced Z80\n"); 
+        log_cb(RETRO_LOG_INFO, LOGPRE "Replaced Z80\n");
 			}
 		}
 	}
@@ -892,7 +892,7 @@ bool retro_load_game(const struct retro_game_info *game)
 			if (type==CPU_Z80 && Machine->drv->cpu[i].cpu_flags&CPU_AUDIO_CPU)
 			{
 				*type=CPU_DRZ80;
-        log_cb(RETRO_LOG_INFO, LOGPRE "Replaced Z80 sound\n"); 
+        log_cb(RETRO_LOG_INFO, LOGPRE "Replaced Z80 sound\n");
 
 			}
 		}
@@ -906,9 +906,9 @@ bool retro_load_game(const struct retro_game_info *game)
   options.libretro_content_path = strdup(game->path);
   path_basedir(options.libretro_content_path);
   /*fix trailing slash in path*/
-  for(i = 0; options.libretro_content_path[i] != '\0'; ++i); 
-  if ( options.libretro_content_path[i-1] == '/' || options.libretro_content_path[i-1]  == '\\' ) 
-   options.libretro_content_path[i-1] =0; 
+  for(i = 0; options.libretro_content_path[i] != '\0'; ++i);
+  if ( options.libretro_content_path[i-1] == '/' || options.libretro_content_path[i-1]  == '\\' )
+   options.libretro_content_path[i-1] =0;
 
   /* Get system directory from frontend */
   options.libretro_system_path = NULL;
@@ -1250,7 +1250,7 @@ void retro_run (void)
 		retroJsState[13 + offset] = input_cb(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2);
 		retroJsState[14 + offset] = input_cb(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3);
 		retroJsState[15 + offset] = input_cb(i, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3);
-      
+
 		if (options.mouse_device)
 		{
 			if (options.mouse_device == RETRO_DEVICE_MOUSE)
@@ -1285,26 +1285,26 @@ void retro_run (void)
 		retroJsState[ 24 + offset] = 0;
 		retroJsState[ 25 + offset] = 0;
 
-		if (convert_analog_scale(analogjoy[i][0]) < -pressure_check) 
-			retroJsState[ 18 + offset] = convert_analog_scale(analogjoy[i][0]); 
+		if (convert_analog_scale(analogjoy[i][0]) < -pressure_check)
+			retroJsState[ 18 + offset] = convert_analog_scale(analogjoy[i][0]);
 
 		if (convert_analog_scale(analogjoy[i][0]) >  pressure_check)
 			retroJsState[ 19 + offset] = convert_analog_scale(analogjoy[i][0]);
 
 		if (convert_analog_scale(analogjoy[i][1]) < -pressure_check)
-			retroJsState[ 20 + offset] = convert_analog_scale(analogjoy[i][1]); 
+			retroJsState[ 20 + offset] = convert_analog_scale(analogjoy[i][1]);
 
 		if (convert_analog_scale(analogjoy[i][1]) >  pressure_check)
 			retroJsState[ 21 + offset] = convert_analog_scale(analogjoy[i][1]);
-		
+
 		if (convert_analog_scale(analogjoy[i][2]) < -pressure_check)
-			retroJsState[ 22 + offset] = convert_analog_scale(analogjoy[i][2]); 
+			retroJsState[ 22 + offset] = convert_analog_scale(analogjoy[i][2]);
 
 		if (convert_analog_scale(analogjoy[i][2]) >  pressure_check)
 			retroJsState[ 23 + offset] = convert_analog_scale(analogjoy[i][2]);
 
-		if (convert_analog_scale(analogjoy[i][3]) < -pressure_check) 
-			retroJsState[ 24 + offset] = convert_analog_scale(analogjoy[i][3]); 
+		if (convert_analog_scale(analogjoy[i][3]) < -pressure_check)
+			retroJsState[ 24 + offset] = convert_analog_scale(analogjoy[i][3]);
 		if (convert_analog_scale(analogjoy[i][3]) >  pressure_check)
 			retroJsState[ 25 + offset] = convert_analog_scale(analogjoy[i][3]);
 	}
@@ -1366,7 +1366,7 @@ bool retro_serialize(void *data, size_t size)
 
 		/* finish and close */
 		state_save_save_finish();
-		
+
 		return true;
 	}
 
@@ -1439,9 +1439,9 @@ int osd_start_audio_stream(int stereo)
 {
   if (options.machine_timing)
   {
-    if ( ( Machine->drv->frames_per_second * 1000 < options.samplerate) || (Machine->drv->frames_per_second < 60) ) 
+    if ( ( Machine->drv->frames_per_second * 1000 < options.samplerate) || (Machine->drv->frames_per_second < 60) )
       Machine->sample_rate = Machine->drv->frames_per_second * 1000;
-    
+
     else Machine->sample_rate = options.samplerate;
   }
 
@@ -1453,7 +1453,7 @@ int osd_start_audio_stream(int stereo)
     else
       Machine->sample_rate = options.samplerate;
   }
-  
+
   delta_samples = 0.0f;
   usestereo = stereo ? 1 : 0;
 
@@ -1500,20 +1500,20 @@ int osd_update_audio_stream(INT16 *buffer)
 				conversion_buffer[j++] = samples_buffer[i];
 		        }
          		audio_batch_cb(conversion_buffer,samples_per_frame);
-		}	
-		
+		}
+
 #endif
 
 		//process next frame
-			
+
 		if ( samples_per_frame  != orig_samples_per_frame ) samples_per_frame = orig_samples_per_frame;
-		
+
 		// dont drop any sample frames some games like mk will drift with time
 
 		delta_samples += (Machine->sample_rate / Machine->drv->frames_per_second) - orig_samples_per_frame;
 		if ( delta_samples >= 1.0f )
 		{
-		
+
 			int integer_delta = (int)delta_samples;
 			if (integer_delta <= 16 )
                         {
@@ -1521,7 +1521,7 @@ int osd_update_audio_stream(INT16 *buffer)
 				samples_per_frame += integer_delta;
 			}
 			else if(integer_delta >= 16) log_cb(RETRO_LOG_INFO, "sound: Delta not added to samples_per_frame too large integer_delta:%d\n", integer_delta);
-			else log_cb(RETRO_LOG_DEBUG,"sound(delta) no contitions met\n");	
+			else log_cb(RETRO_LOG_DEBUG,"sound(delta) no contitions met\n");
 			delta_samples -= integer_delta;
 
 		}
@@ -1863,7 +1863,7 @@ int get_mame_ctrl_id(int display_idx, int retro_ID)
   {"RP"   #DISPLAY_IDX " AXIS 2 X-",    ((DISPLAY_IDX - 1) * 26) + 22 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_LEFT}, \
   {"RP"   #DISPLAY_IDX " AXIS 2 X+",    ((DISPLAY_IDX - 1) * 26) + 23 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_RIGHT}, \
   {"RP"   #DISPLAY_IDX " AXIS 3 Y-",    ((DISPLAY_IDX - 1) * 26) + 24 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_UP}, \
-  {"RP"   #DISPLAY_IDX " AXIS 3 Y+",    ((DISPLAY_IDX - 1) * 26) + 25 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_DOWN}, 
+  {"RP"   #DISPLAY_IDX " AXIS 3 Y+",    ((DISPLAY_IDX - 1) * 26) + 25 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_DOWN},
 
 #define EMIT_RETROPAD_MODERN(DISPLAY_IDX) \
   {"RP"   #DISPLAY_IDX " HAT Left ",     ((DISPLAY_IDX - 1) * 26) + RETRO_DEVICE_ID_JOYPAD_LEFT +3000,   JOYCODE_##DISPLAY_IDX##_LEFT}, \
@@ -1891,8 +1891,8 @@ int get_mame_ctrl_id(int display_idx, int retro_ID)
   {"RP"   #DISPLAY_IDX " AXIS 2 X-",    ((DISPLAY_IDX - 1) * 26) + 22 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_LEFT}, \
   {"RP"   #DISPLAY_IDX " AXIS 2 X+",    ((DISPLAY_IDX - 1) * 26) + 23 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_RIGHT}, \
   {"RP"   #DISPLAY_IDX " AXIS 3 Y-",    ((DISPLAY_IDX - 1) * 26) + 24 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_UP}, \
-  {"RP"   #DISPLAY_IDX " AXIS 3 Y+",    ((DISPLAY_IDX - 1) * 26) + 25 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_DOWN}, 
-  
+  {"RP"   #DISPLAY_IDX " AXIS 3 Y+",    ((DISPLAY_IDX - 1) * 26) + 25 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_DOWN},
+
 #define EMIT_RETROPAD_8BUTTON(DISPLAY_IDX) \
   {"RP"   #DISPLAY_IDX " HAT Left ",     ((DISPLAY_IDX - 1) * 26) + RETRO_DEVICE_ID_JOYPAD_LEFT +3000,   JOYCODE_##DISPLAY_IDX##_LEFT}, \
   {"RP"   #DISPLAY_IDX " HAT Right",    ((DISPLAY_IDX - 1) * 26) + RETRO_DEVICE_ID_JOYPAD_RIGHT +3000,  JOYCODE_##DISPLAY_IDX##_RIGHT}, \
@@ -1919,7 +1919,7 @@ int get_mame_ctrl_id(int display_idx, int retro_ID)
   {"RP"   #DISPLAY_IDX " AXIS 2 X-",    ((DISPLAY_IDX - 1) * 26) + 22 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_LEFT}, \
   {"RP"   #DISPLAY_IDX " AXIS 2 X+",    ((DISPLAY_IDX - 1) * 26) + 23 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_RIGHT}, \
   {"RP"   #DISPLAY_IDX " AXIS 3 Y-",    ((DISPLAY_IDX - 1) * 26) + 24 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_UP}, \
-  {"RP"   #DISPLAY_IDX " AXIS 3 Y+",    ((DISPLAY_IDX - 1) * 26) + 25 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_DOWN}, 
+  {"RP"   #DISPLAY_IDX " AXIS 3 Y+",    ((DISPLAY_IDX - 1) * 26) + 25 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_DOWN},
 
 #define EMIT_RETROPAD_6BUTTON(DISPLAY_IDX) \
   {"RP"   #DISPLAY_IDX " HAT Left ",     ((DISPLAY_IDX - 1) * 26) + RETRO_DEVICE_ID_JOYPAD_LEFT +3000,   JOYCODE_##DISPLAY_IDX##_LEFT}, \
@@ -1947,7 +1947,7 @@ int get_mame_ctrl_id(int display_idx, int retro_ID)
   {"RP"   #DISPLAY_IDX " AXIS 2 X-",    ((DISPLAY_IDX - 1) * 26) + 22 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_LEFT}, \
   {"RP"   #DISPLAY_IDX " AXIS 2 X+",    ((DISPLAY_IDX - 1) * 26) + 23 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_RIGHT}, \
   {"RP"   #DISPLAY_IDX " AXIS 3 Y-",    ((DISPLAY_IDX - 1) * 26) + 24 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_UP}, \
-  {"RP"   #DISPLAY_IDX " AXIS 3 Y+",    ((DISPLAY_IDX - 1) * 26) + 25 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_DOWN}, 
+  {"RP"   #DISPLAY_IDX " AXIS 3 Y+",    ((DISPLAY_IDX - 1) * 26) + 25 +2000,                            JOYCODE_##DISPLAY_IDX##_RIGHT_DOWN},
 
 struct JoystickInfo alternate_joystick_maps[PLAYER_COUNT][IDX_PAD_end][PER_PLAYER_CTRL_COUNT] =
 {
@@ -2004,10 +2004,10 @@ const struct JoystickInfo *osd_get_joy_list(void)
 int osd_is_joy_pressed(int joycode)
 {
 	if (options.input_interface == RETRO_DEVICE_KEYBOARD) return 0;
- 
+
 	if ( joycode  >=1000 &&  joycode  < 2000)
-		return  retroJsState[joycode-1000]; 
-		
+		return  retroJsState[joycode-1000];
+
 	if ( joycode >= 2000 && joycode < 3000 )
 	{
 		if (retroJsState[joycode-2000] >= 64) return  retroJsState[joycode-2000];
@@ -2052,9 +2052,9 @@ int convert_analog_scale(int input)
 	int neg_test=0;
 	float scale;
 	int trigger_deadzone;
-	
+
 	trigger_deadzone = (32678 * options.deadzone) / 100;
-	
+
 	if (input < 0) { input =abs(input); neg_test=1; }
 	scale = ((float)TRIGGER_MAX/(float)(TRIGGER_MAX - trigger_deadzone));
 
@@ -2064,7 +2064,7 @@ int convert_analog_scale(int input)
 		float scaled = (input - trigger_deadzone)*scale;
     input = (int)round(scaled);
 
-		if (input > +32767) 
+		if (input > +32767)
 		{
 			input = +32767;
 		}
@@ -2076,7 +2076,7 @@ int convert_analog_scale(int input)
 		input = 0;
 	}
 
-	
+
 	if (neg_test) input =-abs(input);
 	return (int) input * 1.28;
 }
@@ -2091,7 +2091,7 @@ void osd_analogjoy_read(int player,int analog_axis[MAX_ANALOG_AXES], InputCode a
     int code;
     value = 0;
     if (analogjoy_input[i] != CODE_NONE)
-    {  
+    {
       code = analogjoy_input[i];
 
       if ( code == (player * 26) + 18 + 2000 || code == (player * 26) + 19 + 2000 )
