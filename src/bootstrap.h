@@ -32,6 +32,9 @@ extern const struct bin2cFILE foodf_bootstrap;
 
 extern const struct bin2cFILE foodfc_bootstrap;
 
+/* used for gaiapols */
+extern const struct bin2cFILE gaiapols_bootstrap;
+
 /* used for joust, joustr, and joustwr */
 extern const struct bin2cFILE joust_bootstrap;
 
@@ -58,6 +61,13 @@ extern const struct bin2cFILE narc3_bootstrap;
 /* used for qix, qix2, qixa, qixb */
 extern const struct bin2cFILE qix_bootstrap;
 
+/* used for revx */
+extern const struct bin2cFILE revx_bootstrap;
+
+/* used for rmpgwt11, rmpgwt */
+extern const struct bin2cFILE rmpgwt11_bootstrap;
+extern const struct bin2cFILE rmpgwt_bootstrap;
+
 extern const struct bin2cFILE robotron_bootstrap;
 
 extern const struct bin2cFILE robotryo_bootstrap;
@@ -71,6 +81,11 @@ extern const struct bin2cFILE sinistar_bootstrap;
 extern const struct bin2cFILE sinista1_bootstrap;
 
 extern const struct bin2cFILE sinista2_bootstrap;
+
+/* used for term2, term2la1, term2la2 */
+extern const struct bin2cFILE term2_bootstrap;
+extern const struct bin2cFILE term2la1_bootstrap;
+extern const struct bin2cFILE term2la2_bootstrap;
 
 /* used for zookeep, zookeep2, and zookeep3 */
 extern const struct bin2cFILE zookeep_bootstrap;

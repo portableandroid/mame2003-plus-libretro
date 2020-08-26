@@ -113,6 +113,7 @@ enum CORE_OPTIONS/* controls the order in which core options appear. common, imp
   OPT_NVRAM_BOOTSTRAP,
   OPT_Cheat_Input_Ports,
   OPT_Machine_Timing,
+  OPT_Digital_Joy_Centering,
   OPT_end /* dummy last entry */
 };
 
@@ -227,6 +228,7 @@ static void init_core_options(void)
   init_default(&default_options[OPT_CORE_SAVE_SUBFOLDER], APPNAME"_core_save_subfolder", "Locate save files within a subfolder; enabled|disabled"); /* This is already available as an option in RetroArch although it is left enabled by default as of November 2018 for consistency with past practice. At least for now.*/
   init_default(&default_options[OPT_Cheat_Input_Ports],   APPNAME"_cheat_input_ports",   "Dip switch/Cheat input ports; disabled|enabled");
   init_default(&default_options[OPT_Machine_Timing],      APPNAME"_machine_timing",      "Bypass audio skew (Restart core); enabled|disabled");
+  init_default(&default_options[OPT_Digital_Joy_Centering],  APPNAME"_digital_joy_centering",  "Center joystick axis for digital controls; enabled|disabled");
   init_default(&default_options[OPT_end], NULL, NULL);
   set_variables(true);
 }
@@ -532,6 +534,13 @@ static void update_variables(bool first_time)
             options.tate_mode = 1;
           else
             options.tate_mode = 0;
+          break;
+
+        case OPT_Digital_Joy_Centering:
+          if(strcmp(var.value, "enabled") == 0)
+            options.digital_joy_centering = 1;
+          else
+            options.digital_joy_centering = 0;
           break;
 
         case OPT_VECTOR_RESOLUTION:
@@ -1217,7 +1226,7 @@ void retro_run (void)
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
 		update_variables(false);
 
-	#ifndef PORTANDROID
+#ifndef PORTANDROID
 	/* Keyboard */
 	thisInput = retroKeys;
 	while(thisInput->name)
@@ -2104,11 +2113,14 @@ void osd_analogjoy_read(int player,int analog_axis[MAX_ANALOG_AXES], InputCode a
       else if ( code == (player * 26) + 20 + 2000 || code == (player * 26) + 21 + 2000 )
         value = convert_analog_scale(analogjoy[player][1]);
 
-      else if ( code == (player * 26) + 22 + 2000 || code == (player * 23) + 23 + 2000 )
+      else if ( code == (player * 26) + 22 + 2000 || code == (player * 26) + 23 + 2000 )
         value = convert_analog_scale(analogjoy[player][2]);
 
-      else if ( code == (player * 26) + 24 + 2000 || code == (player * 25) + 25 + 2000 )
+      else if ( code == (player * 26) + 24 + 2000 || code == (player * 26) + 25 + 2000 )
         value = convert_analog_scale(analogjoy[player][3]);
+
+      /* opposite when reversing axis mapping */
+      if (code%2) value = -value;
 
       analog_axis[i]=value;
     }
