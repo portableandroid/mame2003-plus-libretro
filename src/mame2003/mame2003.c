@@ -698,7 +698,7 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     if ( Machine->drv->frames_per_second * 1000 < options.samplerate )
 #else
     if ( (Machine->drv->frames_per_second * 1000 < options.samplerate) || ( Machine->drv->frames_per_second < 60) )
-#endif    
+#endif
     {
       info->timing.sample_rate = Machine->drv->frames_per_second * 1000;
       log_cb(RETRO_LOG_INFO, LOGPRE "Sample timing rate too high for framerate required dropping to %f",  Machine->drv->frames_per_second * 1000);
@@ -1489,18 +1489,18 @@ int osd_update_audio_stream(INT16 *buffer)
 	if ( Machine->sample_rate !=0 && buffer )
 	{
 #ifdef PORTANDROID
-	  if(usestereo){
-	    memcpy(cb_context.audio_buffer, buffer, samples_per_frame << 2);
-	  }else{
-	    audio_buffer = cb_context.audio_buffer;
-      for (i = 0, j = 0; i < samples_per_frame; i++)
-      {
-        audio_buffer[j++] = buffer[i];
-        audio_buffer[j++] = buffer[i];
-      }
-	  }
+        if(usestereo){
+            memcpy(cb_context.audio_buffer, buffer, samples_per_frame << 2);
+        }else{
+            audio_buffer = cb_context.audio_buffer;
+            for (i = 0, j = 0; i < samples_per_frame; i++)
+            {
+                audio_buffer[j++] = buffer[i];
+                audio_buffer[j++] = buffer[i];
+            }
+        }
 
-    cb_itf.cb_frame_audio_update(cb_context.frame_index, samples_per_frame<<2);
+        cb_itf.cb_frame_audio_update(cb_context.frame_index, samples_per_frame<<2);
 #else
    		memcpy(samples_buffer, buffer, samples_per_frame * (usestereo ? 4 : 2));
 		if (usestereo)
