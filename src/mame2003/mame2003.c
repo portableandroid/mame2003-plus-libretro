@@ -694,11 +694,7 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
       info->timing.fps = 60.0;
     else
       info->timing.fps = Machine->drv->frames_per_second; /* qbert is 61 fps */
-#ifdef PORTANDROID
-    if ( Machine->drv->frames_per_second * 1000 < options.samplerate )
-#else
     if ( (Machine->drv->frames_per_second * 1000 < options.samplerate) || ( Machine->drv->frames_per_second < 60) )
-#endif
     {
       info->timing.sample_rate = Machine->drv->frames_per_second * 1000;
       log_cb(RETRO_LOG_INFO, LOGPRE "Sample timing rate too high for framerate required dropping to %f",  Machine->drv->frames_per_second * 1000);
