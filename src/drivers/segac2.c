@@ -958,6 +958,32 @@ static MEMORY_WRITE16_START( writemem )
 	{ 0xff0000, 0xffffff, MWA16_RAM, &main_ram },		/* Main Ram */
 MEMORY_END
 
+static MEMORY_READ16_START( ooparts_readmem )
+	{ 0x000000, 0x1fffff, MRA16_ROM },					/* Main 68k Program Roms */
+	{ 0x800000, 0x800001, prot_r },						/* The Protection Chip? */
+	{ 0x840000, 0x84001f, iochip_r },					/* I/O Chip */
+	{ 0x840100, 0x840107, ym3438_r },					/* Ym3438 Sound Chip Status Register */
+	{ 0x8c0000, 0x8c0fff, palette_r },					/* Palette Ram */
+	{ 0xc00000, 0xc0001f, segac2_vdp_r },				/* VDP Access */
+	{ 0xe00000, 0xe0ffff, MRA16_RAM },					/* Main Ram */
+	{ 0xfe0000, 0xffffff, MRA16_RAM },					/* Mirror */
+MEMORY_END
+
+static MEMORY_WRITE16_START( ooparts_writemem )
+	{ 0x000000, 0x1fffff, MWA16_ROM },					/* Main 68k Program Roms */
+	{ 0x800000, 0x800001, prot_w },						/* The Protection Chip? */
+	{ 0x800200, 0x800201, control_w },					/* Seems to be global controls */
+	{ 0x840000, 0x84001f, iochip_w },					/* I/O Chip */
+	{ 0x840100, 0x840107, ym3438_w },					/* Ym3438 Sound Chip Writes */
+	{ 0x880000, 0x880001, upd7759_w },					/* UPD7759 Sound Writes */
+	{ 0x880134, 0x880135, counter_timer_w },			/* Bookkeeping */
+	{ 0x880334, 0x880335, counter_timer_w },			/* Bookkeeping (mirror) */
+	{ 0x8c0000, 0x8c0fff, palette_w, &paletteram16 },	/* Palette Ram */
+	{ 0xc00000, 0xc0000f, segac2_vdp_w },				/* VDP Access */
+	{ 0xc00010, 0xc00017, sn76489_w },					/* SN76489 Access */
+	{ 0xe00000, 0xe0ffff, MWA16_RAM, &main_ram },		/* Main Ram */
+	{ 0xfe0000, 0xffffff, MWA16_RAM, &main_ram },		/* Mirror */
+MEMORY_END
 
 static MEMORY_READ16_START( puckpkmn_readmem )
 	{ 0x000000, 0x1fffff, MRA16_ROM },					/* Main 68k Program Roms */
@@ -2624,14 +2650,14 @@ INPUT_PORTS_START( ichidant ) /*  Ichidant-R and Tant-R Input Ports */
 
 	PORT_START		/* Player 1 Controls */
     PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 )      /* Button 'Rotate'*/
-    PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED  )      /* Button 2 Unused == Button 1*/
+    PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2  )     /* Button 2 Unused == Button 1 (Oo Parts special weapon) */
     PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED  )      /* Button 3 Unused == Button 1*/
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
     JOYSTICK_1
 
 	PORT_START		/* Player 2 Controls */
     PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 | IPF_PLAYER2 )    /* Button 'Rotate'*/
-    PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED                )    /* Button 2 Unused == Button 1*/
+    PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 | IPF_PLAYER2 )    /* Button 2 Unused == Button 1 (Oo Parts special weapon) */
     PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED                )    /* Button 3 Unused == Button 1*/
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
     JOYSTICK_2
@@ -3518,6 +3544,13 @@ static MACHINE_DRIVER_START( segac2 )
 	MDRV_SOUND_ADD(UPD7759, upd7759_intf)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( ooparts )
+
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM( segac2 )
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_MEMORY(ooparts_readmem,ooparts_writemem)
+MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( puckpkmn )
 
@@ -3766,7 +3799,7 @@ ROM_START( tantrbl2 ) /* Tant-R (Puzzle & Action) (Alt Bootleg Running on C Boar
 	ROM_LOAD16_BYTE( "mpr15615.33",  0x100001, 0x080000, CRC(36a88bd4) SHA1(cc7f6a947d1b79bb86957c43035b53d6d2bcfa28) )
 ROM_END
 
-ROM_START( ichidntb ) /* Ichident-R (Puzzle & Action 2) (Bootleg Running on C Board?, No Samples) */
+ROM_START( ichirjbl ) /* Ichident-R (Puzzle & Action 2) (Bootleg Running on C Board?, No Samples) */
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "27c4000.2",0x000000, 0x080000, CRC(5a194f44) SHA1(67a4d21b91704f8c2210b5106e82e22ba3366f4c) )
 	ROM_LOAD16_BYTE( "27c4000.1",0x000001, 0x080000, CRC(de209f84) SHA1(0860d0ebfab2952e82fc1e292bf9410d673d9322) )
@@ -3775,15 +3808,6 @@ ROM_START( ichidntb ) /* Ichident-R (Puzzle & Action 2) (Bootleg Running on C Bo
 ROM_END
 
 /* ----- System C-2 Games ----- */
-
-ROM_START( ssonicbr )
-	ROM_REGION( 0x200000, REGION_CPU1, 0 )
-	ROM_LOAD16_BYTE( "ssonicbr.ic32", 0x000000, 0x040000, CRC(cf254ecd) SHA1(4bb295ec80f8ddfeab4e360eebf12c5e2dfb9800) )
-	ROM_LOAD16_BYTE( "ssonicbr.ic31", 0x000001, 0x040000, CRC(03709746) SHA1(0b457f557da77acd3f43950428117c1decdfaf26) )
-
-	ROM_REGION( 0x020000, REGION_SOUND1, 0 )
-	ROM_LOAD( "ssonicbr.ic4", 0x000000, 0x020000, CRC(78e56a51) SHA1(8a72c12975cd74919b4337e0f681273e6b5cbbc6) )
-ROM_END
 
 ROM_START( borench ) /* Borench  (c)1990 Sega */
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )
@@ -3858,6 +3882,17 @@ ROM_START( tantr ) /* Tant-R (Puzzle & Action)  (c)1992 Sega */
 	ROM_LOAD( "epr15617.4", 0x000000, 0x040000, CRC(338324a1) SHA1(79e2782d0d4764dd723886f846c852a6f6c1fb64) )
 ROM_END
 
+ROM_START( tantrkor ) /* Tant-R (Puzzle & Action) (Korea) (c)1993 Sega */
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	/* strange names, but this is what was printed on the (original) chips */
+	ROM_LOAD16_BYTE( "m15592b.32", 0x000000, 0x080000, CRC(7efe26b3) SHA1(958420b9b400eafe392745af90bff729463427c7) )
+	ROM_LOAD16_BYTE( "m15592b.31", 0x000001, 0x080000, CRC(af5a860f) SHA1(cb0011f420721d035e9f0e43bb72cf286982fd32) )
+	ROM_LOAD16_BYTE( "m15992b.34", 0x100000, 0x080000, CRC(6282a5d4) SHA1(9220e119e79d969d7d70e8a25c75dd3d9bc340ae) )
+	ROM_LOAD16_BYTE( "m15592b.33", 0x100001, 0x080000, CRC(82d78413) SHA1(9ff9c2b1632e280444965110bab90c0fc98cd6da) )
+	
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )
+	ROM_LOAD( "epr15617.4", 0x000000, 0x040000, CRC(338324a1) SHA1(79e2782d0d4764dd723886f846c852a6f6c1fb64) )
+ROM_END
 
 ROM_START( tantrbl ) /* Tant-R (Puzzle & Action) (Bootleg)  (c)1992 Sega */
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )
@@ -3910,20 +3945,7 @@ ROM_START( puyopuyb ) /* Puyo Puyo  (c)1992 Sega / Compile  Bootleg */
 	ROM_LOAD( "puyopuyb.abo", 0x000000, 0x020000, CRC(79112b3b) SHA1(fc3a202e1e2ff39950d4af689b7fcca86c301805) )
 ROM_END
 
-
-ROM_START( ichidant ) /* Ichident-R (Puzzle & Action 2)  (c)1994 Sega */
-	ROM_REGION( 0x200000, REGION_CPU1, 0 )
-	ROM_LOAD16_BYTE( "epr16886", 0x000000, 0x080000, CRC(38208e28) SHA1(07fc634bdf2d3e25274c9c374b3506dec765114c) )
-	ROM_LOAD16_BYTE( "epr16885", 0x000001, 0x080000, CRC(1ce4e837) SHA1(16600600e12e3f35e3da89524f7f51f019b5ad17) )
-	ROM_LOAD16_BYTE( "epr16888", 0x100000, 0x080000, CRC(85d73722) SHA1(7ebe81b4d6c89f87f60200a3a8cddb07d581adef) )
-	ROM_LOAD16_BYTE( "epr16887", 0x100001, 0x080000, CRC(bc3bbf25) SHA1(e760ad400bc183b38e9787d88c8ac084fbe2ae21) )
-
-	ROM_REGION( 0x080000, REGION_SOUND1, 0 )
-	ROM_LOAD( "epr16884", 0x000000, 0x080000, CRC(fd9dcdd6) SHA1(b8053a2e68072e7664ffc3c53f983f3ba72a892b) )
-ROM_END
-
-
-ROM_START( ichidnte ) /* Ichident-R (Puzzle & Action 2)  (c)1994 Sega */
+ROM_START( ichir ) /* Ichident-R (Puzzle & Action 2)  (c)1994 Sega (World) */
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "pa2_32.bin", 0x000000, 0x080000, CRC(7ba0c025) SHA1(855e9bb2a20c6f51b26381233c57c26aa96ad1f6) )
 	ROM_LOAD16_BYTE( "pa2_31.bin", 0x000001, 0x080000, CRC(5f86e5cc) SHA1(44e201de00dfbf7c66d0e0d40d17b162c6f0625b) )
@@ -3932,6 +3954,29 @@ ROM_START( ichidnte ) /* Ichident-R (Puzzle & Action 2)  (c)1994 Sega */
 
 	ROM_REGION( 0x080000, REGION_SOUND1, 0 )
 	ROM_LOAD( "pa2_02.bin", 0x000000, 0x080000, CRC(fc7b0da5) SHA1(46770aa7e19b4f8a183be3f433c48ad677b552b1) )
+ROM_END
+
+ROM_START( ichirk ) /* Ichident-R (Puzzle & Action 2)  (c)1994 Sega (Korea) */
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	/* Again the part numbers are quite strange for the Korean verison */
+	ROM_LOAD16_BYTE( "epr_ichi.32", 0x000000, 0x080000, CRC(804dea11) SHA1(40bf8cbd40969a5880df10914252b7f64d5ce8e9) )
+	ROM_LOAD16_BYTE( "epr_ichi.31", 0x000001, 0x080000, CRC(92452353) SHA1(d2e1da5b139965611cd8d707d23396b5d4c07d12) )
+	ROM_LOAD16_BYTE( "epr16888",   0x100000, 0x080000, CRC(85d73722) SHA1(7ebe81b4d6c89f87f60200a3a8cddb07d581adef) )  // m17235a.34
+	ROM_LOAD16_BYTE( "epr16887",   0x100001, 0x080000, CRC(bc3bbf25) SHA1(e760ad400bc183b38e9787d88c8ac084fbe2ae21) )  // m17220a.33
+
+	ROM_REGION( 0x080000, REGION_SOUND1, 0 )
+	ROM_LOAD( "pa2_02.bin", 0x000000, 0x080000, CRC(fc7b0da5) SHA1(46770aa7e19b4f8a183be3f433c48ad677b552b1) ) // m17220a.4
+ROM_END
+
+ROM_START( ichirj ) /* Ichident-R (Puzzle & Action 2)  (c)1994 Sega (Japan) */
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "epr16886", 0x000000, 0x080000, CRC(38208e28) SHA1(07fc634bdf2d3e25274c9c374b3506dec765114c) )
+	ROM_LOAD16_BYTE( "epr16885", 0x000001, 0x080000, CRC(1ce4e837) SHA1(16600600e12e3f35e3da89524f7f51f019b5ad17) )
+	ROM_LOAD16_BYTE( "epr16888", 0x100000, 0x080000, CRC(85d73722) SHA1(7ebe81b4d6c89f87f60200a3a8cddb07d581adef) )
+	ROM_LOAD16_BYTE( "epr16887", 0x100001, 0x080000, CRC(bc3bbf25) SHA1(e760ad400bc183b38e9787d88c8ac084fbe2ae21) )
+
+	ROM_REGION( 0x080000, REGION_SOUND1, 0 )
+	ROM_LOAD( "epr16884", 0x000000, 0x080000, CRC(fd9dcdd6) SHA1(b8053a2e68072e7664ffc3c53f983f3ba72a892b) )
 ROM_END
 
 
@@ -3974,6 +4019,37 @@ ROM_START( zunkyou ) /* Zunzunkyou No Yabou  (c)1994 Sega */
 
 	ROM_REGION( 0x080000, REGION_SOUND1, 0 )
 	ROM_LOAD( "epr16810.4", 0x000000, 0x080000, CRC(d542f0fe) SHA1(23ea50110dfe1cd9f286a535d15e0c3bcba73b00) )
+ROM_END
+
+ROM_START( headonch ) /* Head On Channel (Prototype) (c)1994 Sega */
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "epr-16812.ic32", 0x000000, 0x080000, CRC(091cf538) SHA1(04673678f543743b395edea39ad4ee6177436dc0) )
+	ROM_LOAD16_BYTE( "epr-16811.ic31", 0x000001, 0x080000, CRC(91f3b5f1) SHA1(15cbe7a172dde7de7b73f0c9eeddfee41e8d1f80) )
+	ROM_LOAD16_BYTE( "epr-16814.ic34", 0x100000, 0x080000, CRC(d8dc6323) SHA1(e7e891324764641691dcb63e5222f2ed9207fb96) )
+	ROM_LOAD16_BYTE( "epr-16813.ic33", 0x100001, 0x080000, CRC(3268e38b) SHA1(10ded2be01465014ca9e6c64ffab1190ec985359) )
+
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )
+	ROM_LOAD( "epr-16810.ic4", 0x000000, 0x040000, CRC(90af7301) SHA1(227227cb5d0df6612bac7b4c94b99e2287686ccd) )
+ROM_END
+
+ROM_START( ooparts ) /* Oo Parts (Prototype) (c)1992 Sega / Success */
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "epr-15614.ic32", 0x000000, 0x080000, CRC(8dcf2940) SHA1(f72630e8a26e7f2089da56878a1599268c355246) )
+	ROM_LOAD16_BYTE( "epr-15613.ic31", 0x000001, 0x080000, CRC(35381899) SHA1(524f6e1b1292542079589275e20f45c2eb68605c) )
+	ROM_LOAD16_BYTE( "mpr-15616.ic34", 0x100000, 0x080000, CRC(7192ac29) SHA1(d3028a9bbb7faa733285cf7e47fd840ec0d0bf69) )
+	ROM_LOAD16_BYTE( "mpr-15615.ic33", 0x100001, 0x080000, CRC(42755dc2) SHA1(cd0aa79418b922266c5d41bf24b9136f9f105dc5) )
+
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )
+	ROM_LOAD( "epr-15617.ic4", 0x000000, 0x040000, CRC(e09961f6) SHA1(e109b5f41502b765d191f22e3bbcff97d6defaa1) )
+ROM_END
+
+ROM_START( ssonicbr )  /* Sega Sonic Bros (Prototype) (c)1992 Sega */
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "ssonicbr.ic32", 0x000000, 0x040000, CRC(cf254ecd) SHA1(4bb295ec80f8ddfeab4e360eebf12c5e2dfb9800) )
+	ROM_LOAD16_BYTE( "ssonicbr.ic31", 0x000001, 0x040000, CRC(03709746) SHA1(0b457f557da77acd3f43950428117c1decdfaf26) )
+
+	ROM_REGION( 0x020000, REGION_SOUND1, 0 )
+	ROM_LOAD( "ssonicbr.ic4", 0x000000, 0x020000, CRC(78e56a51) SHA1(8a72c12975cd74919b4337e0f681273e6b5cbbc6) )
 ROM_END
 
 ROM_START( puckpkmn ) /* Puckman Pockimon  (c)2000 Genie */
@@ -4691,27 +4767,46 @@ static DRIVER_INIT( tantr )
 	init_saves();
 }
 
-static DRIVER_INIT( ichidant )
+static DRIVER_INIT( tantrkor )
 {
-	static const UINT32 ichidant_table[256/8] =
+
+	static const UINT32 tantrkor_table[256/8] =
 	{
-		0x55116622, 0x55116622, 0x55117733, 0x55117733,
-		0x8800aa22, 0x8800aa22, 0x8800bb33, 0x8800bb33,
-		0x11550044, 0x55114400, 0x11551155, 0x55115511,
-		0xcc44cc44, 0x88008800, 0xcc44dd55, 0x88009911,
-		0xdd99eeaa, 0xdd99eeaa, 0xdd99ffbb, 0xdd99ffbb,
-		0xaa228800, 0xaa228800, 0xaa229911, 0xaa229911,
-		0x99dd88cc, 0xdd99cc88, 0x99dd99dd, 0xdd99dd99,
-		0xee66ee66, 0xaa22aa22, 0xee66ff77, 0xaa22bb33
+		0x80931102, 0xc4d75546, 0xd5825502, 0x91c61146,
+		0x081b998a, 0x4c5fddce, 0x5d0add8a, 0x194e99ce,
+		0xc4d77764, 0xc4d77764, 0x91c63364, 0x91c63364,
+		0xc4d77764, 0xc4d77764, 0x91c63364, 0x91c63364,
+		0x91930002, 0xd5d74446, 0xc4824402, 0x80c60046,
+		0x191b888a, 0x5d5fccce, 0x4c0acc8a, 0x084e88ce,
+		0xd5d76664, 0xd5d76664, 0x80c62264, 0x80c62264,
+		0xd5d76664, 0xd5d76664, 0x80c62264, 0x80c62264
 	};
-	prot_table = ichidant_table;
+
+#if 0
+	{
+		int base = 0x5ce;
+		data8_t *rom	=	memory_region(REGION_CPU1);
+		int a,b;
+
+		for (a=0;a<256;a+=8) {
+			printf("\n0x");
+			for(b=0;b<8;b++) {
+				int x;
+				x = rom[(base+a+b)^1]&0xf;
+				printf("%1x",x);
+			}
+		}
+	}
+#endif
+
+	prot_table = tantrkor_table;
 	bloxeed_sound = 0;
 	init_saves();
 }
 
-static DRIVER_INIT( ichidnte )
+static DRIVER_INIT( ichir )
 {
-	static const UINT32 ichidnte_table[256/8] =
+	static const UINT32 ichir_table[256/8] =
 	{
 		0x4c4c4c4c, 0x08080808, 0x5d5d4c4c, 0x19190808,
 		0x33332222, 0x33332222, 0x22222222, 0x22222222,
@@ -4722,9 +4817,53 @@ static DRIVER_INIT( ichidnte )
 		0x2a082a08, 0x2a082a08, 0x3b192a08, 0x3b192a08,
 		0xffddeecc, 0xbb99aa88, 0xeecceecc, 0xaa88aa88
 	};
-	prot_table = ichidnte_table;
+	prot_table = ichir_table;
 	bloxeed_sound = 0;
 	init_saves();
+}
+
+static DRIVER_INIT( ichirk )
+{
+	static const UINT32 ichirk_table[256/8] =
+	{
+		0x44004400, 0x00440044,	0x55114400, 0x11550044,
+		0x55885588, 0x55885588,	0x66bb77aa, 0x66bb77aa,
+		0x02020202, 0x46464646,	0x13130202, 0x57574646,
+		0x138a138a, 0x138a138a,	0x20b931a8, 0x20b931a8,
+		0x44004400, 0x00440044,	0x55114400, 0x11550044,
+		0x55885588, 0x55885588,	0x66bb77aa, 0x66bb77aa,
+		0x8a8a8a8a, 0xcececece,	0x9b9b8a8a, 0xdfdfcece,
+		0x9b029b02, 0x9b029b02,	0xa831b920, 0xa831b920
+	};
+	prot_table = ichirk_table;
+	bloxeed_sound = 0;
+	init_saves();
+}
+
+static DRIVER_INIT( ichirj )
+{
+	/* 317-0224 */
+	static const UINT32 ichirj_table[256/8] =
+	{
+		0x55116622, 0x55116622, 0x55117733, 0x55117733,
+		0x8800aa22, 0x8800aa22, 0x8800bb33, 0x8800bb33,
+		0x11550044, 0x55114400, 0x11551155, 0x55115511,
+		0xcc44cc44, 0x88008800, 0xcc44dd55, 0x88009911,
+		0xdd99eeaa, 0xdd99eeaa, 0xdd99ffbb, 0xdd99ffbb,
+		0xaa228800, 0xaa228800, 0xaa229911, 0xaa229911,
+		0x99dd88cc, 0xdd99cc88, 0x99dd99dd, 0xdd99dd99,
+		0xee66ee66, 0xaa22aa22, 0xee66ff77, 0xaa22bb33
+	};
+	prot_table = ichirj_table;
+	bloxeed_sound = 0;
+	init_saves();
+}
+
+static DRIVER_INIT( ichirjbl )
+{
+	/* when did this actually work? - the protection is patched but the new check fails? */
+	UINT16 *rom = (UINT16 *)memory_region(REGION_CPU1);
+	rom[0x390/2] = 0x6600;
 }
 
 
@@ -4913,26 +5052,30 @@ GAME ( 1990, columnsj, columns,  segac,    columns,  columns,  ROT0, "Sega",    
 GAME ( 1990, columns2, 0,        segac,    columns2, columns2, ROT0, "Sega",                   "Columns II - The Voyage Through Time (Japan)" )
 
 /* System C-2 Games */
-GAME ( 1992, ssonicbr, 0,        segac2,   ssonicbr, bloxeedc, ROT0, "Sega",                   "SegaSonic Bros (Japan, prototype)" )
 GAME ( 1990, borench,  0,        segac2,   borench,  borench,  ROT0, "Sega",                   "Borench" )
 GAME ( 1990, tfrceac,  0,        segac2,   tfrceac,  tfrceac,  ROT0, "Sega / Technosoft",      "ThunderForce AC" )
 GAME ( 1990, tfrceacj, tfrceac,  segac2,   tfrceac,  tfrceac,  ROT0, "Sega / Technosoft",      "ThunderForce AC (Japan)" )
 GAME ( 1990, tfrceacb, tfrceac,  segac2,   tfrceac,  tfrceacb, ROT0, "bootleg",                "ThunderForce AC (bootleg)" )
 GAME ( 1991, ribbit,   0,        segac2,   ribbit,   ribbit,   ROT0, "Sega",                   "Ribbit!" )
-GAME ( 1992, tantr,    0,        segac2,   ichidant, tantr,    ROT0, "Sega",                   "Tant-R (Puzzle and Action) (Japan)" )
-GAME ( 1992, tantrbl,  tantr,    segac2,   ichidant, segac2,   ROT0, "bootleg",                "Tant-R (Puzzle and Action) (Japan) (bootleg set 1)" )
-GAME ( 1994, tantrbl2, tantr,    segac,    ichidant, tantr,    ROT0, "bootleg",                "Tant-R (Puzzle and Action) (Japan) (bootleg set 2)" )
+GAME ( 1992, tantr,    0,        segac2,   ichidant, tantr,    ROT0, "Sega",                   "Puzzle & Action: Tant-R (Japan)" )
+GAME ( 1993, tantrkor, tantr,    segac2,   ichidant, tantrkor, ROT0, "Sega",                   "Puzzle & Action: Tant-R (Korea)" )
+GAME ( 1992, tantrbl,  tantr,    segac2,   ichidant, segac2,   ROT0, "bootleg",                "Puzzle & Action: Tant-R (Japan) (bootleg set 1)" )
+GAME ( 1994, tantrbl2, tantr,    segac,    ichidant, tantr,    ROT0, "bootleg",                "Puzzle & Action: Tant-R (Japan) (bootleg set 2)" )
 GAME ( 1992, puyopuyo, 0,        segac2,   puyopuyo, puyopuyo, ROT0, "Sega / Compile",         "Puyo Puyo (Japan)" )
 GAME ( 1992, puyopuya, puyopuyo, segac2,   puyopuyo, puyopuyo, ROT0, "Sega / Compile",         "Puyo Puyo (Japan) (Rev A)" )
 GAME ( 1992, puyopuyb, puyopuyo, segac2,   puyopuyo, puyopuyo, ROT0, "bootleg",                "Puyo Puyo (English) (bootleg)" )
-GAME ( 1994, ichidant, 0,        segac2,   ichidant, ichidant, ROT0, "Sega",                   "Puzzle & Action: Ichidant-R (Japan)" )
-GAME ( 1994, ichidnte, ichidant, segac2,   ichidant, ichidnte, ROT0, "Sega",                   "Puzzle & Action: Ichidant-R (World)" )
-GAMEX( 1994, ichidntb, ichidant, segac,    ichidant, segac2,   ROT0, "bootleg",                "Puzzle & Action: Ichidant-R (Japan) (bootleg)", GAME_NOT_WORKING )
+GAME ( 1994, ichir,    0,        segac2,   ichidant, ichir,    ROT0, "Sega",                   "Puzzle & Action: Ichidant-R (World)" )
+GAME ( 1994, ichirk,   ichir,    segac2,   ichidant, ichirk,   ROT0, "Sega",                   "Puzzle & Action: Ichidant-R (Korea)" )
+GAME ( 1994, ichirj,   ichir,    segac2,   ichidant, ichirj,   ROT0, "Sega",                   "Puzzle & Action: Ichidant-R (Japan)" )
+GAME ( 1994, ichirjbl, ichir,    segac,    ichidant, ichirjbl, ROT0, "bootleg",                "Puzzle & Action: Ichidant-R (Japan) (bootleg)" )
 GAME ( 1994, stkclmns, 0,        segac2,   stkclmns, stkclmns, ROT0, "Sega",                   "Stack Columns (Japan)" )
 GAME ( 1994, puyopuy2, 0,        segac2,   puyopuy2, puyopuy2, ROT0, "Compile (Sega license)", "Puyo Puyo 2 (Japan)" )
 GAME ( 1994, potopoto, 0,        segac2,   potopoto, potopoto, ROT0, "Sega",                   "Poto Poto (Japan)" )
 GAME ( 1994, zunkyou,  0,        segac2,   zunkyou,  zunkyou,  ROT0, "Sega",                   "Zunzunkyou No Yabou (Japan)" )
-
+GAME ( 1994, headonch, 0,        segac2,   ichidant, tantr,    ROT0, "Sega",                   "Head On Channel (Japan, prototype)" )
+GAME ( 1992, ooparts,  0,        ooparts,  ichidant, tantr,    ROT270, "Sega / Success",       "Oo Parts (Japan, Prototype)" )
+GAME ( 1992, ssonicbr, 0,        segac2,   ssonicbr, bloxeedc, ROT0, "Sega",                   "SegaSonic Bros (Japan, prototype)" )
+  
 /* Genie Hardware (uses Genesis VDP) also has 'Sun Mixing Co' put into tile ram */
 GAME ( 2000, puckpkmn, 0,        puckpkmn, puckpkmn, puckpkmn, ROT0, "Genie",                  "Puckman Pockimon" )
 
