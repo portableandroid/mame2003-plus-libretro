@@ -346,15 +346,14 @@ static int tmnt_decode_sample(const struct MachineSound *msound)
 	 *	(Sound info courtesy of Dave <dave@finalburn.com>)
 	 */
 
-	for (i = 0;i < 0x40000;i++)
+	for (i = 0; i < 0x40000; i++)
 	{
-		int val = source[2*i] + source[2*i+1] * 256;
+		int val = source[2 * i] + source[2 * i + 1] * 256;
 		int expo = val >> 13;
+		val = (val >> 3) & (0x3ff); /* 10 bit, Max Amplitude 0x400 */
+		val -= 0x200;                   /* Centralize value */
 
-	  	val = (val >> 3) & (0x3ff);	/* 10 bit, Max Amplitude 0x400 */
-		val -= 0x200;					/* Centralize value	*/
-
-		val <<= (expo-3);
+		val = (val << expo) >> 3;
 
 		dest[i] = val;
 	}
@@ -2416,7 +2415,7 @@ static struct YM2151interface ym2151_interface =
 {
 	1,			/* 1 chip */
 	3579545,	/* 3.579545 MHz */
-	{ YM3012_VOL(100,MIXER_PAN_LEFT,100,MIXER_PAN_RIGHT) },
+	{ YM3012_VOL(60,MIXER_PAN_LEFT,60,MIXER_PAN_RIGHT) },
 	{ 0 }
 };
 
@@ -2431,7 +2430,7 @@ static struct K007232_interface k007232_interface =
 	1,		/* number of chips */
 	3579545,	/* clock */
 	{ REGION_SOUND1 },	/* memory regions */
-	{ K007232_VOL(20,MIXER_PAN_CENTER,20,MIXER_PAN_CENTER) },	/* volume */
+	{ K007232_VOL(30,MIXER_PAN_CENTER,30,MIXER_PAN_CENTER) },	/* volume */
 	{ volume_callback }	/* external port callback */
 };
 

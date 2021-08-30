@@ -10,7 +10,7 @@
         - platform-specific init
         - calls init_game() from retro_load_game()
         - calls run_game() from retro_load_game
-        
+
 	mame.c manages:
 		init_game()
 			- constructs the machine driver
@@ -116,15 +116,6 @@
 #include "mame.h"
 #include "bootstrap.h"
 
-/***************************************************************************
-
-	Constants
-
-***************************************************************************/
-
-#define FRAMES_PER_FPS_UPDATE		12
-
-
 
 /***************************************************************************
 
@@ -224,7 +215,6 @@ static int decode_graphics(const struct GfxDecodeInfo *gfxdecodeinfo);
 static void compute_aspect_ratio(const struct InternalMachineDriver *drv, int *aspect_x, int *aspect_y);
 static void scale_vectorgames(int gfx_width, int gfx_height, int *width, int *height);
 static int init_buffered_spriteram(void);
-void change_control_type(void);
 
 /***************************************************************************
 
@@ -273,10 +263,9 @@ bool init_game(int game)
 	Machine->gamedrv = gamedrv = drivers[game];
 	expand_machine_driver(gamedrv->drv, &internal_drv);
 	Machine->drv = &internal_drv;
-  change_control_type();
   return true;
 }
-    
+
 
 /*-------------------------------------------------
 	run_game - run the given game in a session
@@ -288,14 +277,14 @@ bool run_game(int game)
 
 	/* here's the meat of it all */
 	bailing = 0;
-  
+
   begin_resource_tracking();
 
   /* finish setting up our local machine */
   if (init_machine())
       bail_and_print("Unable to initialize machine emulation");
   else
-  {	  
+  {
   /* then run it */
       if (run_machine())
           bail_and_print("Unable to start machine emulation");
@@ -310,7 +299,7 @@ bool run_game(int game)
   }
   /* stop tracking resources and exit the OSD layer */
   end_resource_tracking();
-    
+
 	return 1;
 }
 
@@ -476,7 +465,7 @@ static int run_machine(void)
 }
 
 void run_machine_done(void)
-{				
+{
 	sound_stop();
 
     /* shut down the driver's video and kill and artwork */
@@ -501,7 +490,7 @@ void pause_action_start_emulator(void)
 
     if(!nvram_file)
       log_cb(RETRO_LOG_INFO, LOGPRE "First run: NVRAM handler found for %s but no existing NVRAM file found.\n", Machine->gamedrv->name);
-    
+
     log_cb(RETRO_LOG_INFO, LOGPRE "options.nvram_bootstrap: %i \n", options.nvram_bootstrap);
     if(!nvram_file && (Machine->gamedrv->bootstrap != NULL))
     {
@@ -650,8 +639,8 @@ static int vh_open(void)
     {
         scale_vectorgames(options.vector_width, options.vector_height, &bmwidth, &bmheight);
     }
-    
-    
+
+
 	/* now allocate the screen bitmap */
 	Machine->scrbitmap = auto_bitmap_alloc_depth(bmwidth, bmheight, Machine->color_depth);
 	if (!Machine->scrbitmap)
@@ -808,7 +797,7 @@ static void init_game_options(void)
       Machine->color_depth = 32;
     else
       Machine->color_depth = 15;
-    
+
     /* use 32-bit color output as default to skip color conversions */
 	if (Machine->drv->video_attributes & VIDEO_TYPE_VECTOR) 	Machine->color_depth = 32;
 
@@ -824,7 +813,7 @@ static void init_game_options(void)
   /* update the vector width/height with libretro settings or use the default */
   if (options.vector_width  == 0) options.vector_width  = Machine->drv->screen_width;
   if (options.vector_height == 0) options.vector_height = Machine->drv->screen_height;
-  
+
 
 
   /* get orientation right */
@@ -836,9 +825,9 @@ static void init_game_options(void)
 // ie ymf271 will segfault without this.
  if (options.machine_timing)
   {
-    if ( ( Machine->drv->frames_per_second * 1000 < options.samplerate) || (Machine->drv->frames_per_second < 60) ) 
+    if ( ( Machine->drv->frames_per_second * 1000 < options.samplerate) || (Machine->drv->frames_per_second < 60) )
       Machine->sample_rate = Machine->drv->frames_per_second * 1000;
-    
+
     else Machine->sample_rate = options.samplerate;
   }
 
@@ -2044,6 +2033,6 @@ void mame_done(void)
         run_machine_done();
         run_game_done();
     }
-    
+
     game_loaded = 0;
 }

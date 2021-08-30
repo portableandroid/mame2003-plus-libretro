@@ -71,7 +71,7 @@ void mame2003_video_get_geometry(struct retro_game_geometry *geom)
 void mame2003_video_update_visible_area(struct mame_display *display)
 {
    struct retro_game_geometry geom = { 0 };
-   
+
    struct rectangle visible_area = display->game_visible_area;
    vis_width = visible_area.max_x - visible_area.min_x + 1;
    vis_height = visible_area.max_y - visible_area.min_y + 1;
@@ -87,7 +87,7 @@ void mame2003_video_update_visible_area(struct mame_display *display)
    set_ui_visarea(
       visible_area.min_x, visible_area.min_y,
       visible_area.max_x, visible_area.max_y);
-   
+
    /* Notify libretro of the change */
    mame2003_video_get_geometry(&geom);
    environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geom);
@@ -228,7 +228,7 @@ void mame2003_video_init_conversion(UINT32 *rgb_components)
 /* Do a soft reinit to process new video output parameters */
 void mame2003_video_reinit(void)
 {
-   UINT32 rgb_components;
+   UINT32 rgb_components[3];
    struct osd_create_params old_params = video_config;
    osd_close_display();
    osd_create_display(&old_params, &rgb_components);
@@ -298,7 +298,7 @@ static void frame_convert(struct mame_display *display)
    int x0 = visible_area.min_x, y0 = visible_area.min_y;
    int x1 = visible_area.max_x, y1 = visible_area.max_y;
    int w = x1 - x0 + 1, h = y1 - y0 + 1;
- 
+
    signed pitch = display->game_bitmap->rowpixels;
    char *input = (char*)display->game_bitmap->base;
    char *output = (char*)video_buffer;
@@ -326,7 +326,7 @@ static void frame_convert(struct mame_display *display)
             in += skip;\
          }\
       }
-   
+
    /* A much less optimized pixel conversion loop macro, with XY swap */
    #define CONVERT_SWAP(CONVERT_FUNC, TYPE_IN, TYPE_OUT, FLIP_X, FLIP_Y)\
       {\
@@ -375,6 +375,10 @@ static void frame_convert(struct mame_display *display)
    }
 }
 
+extern bool retro_audio_buff_underrun;
+extern bool retro_audio_buff_active;
+extern unsigned retro_audio_buff_occupancy;
+extern void (*pause_action)(void);
 
 const int frameskip_table[12][12] =
    { { 0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -390,13 +394,58 @@ const int frameskip_table[12][12] =
      { 0,1,1,1,1,1,0,1,1,1,1,1 },
      { 0,1,1,1,1,1,1,1,1,1,1,1 } };
 
+ unsigned frameskip_counter = 0;
 int osd_skip_this_frame(void)
 {
+	static unsigned auto_frameskip_counter = 0;
+
+	bool skip_frame = 0;
+
+	if (pause_action)  return 0;  // dont skip pause action hack (rendering mame info screens or you wont see them and not know to press a key)
+
 #ifdef PORTANDROID
    return cb_context.video_skip;
 #else
-   static unsigned frameskip_counter = 0;
-   return frameskip_table[options.frameskip][frameskip_counter++ % 12];
+
+//auto frame skip options
+	if(options.frameskip >0 && options.frameskip >= 12)
+	{
+		if ( retro_audio_buff_active)
+		{
+			switch ( options.frameskip)
+			{
+				case 12: /* auto */
+					skip_frame = retro_audio_buff_underrun;
+				break;
+				case 13: /* aggressive */
+					skip_frame = (retro_audio_buff_occupancy < 33);
+				break;
+				case 14: /* max */
+					skip_frame = (retro_audio_buff_occupancy < 50);
+				break;
+				default:
+					skip_frame = false;
+				break;
+         }
+			if (skip_frame)
+			{
+				if(auto_frameskip_counter <= 40)
+				{
+					auto_frameskip_counter++;;
+				}
+				else
+				{
+					auto_frameskip_counter = 0;// control will return 0 at the end
+					skip_frame=0;
+				}
+			}
+		}
+	}
+	else //manual frameskip includes disabled check
+	{
+		skip_frame = frameskip_table[options.frameskip][frameskip_counter];
+	}
+	return skip_frame;
 #endif
 }
 
@@ -405,7 +454,7 @@ void osd_update_video_and_audio(struct mame_display *display)
    RETRO_PERFORMANCE_INIT(perf_cb, update_video_and_audio);
    RETRO_PERFORMANCE_START(perf_cb, update_video_and_audio);
 
-   if(display->changed_flags & 
+   if(display->changed_flags &
       ( GAME_BITMAP_CHANGED | GAME_PALETTE_CHANGED
       | GAME_VISIBLE_AREA_CHANGED | VECTOR_PIXELS_CHANGED))
    {
@@ -466,9 +515,10 @@ void osd_update_video_and_audio(struct mame_display *display)
       }
       prev_led_state = display->led_state;
    }
-   
+
    gotFrame = 1;
 
+   frameskip_counter = (frameskip_counter + 1) % 12;
    RETRO_PERFORMANCE_STOP(perf_cb, update_video_and_audio);
 }
 

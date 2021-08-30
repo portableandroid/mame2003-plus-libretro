@@ -169,7 +169,7 @@ static WRITE16_HANDLER( cps1_sound_command_w )
 	*/
 	
 	/* We are playing Final Fight. Let's use the samples.*/
-	if(ff_playing_final_fight == true) {
+	if(ff_playing_final_fight && options.use_samples) {
 		switch (data) {
 			/* stage 1 upper level music*/
 			case 0x40:
@@ -4242,8 +4242,7 @@ static MACHINE_DRIVER_START( ffight_hack )
 
 	/* Lets add our Final Fight music sample packs.*/
 	MDRV_SOUND_ATTRIBUTES(SOUND_SUPPORTS_STEREO)
-	MDRV_SOUND_ADD(SAMPLES, ff_samples)
-	/*MDRV_SOUND_ADD(SAMPLES, ff_samplesR)*/
+	MDRV_SOUND_ADD_TAG("OST Samples", SAMPLES, ff_samples)
 MACHINE_DRIVER_END
 
 
