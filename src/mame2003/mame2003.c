@@ -241,11 +241,8 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
       info->timing.fps = 60.0;
     else
       info->timing.fps = Machine->drv->frames_per_second; /* qbert is 61 fps */
-    #ifdef PORTANDROID
-    if ( Machine->drv->frames_per_second * 1000 < options.samplerate )
-    #else    
+
     if ( (Machine->drv->frames_per_second * 1000 < options.samplerate) || ( Machine->drv->frames_per_second < 60) )
-    #endif
     {
       info->timing.sample_rate = Machine->drv->frames_per_second * 1000;
       log_cb(RETRO_LOG_INFO, LOGPRE "Sample timing rate too high for framerate required dropping to %f\n",  Machine->drv->frames_per_second * 1000);
@@ -1341,7 +1338,7 @@ unsigned decode_osd_joycode(unsigned joycode)
 /******************************************************************************
  * osd_analogjoy_read polls analog joystick axes, and sets the value in the
  * analog_axis[] array.
- * 
+ *
  * int player is an array index, starting at 0
 *******************************************************************************/
 void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode analogjoy_input[MAX_ANALOG_AXES])
