@@ -148,9 +148,10 @@ void mame2003_video_init_orientation(void)
      log_cb(RETRO_LOG_INFO, LOGPRE "RetroArch does not support this type of rotation, using mame internal rotation instead\n");
 
    tate_mode = options.tate_mode;
-
+#ifndef PORTANDROID
    /* Set up native orientation flags that aren't handled by libretro */
    if (orientation & ORIENTATION_SWAP_XY) video_hw_transpose = true; /*dont set this to false if RA changes the flags else vertical games swap the xy*/
+#endif
    video_flip_x = orientation & ORIENTATION_FLIP_X;
    video_flip_y = orientation & ORIENTATION_FLIP_Y;
    video_swap_xy = orientation & ORIENTATION_SWAP_XY;
