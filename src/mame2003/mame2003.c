@@ -147,6 +147,7 @@ void retro_set_audio_buff_status_cb(void)
 {
   if (options.frameskip > 0 && options.frameskip >= 12)
   {
+      buf_status_cb.callback = &retro_audio_buff_status_cb;
 
       if (!environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_BUFFER_STATUS_CALLBACK,
             &buf_status_cb))
@@ -235,50 +236,9 @@ void retro_set_environment(retro_environment_t cb)
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
   mame2003_video_get_geometry(&info->geometry);
-  if(options.machine_timing)
-  {
-    if (Machine->drv->frames_per_second < 60.0 )
-      info->timing.fps = 60.0;
-    else
-      info->timing.fps = Machine->drv->frames_per_second; /* qbert is 61 fps */
-
-    if ( (Machine->drv->frames_per_second * 1000 < options.samplerate) || ( Machine->drv->frames_per_second < 60) )
-    {
-      info->timing.sample_rate = Machine->drv->frames_per_second * 1000;
-      log_cb(RETRO_LOG_INFO, LOGPRE "Sample timing rate too high for framerate required dropping to %f\n",  Machine->drv->frames_per_second * 1000);
-    }
-
-    else
-    {
-      info->timing.sample_rate = options.samplerate;
-      log_cb(RETRO_LOG_INFO, LOGPRE "Sample rate set to %d\n",options.samplerate);
-    }
-  }
-
-  else
-  {
-    info->timing.fps = Machine->drv->frames_per_second;
-
-    if ( Machine->drv->frames_per_second * 1000 < options.samplerate)
-    {
-      if ( Machine->drv->frames_per_second * 1000 > 44100)
-        info->timing.sample_rate = 44100;
-      else if ( Machine->drv->frames_per_second * 1000 > 30000)
-        info->timing.sample_rate = 30000;
-      else if ( Machine->drv->frames_per_second * 1000 > 22050)
-        info->timing.sample_rate = 22050;
-      else if ( Machine->drv->frames_per_second * 1000 > 11025)
-        info->timing.sample_rate = 11025;
-      else if ( Machine->drv->frames_per_second * 1000 > 8000)
-        info->timing.sample_rate = 8000;
-      else
-        info->timing.sample_rate = Machine->drv->frames_per_second * 1000;
-    }
-
-    else
-     info->timing.sample_rate = options.samplerate;
-  }
-
+  
+  info->timing.fps = Machine->drv->frames_per_second;
+  info->timing.sample_rate = options.samplerate ;
 }
 
 
@@ -319,7 +279,7 @@ bool retro_load_game(const struct retro_game_info *game)
       options.romset_filename_noext = driver_lookup;
       break;
     }
-    if(driverIndex == total_drivers -2) // we could fix the total drives in drivers c but the it pointless its taken into account here
+    if(driverIndex == total_drivers -2) /* we could fix the total drives in drivers c but the it pointless its taken into account here */
     {
       log_cb(RETRO_LOG_ERROR, LOGPRE "Driver index counter: %d. Game driver not found for %s!\n", driverIndex, driver_lookup);
       return false;
@@ -564,35 +524,8 @@ bool retro_unserialize(const void * data, size_t size)
 
 int osd_start_audio_stream(int stereo)
 {
-  if (options.machine_timing)
-  {
-    if ( ( Machine->drv->frames_per_second * 1000 < options.samplerate) || (Machine->drv->frames_per_second < 60) )
-      Machine->sample_rate = Machine->drv->frames_per_second * 1000;
-
-    else Machine->sample_rate = options.samplerate;
-  }
-
-  else
-  {
-    if ( Machine->drv->frames_per_second * 1000 < options.samplerate)
-    {
-      if ( Machine->drv->frames_per_second * 1000 > 44100)
-        Machine->sample_rate = 44100;
-      else if ( Machine->drv->frames_per_second * 1000 > 30000)
-        Machine->sample_rate = 30000;
-      else if ( Machine->drv->frames_per_second * 1000 > 22050)
-        Machine->sample_rate = 22050;
-      else if ( Machine->drv->frames_per_second * 1000 > 11025)
-        Machine->sample_rate = 11025;
-      else if ( Machine->drv->frames_per_second * 1000 > 8000)
-        Machine->sample_rate = 8000;
-      else
-        Machine->sample_rate = Machine->drv->frames_per_second * 1000;
-    }
-
-    else
-      Machine->sample_rate = options.samplerate;
-  }
+ 
+  Machine->sample_rate = options.samplerate;
 
   delta_samples = 0.0f;
   usestereo = stereo ? 1 : 0;
@@ -644,11 +577,11 @@ int osd_update_audio_stream(INT16 *buffer)
 
 #endif
 
-		//process next frame
+		/*process next frame */
 
 		if ( samples_per_frame  != orig_samples_per_frame ) samples_per_frame = orig_samples_per_frame;
 
-		// dont drop any sample frames some games like mk will drift with time
+		/* dont drop any sample frames some games like mk will drift with time */
 
 		delta_samples += (Machine->sample_rate / Machine->drv->frames_per_second) - orig_samples_per_frame;
 		if ( delta_samples >= 1.0f )
@@ -1228,8 +1161,7 @@ const struct JoystickInfo *osd_get_joy_list(void)
  */
 int osd_is_joy_pressed(int joycode)
 {
-  unsigned player_number = calc_player_number(joycode);
-  unsigned port          = player_number - 1;
+  unsigned port          = calc_player_number(joycode) - 1;
   unsigned osd_code      = decode_osd_joycode(joycode);
   unsigned retro_code    = INT_MAX;
 
@@ -1244,20 +1176,19 @@ int osd_is_joy_pressed(int joycode)
     return input_cb(port, RETRO_DEVICE_JOYPAD, 0, retro_code);
 
   /* pointer, mouse, or lightgun states if selected by core option */
-  if (options.xy_device == RETRO_DEVICE_POINTER || options.xy_device == RETRO_DEVICE_MOUSE)
+  if (options.xy_device != RETRO_DEVICE_NONE)
   {
     retro_code = get_retro_code("mouse", osd_code);
     if (retro_code != INT_MAX)
     {
-      if (options.xy_device == RETRO_DEVICE_MOUSE)
-        return input_cb(port, RETRO_DEVICE_MOUSE, 0, retro_code);
-      if (options.xy_device == RETRO_DEVICE_POINTER && retro_code == RETRO_DEVICE_ID_MOUSE_LEFT)
-        return input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_PRESSED);
+      if (retro_code == RETRO_DEVICE_ID_MOUSE_LEFT)
+      {
+        if (input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_PRESSED))
+          return 1; /* check if pointer is pressed */
+      }
+      return input_cb(port, RETRO_DEVICE_MOUSE, 0, retro_code);
     }
-  }
 
-  else if (options.xy_device == RETRO_DEVICE_LIGHTGUN)
-  {
     retro_code = get_retro_code("lightgun", osd_code);
     if (retro_code != INT_MAX)
     {
@@ -1349,8 +1280,8 @@ void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode 
   for(axis = 0; axis < MAX_ANALOG_AXES; axis++)
   {
     int osd_code;
-    int deadzone = round(((float)options.deadzone / 100) * 128);
     value = 0;
+
     if(analogjoy_input[axis] != CODE_NONE)
     {
       osd_code = decode_osd_joycode(analogjoy_input[axis]);
@@ -1366,9 +1297,6 @@ void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode 
 
       else if(osd_code == OSD_ANALOG_RIGHT_NEGATIVE_Y || osd_code == OSD_ANALOG_RIGHT_POSITIVE_Y)
         value = rescale_analog(input_cb(player, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y));
-
-      /* check against deadzone */
-      if(abs(value) <= deadzone) value = 0; /* falls within the deadzone, report as zero */
 
       /* opposite when reversing axis mapping */
       if((osd_code % 2) == 0) /* if osd_code is an even number */
@@ -1443,7 +1371,8 @@ void osd_xy_device_read(int player, int *deltax, int *deltay, const char* type)
     else if (options.xy_device == RETRO_DEVICE_LIGHTGUN)
     {
       /* simulated lightgun reload hack */
-      if(input_cb(player, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_RELOAD))
+      if(input_cb(player, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_RELOAD) ||
+         input_cb(player, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN) )
       {
         *deltax = -128;
         *deltay = -128;

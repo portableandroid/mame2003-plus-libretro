@@ -101,21 +101,20 @@ static WRITE16_HANDLER( cps1_sound_command_w )
 		log_cb(RETRO_LOG_DEBUG, LOGPRE "%X\n", data);
 	}
 	*/
-	
-	/* We are playing Final Fight. */
-	if(ff_playing_final_fight && options.use_alt_sound) {
-		if(generate_ost_sound_ffight( data )) {
-			if(ACCESSING_LSB) soundlatch_w(0,data & 0xff);
+
+	if(ACCESSING_LSB) {
+		/* We are playing Final Fight. */
+		if( ost_support_enabled(OST_SUPPORT_FFIGHT) ) {
+			if(generate_ost_sound( data ))
+				soundlatch_w(0,data & 0xff);
 		}
-	}
-	/* We are playing Street Fighter 2. */
-	else if(sf2_playing_street_fighter && options.use_alt_sound) {
-		if(generate_ost_sound_sf2( data )) {
-			if(ACCESSING_LSB) soundlatch_w(0,data & 0xff);
+		/* We are playing Street Fighter 2. */
+		else if( ost_support_enabled(OST_SUPPORT_SF2) ) {
+			if(generate_ost_sound( data ))
+				soundlatch_w(0,data & 0xff);
 		}
-	}
-	else {
-		if(ACCESSING_LSB) soundlatch_w(0,data & 0xff);
+		else
+			soundlatch_w(0,data & 0xff);
 	}
 }
 
@@ -165,7 +164,7 @@ static INTERRUPT_GEN( cps1_interrupt )
 	/* *only* game to have that. */
 	cpu_set_irq_line(0, 2, HOLD_LINE);
 
-	if(sf2_playing_street_fighter && options.use_alt_sound)
+	if( ost_support_enabled(OST_SUPPORT_SF2) )
 		ost_fade_volume();
 }
 
@@ -381,7 +380,7 @@ static MEMORY_WRITE_START( sound_writemem )
 	{ 0xf001, 0xf001, YM2151_data_port_0_w },
 	{ 0xf002, 0xf002, OKIM6295_data_0_w },
 	{ 0xf004, 0xf004, cps1_snd_bankswitch_w },
-/*	{ 0xf006, 0xf006, MWA_NOP },  // ???? Unknown ???? /*/
+/*	{ 0xf006, 0xf006, MWA_NOP },*/  /* ???? Unknown ???? */
 MEMORY_END
 
 MEMORY_READ_START( qsound_readmem )
@@ -1352,19 +1351,19 @@ INPUT_PORTS_START( ffightae )
 
 	PORT_START      /* DSWB */
 	PORT_DIPNAME( 0x07, 0x04, "Difficulty Level 1" )
-	PORT_DIPSETTING(    0x07, "Easiest" )				// "01"
-	PORT_DIPSETTING(    0x06, "Easier" )				// "02"
-	PORT_DIPSETTING(    0x05, "Easy" )				// "03"
-	PORT_DIPSETTING(    0x04, "Normal" )				// "04"
-	PORT_DIPSETTING(    0x03, "Medium" )				// "05"
-	PORT_DIPSETTING(    0x02, "Hard" )				// "06"
-	PORT_DIPSETTING(    0x01, "Harder" )				// "07"
-	PORT_DIPSETTING(    0x00, "Hardest" )				// "08"
+	PORT_DIPSETTING(    0x07, "Easiest" )				/* "01" */
+	PORT_DIPSETTING(    0x06, "Easier" )				/* "02" */
+	PORT_DIPSETTING(    0x05, "Easy" )				/* "03" */
+	PORT_DIPSETTING(    0x04, "Normal" )				/* "04" */
+	PORT_DIPSETTING(    0x03, "Medium" )				/* "05" */
+	PORT_DIPSETTING(    0x02, "Hard" )				/* "06" */
+	PORT_DIPSETTING(    0x01, "Harder" )				/* "07" */
+	PORT_DIPSETTING(    0x00, "Hardest" )				/* "08" */
 	PORT_DIPNAME( 0x18, 0x10, "Difficulty Level 2" )
-	PORT_DIPSETTING(    0x18, "Easy" )				// "01"
-	PORT_DIPSETTING(    0x10, "Normal" )				// "02"
-	PORT_DIPSETTING(    0x08, "Hard" )				// "03"
-	PORT_DIPSETTING(    0x00, "Hardest" )				// "04"
+	PORT_DIPSETTING(    0x18, "Easy" )				/* "01" */
+	PORT_DIPSETTING(    0x10, "Normal" )				/* "02" */
+	PORT_DIPSETTING(    0x08, "Hard" )				/* "03" */
+	PORT_DIPSETTING(    0x00, "Hardest" )				/* "04" */
 	PORT_DIPNAME( 0x60, 0x60, DEF_STR( Bonus_Life ) )
 	PORT_DIPSETTING(    0x60, "100k" )
 	PORT_DIPSETTING(    0x40, "200k" )
@@ -4005,10 +4004,7 @@ static MACHINE_DRIVER_START( ffight_hack )
 
 	/* Lets add our Final Fight music sample packs.*/
 	MDRV_SOUND_ATTRIBUTES(SOUND_SUPPORTS_STEREO)
-	MDRV_SOUND_ADD_TAG("OST Samples", SAMPLES, ost_ffight)
-	ff_playing_final_fight = true;
-	ff_alternate_song_1 = false;
-	ff_alternate_song_2 = false;
+	MDRV_INSTALL_OST_SUPPORT(OST_SUPPORT_FFIGHT)
 MACHINE_DRIVER_END
 
 
@@ -4030,10 +4026,7 @@ static MACHINE_DRIVER_START( sf2 )
 
 	/* Lets add our Street Fighter 2 music sample packs.*/
 	MDRV_SOUND_ATTRIBUTES(SOUND_SUPPORTS_STEREO)
-	MDRV_SOUND_ADD_TAG("OST Samples", SAMPLES, ost_sf2)
-	sf2_playing_street_fighter = true;
-	fadingMusic = false;
-
+	MDRV_INSTALL_OST_SUPPORT(OST_SUPPORT_SF2)
 MACHINE_DRIVER_END
 
 
@@ -7732,10 +7725,10 @@ ROM_START( wofch )
 	ROMX_LOAD( "tk2-3m.5a",      0x000002, 0x80000, CRC(45227027) SHA1(b21afc593f0d4d8909dfa621d659cbb40507d1b2) , ROM_GROUPWORD | ROM_SKIP(6) )
 	ROMX_LOAD( "tk2-2m.4a",      0x000004, 0x80000, CRC(c5ca2460) SHA1(cbe14867f7b94b638ca80db7c8e0c60881183469) , ROM_GROUPWORD | ROM_SKIP(6) )
 	ROMX_LOAD( "tk2-4m.6a",      0x000006, 0x80000, CRC(e349551c) SHA1(1d977bdf256accf750ad9930ec4a0a19bbf86964) , ROM_GROUPWORD | ROM_SKIP(6) )
-	ROMX_LOAD( "tk2=ch=_05.7a",  0x200000, 0x80000, CRC(e4a44d53) SHA1(b747679f4d63e5e62d9fd81b3120fba0401fadfb) , ROM_GROUPWORD | ROM_SKIP(6) )    // == tk2_05.7a
-	ROMX_LOAD( "tk2=ch=_06.8a",  0x200002, 0x80000, CRC(58066ba8) SHA1(c93af968e21094d020e4b2002e0c6fc0d746af0b) , ROM_GROUPWORD | ROM_SKIP(6) )    // == tk2_06.8a
+	ROMX_LOAD( "tk2=ch=_05.7a",  0x200000, 0x80000, CRC(e4a44d53) SHA1(b747679f4d63e5e62d9fd81b3120fba0401fadfb) , ROM_GROUPWORD | ROM_SKIP(6) )    /* == tk2_05.7a */
+	ROMX_LOAD( "tk2=ch=_06.8a",  0x200002, 0x80000, CRC(58066ba8) SHA1(c93af968e21094d020e4b2002e0c6fc0d746af0b) , ROM_GROUPWORD | ROM_SKIP(6) )    /* == tk2_06.8a */
 	ROMX_LOAD( "tk2=ch=_07.9a",  0x200004, 0x80000, CRC(cc9006c9) SHA1(cfcbec3a67052268a7739538aa28a6391fe5400e) , ROM_GROUPWORD | ROM_SKIP(6) )    /* 1 byte different from wofj, pcb verified */
-	ROMX_LOAD( "tk2=ch=_08.10a", 0x200006, 0x80000, CRC(d4a19a02) SHA1(ff396b1d33d9b4842140f2c6d085fe05748e3244) , ROM_GROUPWORD | ROM_SKIP(6) )    // == tk2_08.10a
+	ROMX_LOAD( "tk2=ch=_08.10a", 0x200006, 0x80000, CRC(d4a19a02) SHA1(ff396b1d33d9b4842140f2c6d085fe05748e3244) , ROM_GROUPWORD | ROM_SKIP(6) )    /* == tk2_08.10a */
 
 	ROM_REGION( 0x8000, REGION_GFX2, 0 )
 	ROM_COPY( REGION_GFX1, 0x000000, 0x000000, 0x8000 )	/* stars */

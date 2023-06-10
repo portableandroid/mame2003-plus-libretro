@@ -2813,7 +2813,7 @@ static int displayhistory (struct mame_bitmap *bitmap, int selected)
 	static char *buf = 0;
 	int maxcols,maxrows;
 	int sel;
-	int bufsize = 256 * 1024; // 256KB of history.dat buffer, enough for everything
+	int bufsize = 256 * 1024; /* 256KB of history.dat buffer, enough for everything */
 
 	sel = selected - 1;
 
@@ -3043,8 +3043,8 @@ void setup_menu_init(void)
   {
 	  menu_item[menu_total] = ui_getstring (UI_inputgeneral);      menu_action[menu_total++] = UI_DEFCODE;
     menu_item[menu_total] = ui_getstring (UI_inputspecific);     menu_action[menu_total++] = UI_CODE;
-    //menu_item[menu_total] = ui_getstring (UI_flush_current_cfg); menu_action[menu_total++] = UI_FLUSH_CURRENT_CFG;
-    //menu_item[menu_total] = ui_getstring (UI_flush_all_cfg);     menu_action[menu_total++] = UI_FLUSH_ALL_CFG;
+    /*menu_item[menu_total] = ui_getstring (UI_flush_current_cfg); menu_action[menu_total++] = UI_FLUSH_CURRENT_CFG; */
+    /*menu_item[menu_total] = ui_getstring (UI_flush_all_cfg);     menu_action[menu_total++] = UI_FLUSH_ALL_CFG; */
   }
 
 	/* Determine if there are any dip switches */
@@ -3108,7 +3108,7 @@ void setup_menu_init(void)
 		menu_item[menu_total] = ui_getstring (UI_memorycard); menu_action[menu_total++] = UI_MEMCARD;
 	}
 
-#if !defined(WIIU) && !defined(GEKKO) && !defined(__CELLOS_LV2__) && !defined(__SWITCH__) && !defined(PSP) && !defined(VITA) && !defined(__GCW0__) && !defined(__EMSCRIPTEN__) && !defined(_XBOX)
+#if !defined(SPLIT_CORE) && !defined(WIIU) && !defined(GEKKO) && !defined(__CELLOS_LV2__) && !defined(__SWITCH__) && !defined(PSP) && !defined(VITA) && !defined(__GCW0__) && !defined(__EMSCRIPTEN__) && !defined(_XBOX)
     /* don't offer to generate_xml_dat on consoles where it can't be used */
     menu_item[menu_total] = ui_getstring (UI_generate_xml_dat);   menu_action[menu_total++] = UI_GENERATE_XML_DAT;
 
