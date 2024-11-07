@@ -253,8 +253,8 @@ static const struct F3config f3_config_table[] =
 	{ PBOBBLE4,  0,      0,          0,         1,          1/**/},
 	{ POPNPOP,   1,      0,        -23,         0,          1/**/},
 	{ LANDMAKR,  1,      0,        -23,         0,          1/**/},
-	{ RECALH,    1,      1,        -23,         0,          1/**/}, // not verified
-	{ COMMANDW,  1,      0,        -23,         0,          1/**/}, // not verified
+	{ RECALH,    1,      1,        -23,         0,          1/**/}, /* not verified */
+	{ COMMANDW,  1,      0,        -23,         0,          1/**/}, /* not verified */
 	{0}
 };
 
@@ -1884,13 +1884,13 @@ static void get_line_ram_info(struct tilemap *tilemap,int sx,int sy,int pos,data
 				line_enable=2;
 			else if(pri&0x8000)	/*alpha2*/
 				line_enable=3;
-          /*special case when the blend mode is "normal" but the 6200 area is used.
-		  Might be missing a flag*/
-		  else if((pri&0x3000) && (f3_line_ram[0x6230/4]!= 0)  && (pos == 2) &&
-		  (((f3_line_ram[(0x6200/4) + (y>>1)] >> 4) &0xf) != 0xb) && (f3_game == EACTION2))
-			{
-			  line_enable=0x22;		
-			}
+		  /*special case when the blend mode is "normal" but the 6200 area is used, Might be missing a flag*/
+		  else if ((pri & 0x3000) && (f3_line_ram[0x6230/4] != 0) && (pos == 2) &&
+				(((f3_line_ram[(0x6200/4) + (y>>1)] >> 4) & 0xf) != 0xb) &&
+				(f3_line_ram[(0x6200/4) + (y>>1)] != 0x7777) && (f3_game == EACTION2))
+		    {
+			  line_enable = 0x22;
+		    }
 			else
 				line_enable=1;
 		}
@@ -1961,7 +1961,7 @@ static void get_line_ram_info(struct tilemap *tilemap,int sx,int sy,int pos,data
 			/* check tile status */
 			visible_tile_check(line_t,y,x_index_fx,y_index,f3_pf_data_n);
       
-            if ((pos ==1) && ((((f3_line_ram[(0x6200/4) + (y>>1)]) >> 4) &0xf) > 0xb)  && (f3_game == EACTION2)) line_t->alpha_mode[y] = 0x22;  /*hack*/
+      if ((pos == 1) && (((f3_line_ram[(0x6200/4) + (y>>1)] >> 4) & 0xf) > 0xb) && (f3_game == EACTION2)) line_t->alpha_mode[y] = 0x22;  /* from shmupmame */
 
 			/* set pixmap index */
 			line_t->x_count[y]=x_index_fx & 0xffff;
@@ -2691,7 +2691,7 @@ static INLINE void f3_drawgfx( struct mame_bitmap *dest_bmp,const struct GfxElem
 /*				if (dest_bmp->depth == 32)*/
 				{
 					int y=ey-sy;
-					int x=(ex-sx-1)|(tile_opaque_sp[code]<<4);
+					int x=(ex-sx-1)|(tile_opaque_sp[code % gfx->total_elements]<<4);
 					UINT8 *source0 = gfx->gfxdata + (source_base+y_index) * 16 + x_index_base;
 					UINT32 *dest0 = (UINT32 *)dest_bmp->line[sy]+sx;
 					UINT8 *pri0 = (UINT8 *)pri_alp_bitmap->line[sy]+sx;
@@ -3124,16 +3124,10 @@ static void get_sprite_info(const data32_t *spriteram32_ptr)
 		if (flipscreen)
 		{
 			int tx,ty;
-			if (f3_game == GSEEKER )
-			{
-				tx = 512-x_addition-x-44;
-				ty = 256-y_addition-y+17;
-			}
-			else
-			{
-				tx = 512-x_addition-x;
-				ty = 256-y_addition-y;
-			}
+
+			tx = 512-x_addition-x;
+			ty = 256-y_addition-y;
+
 			if (tx+x_addition<=min_x || tx>max_x || ty+y_addition<=min_y || ty>max_y) continue;
 			sprite_ptr->x = tx;
 			sprite_ptr->y = ty;

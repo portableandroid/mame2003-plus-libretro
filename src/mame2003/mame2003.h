@@ -198,18 +198,18 @@ enum CORE_OPTIONS  /* controls the order in which core options appear. common, i
   OPT_CORE_SAVE_SUBFOLDER,
   OPT_XY_DEVICE,
   OPT_INPUT_INTERFACE,
-  OPT_DEADZONE,
   OPT_4WAY,
   OPT_CROSSHAIR_ENABLED,
   OPT_CROSSHAIR_APPEARANCE,
   OPT_SHARE_DIAL,
   OPT_DIAL_SWAP_XY,
   OPT_CHEAT_INPUT_PORTS,
+  OPT_OVERRIDE_AD_STICK,
+  OPT_INPUT_TOGGLE,
   OPT_DIGITAL_JOY_CENTERING,
   OPT_USE_SAMPLES,
   OPT_USE_ALT_SOUND,
   OPT_SAMPLE_RATE,
-  OPT_MACHINE_TIMING,
   OPT_BRIGHTNESS,
   OPT_GAMMA,
   OPT_TATE_MODE,
@@ -327,6 +327,12 @@ int osd_skip_this_frame(void);
 void osd_update_video_and_audio(struct mame_display *display);
 
 
+/*
+  Pause or resume all active cpus, true->pause, false->resume.
+*/
+extern void cpu_pause(bool pause);
+
+
 /******************************************************************************
 
 	Sound
@@ -355,6 +361,7 @@ void osd_update_video_and_audio(struct mame_display *display);
 */
 int osd_start_audio_stream(int stereo);
 int osd_update_audio_stream(INT16 *buffer);
+void osd_update_silent_stream(void);
 void osd_stop_audio_stream(void);
 
 /******************************************************************************

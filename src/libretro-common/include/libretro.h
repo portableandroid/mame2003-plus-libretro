@@ -283,6 +283,12 @@ enum retro_language
    RETRO_LANGUAGE_HEBREW              = 21,
    RETRO_LANGUAGE_ASTURIAN            = 22,
    RETRO_LANGUAGE_FINNISH             = 23,
+   RETRO_LANGUAGE_INDONESIAN          = 24,
+   RETRO_LANGUAGE_SWEDISH             = 25,
+   RETRO_LANGUAGE_UKRAINIAN           = 26,
+   RETRO_LANGUAGE_CZECH               = 27,
+   RETRO_LANGUAGE_CATALAN_VALENCIA    = 28,
+   RETRO_LANGUAGE_CATALAN             = 29,
    RETRO_LANGUAGE_LAST,
 
    /* Ensure sizeof(enum) == sizeof(int) */
@@ -463,6 +469,25 @@ enum retro_key
    RETROK_EURO           = 321,
    RETROK_UNDO           = 322,
    RETROK_OEM_102        = 323,
+
+   RETROK_BROWSER_BACK      = 324,
+   RETROK_BROWSER_FORWARD   = 325,
+   RETROK_BROWSER_REFRESH   = 326,
+   RETROK_BROWSER_STOP      = 327,
+   RETROK_BROWSER_SEARCH    = 328,
+   RETROK_BROWSER_FAVORITES = 329,
+   RETROK_BROWSER_HOME      = 330,
+   RETROK_VOLUME_MUTE       = 331,
+   RETROK_VOLUME_DOWN       = 332,
+   RETROK_VOLUME_UP         = 333,
+   RETROK_MEDIA_NEXT        = 334,
+   RETROK_MEDIA_PREV        = 335,
+   RETROK_MEDIA_STOP        = 336,
+   RETROK_MEDIA_PLAY_PAUSE  = 337,
+   RETROK_LAUNCH_MAIL       = 338,
+   RETROK_LAUNCH_MEDIA      = 339,
+   RETROK_LAUNCH_APP1       = 340,
+   RETROK_LAUNCH_APP2       = 341,
 
    RETROK_LAST,
 
@@ -3460,6 +3485,10 @@ struct retro_core_option_definition
     * ignored */
    const char *default_value;
 };
+
+#ifdef __PS3__
+#undef local
+#endif
 
 struct retro_core_options_intl
 {

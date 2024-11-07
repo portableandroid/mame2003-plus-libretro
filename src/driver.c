@@ -93,7 +93,8 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( piranhah )	/* hack */
 	DRIVER( nmouse )	/* (c) 1981 Amenip (Palcom Queen River) */
 	DRIVER( nmouseb )	/* (c) 1981 Amenip Nova Games Ltd. */
-						/* Woodpecker somewhere around here?*/
+	DRIVER( woodpeck )	/* (c) 1981 Amenip (Palcom Queen River) set 1 */
+	DRIVER( woodpeca )	/* (c) 1981 Amenip (Palcom Queen River) set 2 */
 	DRIVER( pacplus )
 	DRIVER( mspacman )	/* (c) 1981 Midway */	/* made by Gencomp */
 	DRIVER( mspacmnf )	/* hack (speedup) */
@@ -319,6 +320,7 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( silvland )	/* Falcon */
 	DRIVER( yamato )	/* (c) 1983 Sega */
 	DRIVER( yamato2 )	/* (c) 1983 Sega */
+	DRIVER( toprollr )	/* (c) 1983 Jaleco */
 	DRIVER( swimmer )	/* (c) 1982 Tehkan */
 	DRIVER( swimmera )	/* (c) 1982 Tehkan */
 	DRIVER( swimmerb )	/* (c) 1982 Tehkan */
@@ -561,14 +563,18 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( liblrabl )	/* (c) 1983 */
 	DRIVER( toypop )	/* (c) 1986 */
 	/* Z8000 games */
-	DRIVER( polepos )	/* (c) 1982  */
-	DRIVER( poleposa )	/* (c) 1982 + Atari license */
-	DRIVER( polepos1 )	/* (c) 1982 Atari */
-	DRIVER( topracer )	/* bootleg */
-	DRIVER( polepos2 )	/* (c) 1983 */
-	DRIVER( poleps2a )	/* (c) 1983 + Atari license */
-	DRIVER( poleps2b )	/* bootleg */
-//	DRIVER( poleps2c )	/* bootleg */
+	DRIVER( polepos )
+	DRIVER( poleposj )
+	DRIVER( poleposa1 )
+	DRIVER( poleposa1n )
+	DRIVER( poleposa2 )
+	DRIVER( topracer )
+	DRIVER( topracera )
+	DRIVER( ppspeed )
+	DRIVER( polepos2 )
+	DRIVER( polepos2a) 
+	DRIVER( polepos2b )
+
 	/* no custom I/O in the following, HD63701 (or compatible) microcontroller instead */
 	DRIVER( pacland )	/* (c) 1984 */
 	DRIVER( pacland2 )	/* (c) 1984 */
@@ -801,15 +807,18 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( bandido )   /* (c) 1980 Exidy */
 	DRIVER( helifire )  /* (c) 1980 Nintendo */
 	DRIVER( helifira )  /* (c) 1980 Nintendo */
-	DRIVER( radarscp )	/* (c) 1980 Nintendo */
-	DRIVER( dkong )		/* (c) 1981 Nintendo of America */
+	DRIVER( radarscp )  /* (c) 1980 Nintendo */
+	DRIVER( radarscpc ) /* (c) 1980 Nintendo */
+	DRIVER( radarscp1 ) /* (c) 1980 Nintendo */
+	DRIVER( dkong )	    /* (c) 1981 Nintendo of America */
 	DRIVER( dkongpe )
-	DRIVER( dkongo )	/* (c) 1981 Nintendo */
+	DRIVER( dkongo )    /* (c) 1981 Nintendo */
 	DRIVER( dkongjp )	/* (c) 1981 Nintendo */
 	DRIVER( dkongjo )	/* (c) 1981 Nintendo */
 	DRIVER( dkongjo1 )	/* (c) 1981 Nintendo */
 	DRIVER( dkongx )	/* (c) 2008 Bootleg  */
-	DRIVER( dkrdemo )	/* 2015 Bootleg  */
+	DRIVER( dkremix )	/* 2015 Bootleg  */
+	DRIVER( dkchrmx )
 	DRIVER( dkongjr )	/* (c) 1982 Nintendo of America */
 	DRIVER( dkongjrj )	/* (c) 1982 Nintendo */
 	DRIVER( dkngjnrj )	/* (c) 1982 Nintendo */
@@ -819,7 +828,9 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( dkong3j )	/* (c) 1983 Nintendo */
 	DRIVER( dkong3b )	/* bootleg */
 	DRIVER( mario )		/* (c) 1983 Nintendo of America */
-	DRIVER( mariojp )	/* (c) 1983 Nintendo */
+	DRIVER( marioe )	/* (c) 1983 Nintendo of America */
+	DRIVER( mariof )	/* (c) 1983 Nintendo of America */
+	DRIVER( marioj )	/* (c) 1983 Nintendo */
 	DRIVER( masao )		/* bootleg */
 	DRIVER( pestplce )	/* bootleg on donkey kong hw */
 	DRIVER( spclforc )
@@ -1219,6 +1230,9 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( vigilntu )	/* (c) 1988 (US) */
 	DRIVER( vigilntj )	/* (c) 1988 (Japan) */
 	DRIVER( kikcubic )	/* (c) 1988 (Japan) */
+  DRIVER( buccanrs )  /* (c) 1989 Duintronic */
+  DRIVER( buccanra )  /* (c) 1989 Duintronic */
+
 	/* M72 (and derivatives) */
 	DRIVER( rtype )		/* (c) 1987 (Japan) */
 	DRIVER( rtypepj )	/* (c) 1987 (Japan) */
@@ -1253,7 +1267,7 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( hasamu )	/* (c) 1991 Irem (Japan) */
 	DRIVER( dynablst )	/* (c) 1991 Irem (World) */
 	DRIVER( dynablsb )	/* bootleg */
-  DRIVER( dicegame )  /* bootleg */  
+  DRIVER( dicegame )  /* bootleg */
 	DRIVER( bombrman )	/* (c) 1991 Irem (Japan) */
 	/* M97 */
 	DRIVER( bbmanw )	/* (c) 1992 Irem (World) */
@@ -1627,6 +1641,8 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( undrfiru )	/* D67 (c) 1993  Taito America Corporation (US) */
 	DRIVER( undrfirj )	/* D67 (c) 1993 Taito Coporation (Japan) */
 	DRIVER( cbombers )	/* D?? (c) 1994 Taito Coporation Japan (World) */
+	DRIVER( cbombersj )	/* D?? (c) 1994 Taito Coporation (Japan) */
+	DRIVER( cbombersp )	/* D?? (c) 1994 Taito Coporation (Japan Prototype) */
 
 	/* Taito F2 games */
 	DRIVER( finalb )	/* B82 (c) 1988 Taito Corporation Japan (World) */
@@ -1741,6 +1757,8 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( pbobbl2u )	/* E10 (c) 1995 Taito America Corporation (US) */
 	DRIVER( pbobbl2x )	/* E10 (c) 1995 Taito Corporation (Japan) */
 	DRIVER( gekirido )	/* E11 (c) 1995 Taito Corporation (Japan) */
+	DRIVER( tcobra2 )	/* E15 (c) 1995 Taito Corporation (Japan) */
+	DRIVER( tcobra2u )	/* E15 (c) 1995 Taito Corporation (Japan) */
 	DRIVER( ktiger2 )	/* E15 (c) 1995 Taito Corporation (Japan) */
 	DRIVER( bubblem )	/* E21 (c) 1995 Taito Corporation Japan (World) */
 	DRIVER( bubblemj )	/* E21 (c) 1995 Taito Corporation (Japan) */
@@ -1831,7 +1849,7 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( 3in1semi )  /* (c) 1998 SemiCom */
 	DRIVER( moremore )  /* (c) 1999 SemiCom / Exit */
 	DRIVER( moremorp )  /* (c) 1999 SemiCom / Exit */
-	
+
 	/* Cloned snow bros hardware */
 	DRIVER( finalttr )  /* (c) 1993 Jeil */
 	DRIVER( toto )	    /* (c) 1996 SoftClub */
@@ -1844,6 +1862,7 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( ghox )		/* TP-021 (c) 1991 Toaplan */
 	DRIVER( ghoxj )		/* TP-021 (c) 1991 Toaplan */
 	DRIVER( dogyuun )	/* TP-022 (c) 1992 Toaplan */
+	DRIVER( dogyuunto )	/* TP-022 (c) 1992 Toaplan */
 	DRIVER( kbash )		/* TP-023 (c) 1993 Toaplan */
 	DRIVER( kbash2 )	/* TP-023 */
 	DRIVER( truxton2 )	/* TP-024 (c) 1992 Toaplan */
@@ -1934,6 +1953,7 @@ V-V                           TP-027
 	DRIVER( ddonpchj )	/* (c) 1997 Atlus/Cave */
 	DRIVER( ddonpacha )	/* (c) 2012 Trap15 Hack */
 	DRIVER( dfeveron )	/* (c) 1998 Cave + Nihon System license */
+	DRIVER( feversos )	/* (c) 1998 Cave + Nihon System license */
 	DRIVER( esprade )	/* (c) 1998 Atlus/Cave */
 	DRIVER( espradej )	/* (c) 1998 Atlus/Cave (Japan) */
 	DRIVER( espradeo )	/* (c) 1998 Atlus/Cave (Japan) */
@@ -2057,7 +2077,7 @@ V-V                           TP-027
 	DRIVER( blktiger )	/*  8/1987 (c) 1987 (US) */
 	DRIVER( bktigerb )	/* bootleg */
 	DRIVER( blkdrgon )	/*  8/1987 (c) 1987 (Japan) */
-	DRIVER( blkdrgnb )	/* bootleg, hacked to say Black Tiger */
+	DRIVER( blkdrgonb )	/* bootleg, hacked to say Black Tiger */
 	DRIVER( sf1 )		/*  8/1987 (c) 1987 (World) */
 	DRIVER( sf1us )		/*  8/1987 (c) 1987 (US) */
 	DRIVER( sf1jp )		/*  8/1987 (c) 1987 (Japan) */
@@ -2152,6 +2172,7 @@ V-V                           TP-027
 	DRIVER( knightsu )	/* 27/11/1991 (c) 1991 (US)    */
 	DRIVER( knightsj )	/* 27/11/1991 (c) 1991 (Japan) */
 	DRIVER( sf2ce )		/* 13/03/1992 (c) 1992 (World) */
+	DRIVER( sf2mix )		/* 13/03/1992 (c) 1992 (World) */
 	DRIVER( sf2ceua )	/* 13/03/1992 (c) 1992 (US)    */
 	DRIVER( sf2ceub )	/* 13/05/1992 (c) 1992 (US)    */
 	DRIVER( sf2ceuc )	/* 03/08/1992 (c) 1992 (US)    */
@@ -2205,175 +2226,328 @@ V-V                           TP-027
 
   /* Capcom CPS Changer */
 	DRIVER( wofch )		/* 31/10/1992 (c) 1992 (Japan) (CPS1 + QSound) */
-
 	/* Capcom CPS2 games */
-	/* list completed by CPS2Shock */
-	/* http://cps2shock.retrogames.com */
-	DRIVER( ssf2 )		/* 11/09/1993 (c) 1993 (World) */
-	DRIVER( ssf2u )		/* 11/09/1993 (c) 1993 (US) */
-	DRIVER( ssf2a )		/* 05/10/1993 (c) 1993 (Asia) */
-	DRIVER( ssf2ar1 )	/* 14/09/1993 (c) 1993 (Asia) */
-	DRIVER( ssf2j )		/* 05/10/1993 (c) 1993 (Japan) */
-	DRIVER( ssf2jr1 )	/* 11/09/1993 (c) 1993 (Japan) */
-	DRIVER( ssf2jr2 )	/* 10/09/1993 (c) 1993 (Japan) */
-	DRIVER( ssf2tb )	/* 11/19/1993 (c) 1993 (World) */
-	DRIVER( ssf2tbj )	/* 10/09/1993 (c) 1993 (Japan) */
-	DRIVER( ecofghtr )	/* 03/12/1993 (c) 1993 (World) */
-	DRIVER( ecofghta )	/* 03/12/1993 (c) 1993 (Asia) */
-	DRIVER( uecology ) 	/* 03/12/1993 (c) 1993 (Japan) */
-	DRIVER( ddtod )		/* 12/04/1994 (c) 1993 (Euro) */
-	DRIVER( ddtodu )	/* 25/01/1994 (c) 1993 (US) */
-	DRIVER( ddtodur1 )	/* 13/01/1994 (c) 1993 (US) */
-	DRIVER( ddtodj )	/* 13/01/1994 (c) 1993 (Japan) */
-	DRIVER( ddtoda )	/* 13/01/1994 (c) 1993 (Asia) */
-	DRIVER( ddtodh )	/* 25/01/1994 (c) 1993 (Hispanic) */
-	DRIVER( ssf2t )		/* 23/02/1994 (c) 1994 (World) */
-	DRIVER( ssf2tu )	/* 23/03/1994 (c) 1994 (US) */
-	DRIVER( ssf2tur1 )	/* 23/02/1994 (c) 1994 (US) */
-	DRIVER( ssf2ta )	/* 23/02/1994 (c) 1994 (Asia) */
-	DRIVER( ssf2xj )	/* 23/02/1994 (c) 1994 (Japan) */
-	DRIVER( avsp )		/* 20/05/1994 (c) 1994 (Euro) */
-	DRIVER( avspu )		/* 20/05/1994 (c) 1994 (US) */
-	DRIVER( avspj )		/* 20/05/1994 (c) 1994 (Japan) */
-	DRIVER( avspa )		/* 20/05/1994 (c) 1994 (Asia) */
-						/*    06/1994? Galum Pa! (not listed on Capcom's site) */
-	DRIVER( dstlk )		/* 05/07/1994 (c) 1994 (Euro) */
-	DRIVER( dstlku )	/* 18/08/1994 (c) 1994 (US) */
-	DRIVER( dstlkur1 )	/* 05/07/1994 (c) 1994 (US) */
-	DRIVER( dstlka )	/* 05/07/1994 (c) 1994 (Asia) */
-	DRIVER( vampj )		/* 05/07/1994 (c) 1994 (Japan) */
-	DRIVER( vampja )	/* 05/07/1994 (c) 1994 (Japan) */
-	DRIVER( vampjr1 )	/* 30/06/1994 (c) 1994 (Japan) */
-	DRIVER( ringdest )	/* 02/09/1994 (c) 1994 (Euro) */
-	DRIVER( smbomb )	/* 31/08/1994 (c) 1994 (Japan) */
-	DRIVER( smbombr1 )	/* 08/08/1994 (c) 1994 (Japan) */
-	DRIVER( armwar )	/* 11/10/1994 (c) 1994 (Euro) */
-	DRIVER( armwaru )	/* 24/10/1994 (c) 1994 (US) */
-	DRIVER( pgear )		/* 24/10/1994 (c) 1994 (Japan) */
-	DRIVER( pgearr1 )	/* 16/09/1994 (c) 1994 (Japan) */
-	DRIVER( armwara )	/* 20/09/1994 (c) 1994 (Asia) */
-	DRIVER( xmcota )	/* 05/01/1995 (c) 1994 (Euro) */
-	DRIVER( xmcotau )	/* 05/01/1995 (c) 1994 (US) */
-	DRIVER( xmcotah )	/* 31/03/1995 (c) 1994 (Hispanic) */
-	DRIVER( xmcotaj )	/* 19/12/1994 (c) 1994 (Japan) */
-	DRIVER( xmcotaj1 )	/* 17/12/1994 (c) 1994 (Japan) */
-	DRIVER( xmcotaa )	/* 17/12/1994 (c) 1994 (Asia) */
-	DRIVER( xmcotajr )	/* 08/12/1994 (c) 1994 (Japan Rent) */
-	DRIVER( nwarr )		/* 06/04/1995 (c) 1995 (US) */
-	DRIVER( nwarrh )	/* 03/04/1995 (c) 1995 (Hispanic) */
-	DRIVER( nwarrb )	/* 03/04/1995 (c) 1995 (Brazil) */
-	DRIVER( vhuntj )	/* 02/03/1995 (c) 1995 (Japan) */
-	DRIVER( vhuntjr1 )	/* 02/03/1995 (c) 1995 (Japan) */
-	DRIVER( cybots )	/* 24/04/1995 (c) 1995 (US) */
-	DRIVER( cybotsj )	/* 20/04/1995 (c) 1995 (Japan) */
-	DRIVER( sfa )		/* 27/07/1995 (c) 1995 (Euro) */
-	DRIVER( sfar1 )		/* 18/07/1995 (c) 1995 (Euro) */
-	DRIVER( sfar2 )		/* 05/06/1995 (c) 1995 (Euro) */
-	DRIVER( sfau )		/* 27/06/1995 (c) 1995 (US) */
-	DRIVER( sfzj )		/* 27/07/1995 (c) 1995 (Japan) */
-	DRIVER( sfzjr1 )	/* 27/06/1995 (c) 1995 (Japan) */
-	DRIVER( sfzjr2 )	/* 05/06/1995 (c) 1995 (Japan) */
-	DRIVER( sfzh )		/* 27/06/1995 (c) 1995 (Hispanic) */
-	DRIVER( sfzb )		/* 09/11/1995 (c) 1995 (Brazil) */
-						/* 22/09/1995 Rockman: The Power Battle (Japan) */
-	DRIVER( msh )		/* 24/10/1995 (c) 1995 (Euro) */
-	DRIVER( mshu )		/* 24/10/1995 (c) 1995 (US) */
-	DRIVER( mshj )		/* 24/10/1995 (c) 1995 (Japan) */
-	DRIVER( msha )		/* 24/10/1995 (c) 1995 (Asia) */
-	DRIVER( mshh )		/* 17/11/1995 (c) 1996 (Hispanic) */
-	DRIVER( mshb )		/* 17/11/1995 (c) 1996 (Brazil) */
-	DRIVER( 19xx )		/* 07/12/1995 (c) 1996 (US) */
-	DRIVER( 19xxj )		/* 25/12/1995 (c) 1996 (Japan) */
-	DRIVER( 19xxjr1 )	/* 07/12/1995 (c) 1996 (Japan) */
-	DRIVER( 19xxa )		/* 07/12/1995 (c) 1996 (Asia) */
-	DRIVER( 19xxh )		/* 18/12/1995 (c) 1996 (Hispanic) */
-	DRIVER( ddsom )		/* 19/06/1996 (c) 1996 (Euro) */
-	DRIVER( ddsomr1 )	/* 09/02/1996 (c) 1996 (Euro) */
-	DRIVER( ddsomu )	/* 19/06/1996 (c) 1996 (US) */
-	DRIVER( ddsomur1 )	/* 09/02/1996 (c) 1996 (US) */
-	DRIVER( ddsomjr1 )	/* 06/02/1996 (c) 1996 (Japan) */
-	DRIVER( ddsomj )	/* 19/06/1996 (c) 1996 (Japan) */
-	DRIVER( ddsoma )	/* 19/06/1996 (c) 1996 (Asia) */
-	DRIVER( sfa2 )		/* 06/03/1996 (c) 1996 (US) */
-	DRIVER( sfz2j )		/* 27/02/1996 (c) 1996 (Japan) */
-	DRIVER( sfz2a )		/* 27/02/1996 (c) 1996 (Asia) */
-	DRIVER( sfz2b )		/* 31/05/1996 (c) 1996 (Brazil) */
-	DRIVER( sfz2br1 )	/* 04/03/1996 (c) 1996 (Brazil) */
-	DRIVER( spf2t )		/* 20/06/1996 (c) 1996 (US) */
-	DRIVER( spf2xj )	/* 31/05/1996 (c) 1996 (Japan) */
-	DRIVER( qndream )	/* 26/06/1996 (c) 1996 (Japan) */
-	DRIVER( megaman2 )	/* 08/07/1996 (c) 1996 (US) */
-	DRIVER( megamn2a )	/* 08/07/1996 (c) 1996 (Asia) */
-	DRIVER( rckman2j )	/* 08/07/1996 (c) 1996 (Japan) */
-	DRIVER( sfz2aj )	/* 05/08/1996 (c) 1996 (Japan) */
-	DRIVER( sfz2ah )	/* 13/08/1996 (c) 1996 (Hispanic) */
-	DRIVER( sfz2ab )	/* 13/08/1996 (c) 1996 (Brazil) */
-	DRIVER( sfz2aa )	/* 26/08/1996 (c) 1996 (Asia) */
-	DRIVER( xmvsf )		/* 10/09/1996 (c) 1996 (Euro) */
-	DRIVER( xmvsfu )	/* 23/10/1996 (c) 1996 (US) */
-	DRIVER( xmvsfur1 )	/* 04/10/1996 (c) 1996 (US) */
-	DRIVER( xmvsfj )	/* 04/10/1996 (c) 1996 (Japan) */
-	DRIVER( xmvsfjr1 )	/* 10/09/1996 (c) 1996 (Japan) */
-	DRIVER( xmvsfjr2 )	/* 09/09/1996 (c) 1996 (Japan) */
-	DRIVER( xmvsfa )	/* 23/10/1996 (c) 1996 (Asia) */
-	DRIVER( xmvsfh )	/* 04/10/1996 (c) 1996 (Hispanic) */
-	DRIVER( xmvsfb )	/* 23/10/1996 (c) 1996 (Brazil) */
-	DRIVER( batcir )	/* 19/03/1997 (c) 1997 (Euro) */
-	DRIVER( batcirj )	/* 19/03/1997 (c) 1997 (Japan) */
-	DRIVER( batcira )	/* 19/03/1997 (c) 1997 (Asia) */
-	DRIVER( vsav )		/* 19/05/1997 (c) 1997 (Euro) */
-	DRIVER( vsavu )		/* 19/05/1997 (c) 1997 (US) */
-	DRIVER( vsavj )		/* 19/05/1997 (c) 1997 (Japan) */
-	DRIVER( vsava )		/* 19/05/1997 (c) 1997 (Asia) */
-	DRIVER( vsavh )		/* 19/05/1997 (c) 1997 (Hispanic) */
-	DRIVER( mshvsf )	/* 27/08/1997 (c) 1997 (US) */
-	DRIVER( mshvsfu1 )	/* 25/06/1997 (c) 1997 (US) */
-	DRIVER( mshvsfj )	/* 07/07/1997 (c) 1997 (Japan) */
-	DRIVER( mshvsfj1 )	/* 02/07/1997 (c) 1997 (Japan) */
-	DRIVER( mshvsfj2 )	/* 25/06/1997 (c) 1997 (Japan) */
-	DRIVER( mshvsfh )	/* 25/06/1997 (c) 1997 (Hispanic) */
-	DRIVER( mshvsfa )	/* 25/06/1997 (c) 1997 (Asia) */
-	DRIVER( mshvsfa1 )	/* 20/06/1997 (c) 1997 (Asia) */
-	DRIVER( mshvsfb )	/* 27/08/1997 (c) 1997 (Brazil) */
-	DRIVER( mshvsfb1 )	/* 25/06/1997 (c) 1997 (Brazil) */
-	DRIVER( csclub )	/* 22/07/1997 (c) 1997 (Euro) */
-	DRIVER( csclubj )	/* 22/07/1997 (c) 1997 (Japan) */
-	DRIVER( cscluba )	/* 22/07/1997 (c) 1997 (Asia) */
-	DRIVER( csclubh )	/* 22/07/1997 (c) 1997 (Hispanic) */
-	DRIVER( sgemf )		/* 04/09/1997 (c) 1997 (US) */
-	DRIVER( pfghtj )	/* 04/09/1997 (c) 1997 (Japan) */
-	DRIVER( sgemfa )	/* 04/09/1997 (c) 1997 (Asia) */
-	DRIVER( sgemfh )	/* 04/09/1997 (c) 1997 (Hispanic) */
-	DRIVER( vhunt2r1 )	/* 13/09/1997 (c) 1997 (Japan) */
-	DRIVER( vhunt2 )	/* 29/09/1997 (c) 1997 (Japan) */
-	DRIVER( vsav2 )		/* 13/09/1997 (c) 1997 (Japan) */
-	DRIVER( mvsc )		/* 23/01/1998 (c) 1998 (US) */
-	DRIVER( mvscj )		/* 23/01/1998 (c) 1998 (Japan) */
-	DRIVER( mvscjr1 )	/* 12/01/1998 (c) 1998 (Japan) */
-	DRIVER( mvsca )		/* 12/01/1998 (c) 1998 (Asia) */
-	DRIVER( mvsch )		/* 23/01/1998 (c) 1998 (Hispanic) */
-	DRIVER( sfa3 )		/* 04/09/1998 (c) 1998 (US) */
-	DRIVER( sfa3r1 )	/* 29/06/1998 (c) 1998 (US) */
-	DRIVER( sfz3j )		/* 27/07/1998 (c) 1998 (Japan) */
-	DRIVER( sfz3jr1 )	/* 29/06/1998 (c) 1998 (Japan) */
-	DRIVER( sfz3a )		/* 01/07/1998 (c) 1998 (Asia) */
-	DRIVER( hsf2a )         /* 02/02/2004 (c) 2004 (Asia) */
-	DRIVER( gigawing )	/* 22/02/1999 (c) 1999 Takumi (US) */
-	DRIVER( gwingj )	/* 23/02/1999 (c) 1999 Takumi (Japan) */
-						/* 27/05/1999 Jyangokushi: Haoh no Saihai (Japan) */
-	DRIVER( dimahoo )	/* 21/01/2000 (c) 2000 Eighting/Raizing (US) */
-	DRIVER( gmahou )	/* 21/01/2000 (c) 2000 Eighting/Raizing (Japan) */
-	DRIVER( mmatrix )	/* 12/04/2000 (c) 2000 Takumi (US) */
-	DRIVER( mmatrixj )	/* 12/04/2000 (c) 2000 Takumi (Japan) */
-	DRIVER( 1944 )		/* 20/06/2000 (c) 2000 Eighting/Raizing (US) */
-	DRIVER( 1944j )		/* 20/06/2000 (c) 2000 Eighting/Raizing (Japan) */
-	DRIVER( mpangj )	/* 11/10/2000 (c) 2000 Mitchell */
-	DRIVER( progear )	/* 17/01/2001 (c) 2001 Cave (US) */
-	DRIVER( progearj )	/* 17/01/2001 (c) 2001 Cave (Japan) */
-	DRIVER( pzloop2j )	/* 05/02/2001 (c) 2001 Mitchell */
 
-
-
+	DRIVER( ssf2 )       /* Capcom, Super Street Fighter II: The New Challengers (World 931005) */
+	DRIVER( ssf2r1 )     /* Capcom, Super Street Fighter II: The New Challengers (World 930911) */
+	DRIVER( ssf2u )      /* Capcom, Super Street Fighter II: The New Challengers (USA 930911) */
+	DRIVER( ssf2us2 )    /* bootleg,Super Street Fighter II: The New Challengers Super 2 (USA 930911) */
+	DRIVER( ssf2a )      /* Capcom, Super Street Fighter II: The New Challengers (Asia 931005) */
+	DRIVER( ssf2ar1 )    /* Capcom, Super Street Fighter II: The New Challengers (Asia 930914) */
+	DRIVER( ssf2j )      /* Capcom, Super Street Fighter II: The New Challengers (Japan 931005) */
+	DRIVER( ssf2jr1 )    /* Capcom, Super Street Fighter II: The New Challengers (Japan 930911) */
+	DRIVER( ssf2jr2 )    /* Capcom, Super Street Fighter II: The New Challengers (Japan 930910) */
+	DRIVER( ssf2h )      /* Capcom, Super Street Fighter II: The New Challengers (Hispanic 930911) */
+	DRIVER( ssf2tb )     /* Capcom, Super Street Fighter II: The Tournament Battle (World 931119) */
+	DRIVER( ssf2tbr1 )   /* Capcom, Super Street Fighter II: The Tournament Battle (World 930911) */
+	DRIVER( ssf2tbu )    /* Capcom, Super Street Fighter II: The Tournament Battle (USA 930911) */
+	DRIVER( ssf2tbj )    /* Capcom, Super Street Fighter II: The Tournament Battle (Japan 931005) */
+	DRIVER( ssf2tbj1 )   /* Capcom, Super Street Fighter II: The Tournament Battle (Japan 930911) */
+	DRIVER( ssf2tba )    /* Capcom, Super Street Fighter II: The Tournament Battle (Asia 931005) */
+	DRIVER( ssf2tbh )    /* Capcom, Super Street Fighter II: The Tournament Battle (Hispanic 931005) */
+	DRIVER( ecofghtr )   /* Capcom, Eco Fighters (World 931203) */
+	DRIVER( ecofghtru )  /* Capcom, Eco Fighters (USA 940215) */
+	DRIVER( ecofghtru1 ) /* Capcom, Eco Fighters (USA 931203) */
+	DRIVER( uecology )   /* Capcom, Ultimate Ecology (Japan 931203) */
+	DRIVER( ecofghtra )  /* Capcom, Eco Fighters (Asia 931203) */
+	DRIVER( ecofghtrh )  /* Capcom, Eco Fighters (Hispanic 931203) */
+	DRIVER( ddtod )      /* Capcom, Dungeons & Dragons: Tower of Doom (Euro 940412) */
+	DRIVER( ddtodr1 )    /* Capcom, Dungeons & Dragons: Tower of Doom (Euro 940113) */
+	DRIVER( ddtodu )     /* Capcom, Dungeons & Dragons: Tower of Doom (USA 940125) */
+	DRIVER( ddtodur1 )   /* Capcom, Dungeons & Dragons: Tower of Doom (USA 940113) */
+	DRIVER( ddtodj )     /* Capcom, Dungeons & Dragons: Tower of Doom (Japan 940412) */
+	DRIVER( ddtodjr1 )   /* Capcom, Dungeons & Dragons: Tower of Doom (Japan 940125) */
+	DRIVER( ddtodjr2 )   /* Capcom, Dungeons & Dragons: Tower of Doom (Japan 940113) */
+	DRIVER( ddtoda )     /* Capcom, Dungeons & Dragons: Tower of Doom (Asia 940412) */
+	DRIVER( ddtodar1 )   /* Capcom, Dungeons & Dragons: Tower of Doom (Asia 940113) */
+	DRIVER( ddtodh )     /* Capcom, Dungeons & Dragons: Tower of Doom (Hispanic 940412) */
+	DRIVER( ddtodhr1 )   /* Capcom, Dungeons & Dragons: Tower of Doom (Hispanic 940125) */
+	DRIVER( ddtodhr2 )   /* Capcom, Dungeons & Dragons: Tower of Doom (Hispanic 940113) */
+	DRIVER( ssf2t )      /* Capcom, Super Street Fighter II Turbo (World 940223) */
+	DRIVER( ssf2ta )     /* Capcom, Super Street Fighter II Turbo (Asia 940223) */
+	DRIVER( ssf2th )     /* Capcom, Super Street Fighter II Turbo (Hispanic 940223) */
+	DRIVER( ssf2tu )     /* Capcom, Super Street Fighter II Turbo (USA 940323) */
+	DRIVER( ssf2tur1 )   /* Capcom, Super Street Fighter II Turbo (USA 940223) */
+	DRIVER( ssf2xj )     /* Capcom, Super Street Fighter II X: Grand Master Challenge (Japan 940311) */
+	DRIVER( ssf2xjr1 )   /* Capcom, Super Street Fighter II X: Grand Master Challenge (Japan 940223) */
+	DRIVER( ssf2xjr1r )  /* Capcom, Super Street Fighter II X: Grand Master Challenge (Japan 940223 rent version) */
+	DRIVER( avsp )       /* Capcom, Alien vs. Predator (Euro 940520) */
+	DRIVER( avspu )      /* Capcom, Alien vs. Predator (USA 940520) */
+	DRIVER( avspj )      /* Capcom, Alien vs. Predator (Japan 940520) */
+	DRIVER( avspa )      /* Capcom, Alien vs. Predator (Asia 940520) */
+	DRIVER( avsph )      /* Capcom, Alien vs. Predator (Hispanic 940520) */
+	DRIVER( dstlk )      /* Capcom, Darkstalkers: The Night Warriors (Euro 940705) */
+	DRIVER( dstlku )     /* Capcom, Darkstalkers: The Night Warriors (USA 940818) */
+	DRIVER( dstlkur1 )   /* Capcom, Darkstalkers: The Night Warriors (USA 940705) */
+	DRIVER( dstlka )     /* Capcom, Darkstalkers: The Night Warriors (Asia 940705) */
+	DRIVER( dstlkh )     /* Capcom, Darkstalkers: The Night Warriors (Hispanic 940818) */
+	DRIVER( vampj )      /* Capcom, Vampire: The Night Warriors (Japan 940705) */
+	DRIVER( vampja )     /* Capcom, Vampire: The Night Warriors (Japan 940705 alt) */
+	DRIVER( vampjr1 )    /* Capcom, Vampire: The Night Warriors (Japan 940630) */
+	DRIVER( ringdest )   /* Capcom, Ring of Destruction: Slammasters II (Euro 940902) */
+	DRIVER( ringdesta )  /* Capcom, Ring of Destruction: Slammasters II (Asia 940831) */
+	DRIVER( ringdesth )  /* Capcom, Ring of Destruction: Slammasters II (Hispanic 940902) */
+	DRIVER( ringdestb )  /* Capcom, Ring of Destruction: Slammasters II (Brazil 940902) */
+	DRIVER( smbomb )     /* Capcom, Super Muscle Bomber: The International Blowout (Japan 940831) */
+	DRIVER( smbombr1 )   /* Capcom, Super Muscle Bomber: The International Blowout (Japan 940808) */
+	DRIVER( armwar )     /* Capcom, Armored Warriors (Euro 941024) */
+	DRIVER( armwarr1 )   /* Capcom, Armored Warriors (Euro 941011) */
+	DRIVER( armwaru )    /* Capcom, Armored Warriors (USA 941024) */
+	DRIVER( armwaru1 )   /* Capcom, Armored Warriors (USA 940920) */
+	DRIVER( armwarb )    /* Capcom, Armored Warriors (Brazil 941024) */
+	DRIVER( pgear )      /* Capcom, Powered Gear: Strategic Variant Armor Equipment (Japan 941024) */
+	DRIVER( pgearr1 )    /* Capcom, Powered Gear: Strategic Variant Armor Equipment (Japan 940916) */
+	DRIVER( armwara )    /* Capcom, Armored Warriors (Asia 941024) */
+	DRIVER( armwarar1 )  /* Capcom, Armored Warriors (Asia 940920) */
+	DRIVER( xmcota )     /* Capcom, X-Men: Children of the Atom (Euro 950331) */
+	DRIVER( xmcotar1 )   /* Capcom, X-Men: Children of the Atom (Euro 950105) */
+	DRIVER( xmcotau )    /* Capcom, X-Men: Children of the Atom (USA 950105) */
+	DRIVER( xmcotab )    /* Capcom, X-Men: Children of the Atom (Brazil 950331) */
+	DRIVER( xmcotah )    /* Capcom, X-Men: Children of the Atom (Hispanic 950331) */
+	DRIVER( xmcotahr1 )  /* Capcom, X-Men: Children of the Atom (Hispanic 950105) */
+	DRIVER( xmcotaj )    /* Capcom, X-Men: Children of the Atom (Japan 950105) */
+	DRIVER( xmcotaj1 )   /* Capcom, X-Men: Children of the Atom (Japan 941222) */
+	DRIVER( xmcotaj2 )   /* Capcom, X-Men: Children of the Atom (Japan 941219) */
+	DRIVER( xmcotaj3 )   /* Capcom, X-Men: Children of the Atom (Japan 941217) */
+	DRIVER( xmcotajr )   /* Capcom, X-Men: Children of the Atom (Japan 941208 rent version) */
+	DRIVER( xmcotaa )    /* Capcom, X-Men: Children of the Atom (Asia 950105) */
+	DRIVER( xmcotaar1 )  /* Capcom, X-Men: Children of the Atom (Asia 941219) */
+	DRIVER( xmcotaar2 )  /* Capcom, X-Men: Children of the Atom (Asia 941217) */
+	DRIVER( nwarr )      /* Capcom, Night Warriors: Darkstalkers' Revenge (Euro 950316) */
+	DRIVER( nwarru )     /* Capcom, Night Warriors: Darkstalkers' Revenge (USA 950406) */
+	DRIVER( nwarrh )     /* Capcom, Night Warriors: Darkstalkers' Revenge (Hispanic 950403) */
+	DRIVER( nwarrb )     /* Capcom, Night Warriors: Darkstalkers' Revenge (Brazil 950403) */
+	DRIVER( nwarra )     /* Capcom, Night Warriors: Darkstalkers' Revenge (Asia 950302) */
+	DRIVER( vhuntj )     /* Capcom, Vampire Hunter: Darkstalkers' Revenge (Japan 950316) */
+	DRIVER( vhuntjr1s )  /* Capcom, Vampire Hunter: Darkstalkers' Revenge (Japan 950307 stop version) */
+	DRIVER( vhuntjr1 )   /* Capcom, Vampire Hunter: Darkstalkers' Revenge (Japan 950307) */
+	DRIVER( vhuntjr2 )   /* Capcom, Vampire Hunter: Darkstalkers' Revenge (Japan 950302) */
+	DRIVER( cybots )     /* Capcom, Cyberbots: Fullmetal Madness (Euro 950424) */
+	DRIVER( cybotsu )    /* Capcom, Cyberbots: Fullmetal Madness (USA 950424) */
+	DRIVER( cybotsj )    /* Capcom, Cyberbots: Fullmetal Madness (Japan 950420) */
+	DRIVER( sfa )        /* Capcom, Street Fighter Alpha: Warriors' Dreams (Euro 950727) */
+	DRIVER( sfar1 )      /* Capcom, Street Fighter Alpha: Warriors' Dreams (Euro 950718) */
+	DRIVER( sfar2 )      /* Capcom, Street Fighter Alpha: Warriors' Dreams (Euro 950627) */
+	DRIVER( sfar3 )      /* Capcom, Street Fighter Alpha: Warriors' Dreams (Euro 950605) */
+	DRIVER( sfau )       /* Capcom, Street Fighter Alpha: Warriors' Dreams (USA 950627) */
+	DRIVER( sfza )       /* Capcom, Street Fighter Zero (Asia 950627) */
+	DRIVER( sfzar1 )     /* Capcom, Street Fighter Zero (Asia 950605) */
+	DRIVER( sfzj )       /* Capcom, Street Fighter Zero (Japan 950727) */
+	DRIVER( sfzjr1 )     /* Capcom, Street Fighter Zero (Japan 950627) */
+	DRIVER( sfzjr2 )     /* Capcom, Street Fighter Zero (Japan 950605) */
+	DRIVER( sfzh )       /* Capcom, Street Fighter Zero (Hispanic 950718) */
+	DRIVER( sfzhr1 )     /* Capcom, Street Fighter Zero (Hispanic 950627) */
+	DRIVER( sfzb )       /* Capcom, Street Fighter Zero (Brazil 951109) */
+	DRIVER( sfzbr1 )     /* Capcom, Street Fighter Zero (Brazil 950727) */
+	DRIVER( mmancp2u )   /* Capcom, Mega Man: The Power Battle (CPS2 */
+	DRIVER( mmancp2ur1 ) /* Capcom, Mega Man: The Power Battle (CPS2 */
+	DRIVER( mmancp2ur2 ) /* Capcom, Mega Man: The Power Battle (CPS2 */
+	DRIVER( rmancp2j )   /* Capcom, Rockman: The Power Battle (CPS2 */
+	DRIVER( msh )        /* Capcom, Marvel Super Heroes (Euro 951024) */
+	DRIVER( mshu )       /* Capcom, Marvel Super Heroes (USA 951024) */
+	DRIVER( mshj )       /* Capcom, Marvel Super Heroes (Japan 951117) */
+	DRIVER( mshjr1 )     /* Capcom, Marvel Super Heroes (Japan 951024) */
+	DRIVER( msha )       /* Capcom, Marvel Super Heroes (Asia 951024) */
+	DRIVER( mshh )       /* Capcom, Marvel Super Heroes (Hispanic 951117) */
+	DRIVER( mshb )       /* Capcom, Marvel Super Heroes (Brazil 951117) */
+	DRIVER( mshbr1 )     /* Capcom, Marvel Super Heroes (Brazil 951024) */
+	DRIVER( 19xx )       /* Capcom, 19XX: The War Against Destiny (Euro 960104) */
+	DRIVER( 19xxu )      /* Capcom, 19XX: The War Against Destiny (USA 951207) */
+	DRIVER( 19xxa )      /* Capcom, 19XX: The War Against Destiny (Asia 960104) */
+	DRIVER( 19xxar1 )    /* Capcom, 19XX: The War Against Destiny (Asia 951207) */
+	DRIVER( 19xxj )      /* Capcom, 19XX: The War Against Destiny (Japan 960104 */
+	DRIVER( 19xxjr1 )    /* Capcom, 19XX: The War Against Destiny (Japan 951225) */
+	DRIVER( 19xxjr2 )    /* Capcom, 19XX: The War Against Destiny (Japan 951207) */
+	DRIVER( 19xxh )      /* Capcom, 19XX: The War Against Destiny (Hispanic 951218) */
+	DRIVER( 19xxb )      /* Capcom, 19XX: The War Against Destiny (Brazil 951218) */
+	DRIVER( ddsom )      /* Capcom, Dungeons & Dragons: Shadow over Mystara (Euro 960619) */
+	DRIVER( ddsomr1 )    /* Capcom, Dungeons & Dragons: Shadow over Mystara (Euro 960223) */
+	DRIVER( ddsomr2 )    /* Capcom, Dungeons & Dragons: Shadow over Mystara (Euro 960209) */
+	DRIVER( ddsomr3 )    /* Capcom, Dungeons & Dragons: Shadow over Mystara (Euro 960208) */
+	DRIVER( ddsomu )     /* Capcom, Dungeons & Dragons: Shadow over Mystara (USA 960619) */
+	DRIVER( ddsomur1 )   /* Capcom, Dungeons & Dragons: Shadow over Mystara (USA 960209) */
+	DRIVER( ddsomj )     /* Capcom, Dungeons & Dragons: Shadow over Mystara (Japan 960619) */
+	DRIVER( ddsomjr1 )   /* Capcom, Dungeons & Dragons: Shadow over Mystara (Japan 960206) */
+	DRIVER( ddsomjr2 )   /* Capcom, Dungeons & Dragons: Shadow over Mystara (Japan 960223) */
+	DRIVER( ddsoma )     /* Capcom, Dungeons & Dragons: Shadow over Mystara (Asia 960619) */
+	DRIVER( ddsomar1 )   /* Capcom, Dungeons & Dragons: Shadow over Mystara (Asia 960208) */
+	DRIVER( ddsomh )     /* Capcom, Dungeons & Dragons: Shadow over Mystara (Hispanic 960223) */
+	DRIVER( ddsomb )     /* Capcom, Dungeons & Dragons: Shadow over Mystara (Brazil 960223) */
+	DRIVER( sfa2 )       /* Capcom, Street Fighter Alpha 2 (Euro 960229) */
+	DRIVER( sfa2u )      /* Capcom, Street Fighter Alpha 2 (USA 960430) */
+	DRIVER( sfa2ur1 )    /* Capcom, Street Fighter Alpha 2 (USA 960306) */
+	DRIVER( sfz2j )      /* Capcom, Street Fighter Zero 2 (Japan 960430) */
+	DRIVER( sfz2jr1 )    /* Capcom, Street Fighter Zero 2 (Japan 960227) */
+	DRIVER( sfz2a )      /* Capcom, Street Fighter Zero 2 (Asia 960227) */
+	DRIVER( sfz2b )      /* Capcom, Street Fighter Zero 2 (Brazil 960531) */
+	DRIVER( sfz2br1 )    /* Capcom, Street Fighter Zero 2 (Brazil 960304) */
+	DRIVER( sfz2h )      /* Capcom, Street Fighter Zero 2 (Hispanic 960304) */
+	DRIVER( sfz2n )      /* Capcom, Street Fighter Zero 2 (Oceania 960229) */
+	DRIVER( sfz2al )     /* Capcom, Street Fighter Zero 2 Alpha (Asia 960826) */
+	DRIVER( sfz2alr1 )   /* Capcom, Street Fighter Zero 2 Alpha (Asia 960805) */
+	DRIVER( sfz2alj )    /* Capcom, Street Fighter Zero 2 Alpha (Japan 960805) */
+	DRIVER( sfz2alh )    /* Capcom, Street Fighter Zero 2 Alpha (Hispanic 960813) */
+	DRIVER( sfz2alb )    /* Capcom, Street Fighter Zero 2 Alpha (Brazil 960813) */
+	DRIVER( spf2t )      /* Capcom, Super Puzzle Fighter II Turbo (Euro 960529) */
+	DRIVER( spf2tu )     /* Capcom, Super Puzzle Fighter II Turbo (USA 960620) */
+	DRIVER( spf2xj )     /* Capcom, Super Puzzle Fighter II X (Japan 960531) */
+	DRIVER( spf2ta )     /* Capcom, Super Puzzle Fighter II Turbo (Asia 960529) */
+	DRIVER( spf2th )     /* Capcom, Super Puzzle Fighter II Turbo (Hispanic 960531) */
+	DRIVER( megaman2 )   /* Capcom, Mega Man 2: The Power Fighters (USA 960708) */
+	DRIVER( megaman2a )  /* Capcom, Mega Man 2: The Power Fighters (Asia 960708) */
+	DRIVER( rockman2j )  /* Capcom, Rockman 2: The Power Fighters (Japan 960708) */
+	DRIVER( megaman2h )  /* Capcom, Mega Man 2: The Power Fighters (Hispanic 960712) */
+	DRIVER( qndream )    /* Capcom, Quiz Nanairo Dreams: Nijiirochou no Kiseki (Japan 96086) */
+	DRIVER( xmvsf )      /* Capcom, X-Men Vs. Street Fighter (Euro 961004) */
+	DRIVER( xmvsfr1 )    /* Capcom, X-Men Vs. Street Fighter (Euro 960910) */
+	DRIVER( xmvsfu )     /* Capcom, X-Men Vs. Street Fighter (USA 961023) */
+	DRIVER( xmvsfur1 )   /* Capcom, X-Men Vs. Street Fighter (USA 961004) */
+	DRIVER( xmvsfur2 )   /* Capcom, X-Men Vs. Street Fighter (USA 960910) */
+	DRIVER( xmvsfj )     /* Capcom, X-Men Vs. Street Fighter (Japan 961023) */
+	DRIVER( xmvsfjr1 )   /* Capcom, X-Men Vs. Street Fighter (Japan 961004) */
+	DRIVER( xmvsfjr2 )   /* Capcom, X-Men Vs. Street Fighter (Japan 960910) */
+	DRIVER( xmvsfjr3 )   /* Capcom, X-Men Vs. Street Fighter (Japan 960909) */
+	DRIVER( xmvsfa )     /* Capcom, X-Men Vs. Street Fighter (Asia 961023) */
+	DRIVER( xmvsfar1 )   /* Capcom, X-Men Vs. Street Fighter (Asia 961004) */
+	DRIVER( xmvsfar2 )   /* Capcom, X-Men Vs. Street Fighter (Asia 960919) */
+	DRIVER( xmvsfar3 )   /* Capcom, X-Men Vs. Street Fighter (Asia 960910) */
+	DRIVER( xmvsfh )     /* Capcom, X-Men Vs. Street Fighter (Hispanic 961004) */
+	DRIVER( xmvsfb )     /* Capcom, X-Men Vs. Street Fighter (Brazil 961023) */
+	DRIVER( batcir )     /* Capcom, Battle Circuit (Euro 970319) */
+	DRIVER( batcira )    /* Capcom, Battle Circuit (Asia 970319) */
+	DRIVER( batcirj )    /* Capcom, Battle Circuit (Japan 970319) */
+	DRIVER( vsav )       /* Capcom, Vampire Savior: The Lord of Vampire (Euro 970519) */
+	DRIVER( vsavu )      /* Capcom, Vampire Savior: The Lord of Vampire (USA 970519) */
+	DRIVER( vsavj )      /* Capcom, Vampire Savior: The Lord of Vampire (Japan 970519) */
+	DRIVER( vsava )      /* Capcom, Vampire Savior: The Lord of Vampire (Asia 970519) */
+	DRIVER( vsavh )      /* Capcom, Vampire Savior: The Lord of Vampire (Hispanic 970519) */
+	DRIVER( vsavb )      /* Capcom, Vampire Savior: The Lord of Vampire (Brazil 970519) */
+	DRIVER( mshvsf )     /* Capcom, Marvel Super Heroes Vs. Street Fighter (Euro 970625) */
+	DRIVER( mshvsfu )    /* Capcom, Marvel Super Heroes Vs. Street Fighter (USA 970827) */
+	DRIVER( mshvsfu1 )   /* Capcom, Marvel Super Heroes Vs. Street Fighter (USA 970625) */
+	DRIVER( mshvsfj )    /* Capcom, Marvel Super Heroes Vs. Street Fighter (Japan 970707) */
+	DRIVER( mshvsfj1 )   /* Capcom, Marvel Super Heroes Vs. Street Fighter (Japan 970702) */
+	DRIVER( mshvsfj2 )   /* Capcom, Marvel Super Heroes Vs. Street Fighter (Japan 970625) */
+	DRIVER( mshvsfh )    /* Capcom, Marvel Super Heroes Vs. Street Fighter (Hispanic 970625) */
+	DRIVER( mshvsfa )    /* Capcom, Marvel Super Heroes Vs. Street Fighter (Asia 970625) */
+	DRIVER( mshvsfa1 )   /* Capcom, Marvel Super Heroes Vs. Street Fighter (Asia 970620) */
+	DRIVER( mshvsfb )    /* Capcom, Marvel Super Heroes Vs. Street Fighter (Brazil 970827) */
+	DRIVER( mshvsfb1 )   /* Capcom, Marvel Super Heroes Vs. Street Fighter (Brazil 970625) */
+	DRIVER( csclub )     /* Capcom, Capcom Sports Club (Euro 971017) */
+	DRIVER( csclub1 )    /* Capcom, Capcom Sports Club (Euro 970722) */
+	DRIVER( cscluba )    /* Capcom, Capcom Sports Club (Asia 970722) */
+	DRIVER( csclubj )    /* Capcom, Capcom Sports Club (Japan 970722) */
+	DRIVER( csclubjy )   /* Capcom, Capcom Sports Club (Japan 970722 */
+	DRIVER( csclubh )    /* Capcom, Capcom Sports Club (Hispanic 970722) */
+	DRIVER( sgemf )      /* Capcom, Super Gem Fighter Mini Mix (USA 970904) */
+	DRIVER( pfghtj )     /* Capcom, Pocket Fighter (Japan 970904) */
+	DRIVER( sgemfa )     /* Capcom, Super Gem Fighter: Mini Mix (Asia 970904) */
+	DRIVER( sgemfh )     /* Capcom, Super Gem Fighter: Mini Mix (Hispanic 970904) */
+	DRIVER( vhunt2 )     /* Capcom, Vampire Hunter 2: Darkstalkers Revenge (Japan 970929) */
+	DRIVER( vhunt2r1 )   /* Capcom, Vampire Hunter 2: Darkstalkers Revenge (Japan 970913) */
+	DRIVER( vsav2 )      /* Capcom, Vampire Savior 2: The Lord of Vampire (Japan 970913) */
+	DRIVER( mvsc )       /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (Euro 980123) */
+	DRIVER( mvscr1 )     /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (Euro 980112) */
+	DRIVER( mvscu )      /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (USA 980123) */
+	DRIVER( mvscur1 )    /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (USA 971222) */
+	DRIVER( mvscj )      /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (Japan 980123) */
+	DRIVER( mvscjr1 )    /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (Japan 980112) */
+	DRIVER( mvscjsing )  /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (Japan 980123) (Single PCB) */
+	DRIVER( mvsca )      /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (Asia 980123) */
+	DRIVER( mvscar1 )    /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (Asia 980112) */
+	DRIVER( mvsch )      /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (Hispanic 980123) */
+	DRIVER( mvscb )      /* Capcom, Marvel Vs. Capcom: Clash of Super Heroes (Brazil 980123) */
+	DRIVER( sfa3 )       /* Capcom, Street Fighter Alpha 3 (Euro 980904) */
+	DRIVER( sfa3u )      /* Capcom, Street Fighter Alpha 3 (USA 980904) */
+	DRIVER( sfa3ur1 )    /* Capcom, Street Fighter Alpha 3 (USA 980629) */
+	DRIVER( sfa3us )     /* Capcom, Street Fighter Alpha 3 (USA 980616 */
+	DRIVER( sfa3h )      /* Capcom, Street Fighter Alpha 3 (Hispanic 980904) */
+	DRIVER( sfa3hr1 )    /* Capcom, Street Fighter Alpha 3 (Hispanic 980629) */
+	DRIVER( sfa3b )      /* Capcom, Street Fighter Alpha 3 (Brazil 980629) */
+	DRIVER( sfz3j )      /* Capcom, Street Fighter Zero 3 (Japan 980904) */
+	DRIVER( sfz3jr1 )    /* Capcom, Street Fighter Zero 3 (Japan 980727) */
+	DRIVER( sfz3jr2 )    /* Capcom, Street Fighter Zero 3 (Japan 980629) */
+	DRIVER( sfz3a )      /* Capcom, Street Fighter Zero 3 (Asia 980904) */
+	DRIVER( sfz3ar1 )    /* Capcom, Street Fighter Zero 3 (Asia 980701) */
+	DRIVER( jyangoku )   /* Capcom, Jyangokushi: Haoh no Saihai (Japan 990527) */
+	DRIVER( hsf2 )       /* Capcom, Hyper Street Fighter II: The Anniversary Edition (USA 040202) */
+	DRIVER( hsf2a )      /* Capcom, Hyper Street Fighter II: The Anniversary Edition (Asia 040202) */
+	DRIVER( hsf2j )      /* Capcom, Hyper Street Fighter II: The Anniversary Edition (Japan 040202) */
+	DRIVER( hsf2j1 )     /* Capcom, Hyper Street Fighter II: The Anniversary Edition (Japan 031222) */
+	DRIVER( gigawing )   /* Takumi (Capcom license), Giga Wing (USA 990222) */
+	DRIVER( gigawingj )  /* Takumi (Capcom license), Giga Wing (Japan 990223) */
+	DRIVER( gigawinga )  /* Takumi (Capcom license), Giga Wing (Asia 990222) */
+	DRIVER( gigawingh )  /* Takumi (Capcom license), Giga Wing (Hispanic 990222) */
+	DRIVER( gigawingb )  /* Takumi (Capcom license), Giga Wing (Brazil 990222) */
+	DRIVER( mmatrix )    /* Takumi (Capcom license), Mars Matrix: Hyper Solid Shooting (USA 000412) */
+	DRIVER( mmatrixa )   /* Takumi (Capcom license), Mars Matrix: Hyper Solid Shooting (Asia 000412) */
+	DRIVER( mmatrixj )   /* Takumi (Capcom license), Mars Matrix: Hyper Solid Shooting (Japan 000412) */
+	DRIVER( mpang )      /* Mitchell (Capcom license), Mighty! Pang (Euro 001010) */
+	DRIVER( mpangr1 )    /* Mitchell (Capcom license), Mighty! Pang (Euro 000925) */
+	DRIVER( mpangu )     /* Mitchell (Capcom license), Mighty! Pang (USA 001010) */
+	DRIVER( mpangj )     /* Mitchell (Capcom license), Mighty! Pang (Japan 001011) */
+	DRIVER( mpanga )     /* Mitchell (Capcom license), Mighty! Pang (Asia 001010) */
+	DRIVER( pzloop2 )    /* Mitchell (Capcom license), Puzz Loop 2 (Euro 010302) */
+	DRIVER( pzloop2j )   /* Mitchell (Capcom license), Puzz Loop 2 (Japan 010226) */
+	DRIVER( pzloop2jr1 ) /* Mitchell (Capcom license), Puzz Loop 2 (Japan 010205) */
+	DRIVER( choko )      /* Mitchell (Capcom license), Janpai Puzzle Choukou (Japan 010820) */
+	DRIVER( dimahoo )    /* Eighting / Raizing (Capcom license), Dimahoo (Euro 000121) */
+	DRIVER( dimahoou )   /* Eighting / Raizing (Capcom license), Dimahoo (USA 000121) */
+	DRIVER( gmahou )     /* Eighting / Raizing (Capcom license), Great Mahou Daisakusen (Japan 000121) */
+	DRIVER( 1944 )       /* Eighting / Raizing (Capcom license), 1944: The Loop Master (Euro 000620) */
+	DRIVER( 1944j )      /* Eighting / Raizing (Capcom license), 1944: The Loop Master (Japan 000620) */
+	DRIVER( 1944u )      /* Eighting / Raizing (Capcom license), 1944: The Loop Master (USA 000620) */
+	DRIVER( progear )    /* Cave (Capcom license), Progear (USA 010117) */
+	DRIVER( progearj )   /* Cave (Capcom license), Progear no Arashi (Japan 010117) */
+	DRIVER( progeara )   /* Cave (Capcom license), Progear (Asia 010117) */
+	#if defined(CPS2_BOOTLEG)
+	DRIVER( ddtodd )     /* bootleg, Dungeons & Dragons: Tower of Doom (Euro 940412 Phoenix Edition) (bootleg) */
+	DRIVER( ecofghtrd )  /* bootleg, Eco Fighters (World 931203 Phoenix Edition) (bootleg) */
+	DRIVER( ssf2ud )     /* bootleg, Super Street Fighter II: The New Challengers (USA 930911 Phoenix Edition) (bootleg) */
+	DRIVER( ssf2tbd )    /* bootleg, Super Street Fighter II: The Tournament Battle (World 931119 Phoenix Edition) (bootleg) */
+	DRIVER( armwar1d )   /* bootleg, Armored Warriors (Euro 941011 Phoenix Edition) (bootleg) */
+	DRIVER( avspd )      /* bootleg, Alien vs. Predator (Euro 940520 Phoenix Edition) (bootleg) */
+	DRIVER( dstlku1d )   /* bootleg, Darkstalkers: The Night Warriors (USA 940705 Phoenix Edition) (bootleg) */
+	DRIVER( ringdstd )   /* bootleg, Ring of Destruction: Slammasters II (Euro 940902 Phoenix Edition) (bootleg) */
+	DRIVER( ssf2tad )    /* bootleg, Super Street Fighter II Turbo (Asia 940223 Phoenix Edition) (bootleg) */
+	DRIVER( ssf2xjr1d )  /* bootleg, Super Street Fighter II X: Grand Master Challenge (Japan 940223 Phoenix Edition) (bootleg) */
+	DRIVER( xmcotar1d )  /* bootleg, X-Men: Children of the Atom (Euro 950105 Phoenix Edition) (bootleg) */
+	DRIVER( mshud )      /* bootleg, Marvel Super Heroes (US 951024 Phoenix Edition) (bootleg) */
+	DRIVER( cybotsud )   /* bootleg, Cyberbots: Fullmetal Madness (USA 950424 Phoenix Edition) (bootleg) */
+	DRIVER( cybotsjd )   /* bootleg, Cyberbots: Fullmetal Madness (Japan 950424) (decrypted bootleg) */
+	DRIVER( nwarrud )    /* bootleg, Night Warriors: Darkstalkers' Revenge (USA 950406 Phoenix Edition) (bootleg) */
+	DRIVER( sfad )       /* bootleg, Street Fighter Alpha: Warriors' Dreams (Euro 950727 Phoenix Edition) (bootleg) */
+	DRIVER( 19xxd )      /* bootleg, 19XX: The War Against Destiny (USA 951207 Phoenix Edition) (bootleg) */
+	DRIVER( ddsomud )    /* bootleg, Dungeons & Dragons: Shadow over Mystara (USA 960619 Phoenix Edition) (bootleg) */
+	DRIVER( gigaman2 )   /* bootleg, Giga Man 2: The Power Fighters (bootleg of Mega Man 2: The Power Fighters) */
+	DRIVER( megamn2d )   /* bootleg, Mega Man 2: The Power Fighters (USA 960708 Phoenix Edition) (bootleg) */
+	DRIVER( sfz2ad )     /* bootleg, Street Fighter Zero 2 (Asia 960227 Phoenix Edition) (bootleg) */
+	DRIVER( sfz2jd )     /* bootleg, Street Fighter Zero 2 (Japan 960227 Phoenix Edition) (bootleg) */
+	DRIVER( spf2td )     /* bootleg, Super Puzzle Fighter II Turbo (USA 960620 Phoenix Edition) (bootleg) */
+	DRIVER( spf2xjd )    /* bootleg, Super Puzzle Fighter II X (Japan 960531 Phoenix Edition) (bootleg) */
+	DRIVER( sfz2ald )    /* bootleg, Street Fighter Zero 2 Alpha (Asia 960826 Phoenix Edition) (bootleg) */
+	DRIVER( xmvsfu1d )   /* bootleg, X-Men Vs. Street Fighter (USA 961004 Phoenix Edition) (bootleg) */
+	DRIVER( batcird )    /* bootleg, Battle Circuit (Euro 970319 Phoenix Edition) (bootleg) */
+	DRIVER( csclub1d )   /* bootleg, Capcom Sports Club (Euro 970722 Phoenix Edition) (bootleg) */
+	DRIVER( mshvsfu1d )  /* bootleg, Marvel Super Heroes Vs. Street Fighter (USA 970625 Phoenix Edition) (bootleg) */
+	DRIVER( sgemfd )     /* bootleg, Super Gem Fighter Mini Mix (USA 970904 Phoenix Edition) (bootleg) */
+	DRIVER( vsavd )      /* bootleg, Vampire Savior: The Lord of Vampire (Euro 970519 Phoenix Edition) (bootleg) */
+	DRIVER( vhunt2d )    /* bootleg, Vampire Hunter 2: Darkstalkers Revenge (Japan 970913 Phoenix Edition) (bootleg) */
+	DRIVER( vsav2d )     /* bootleg, Vampire Savior 2: The Lord of Vampire (Japan 970913 Phoenix Edition) (bootleg) */
+	DRIVER( mvscud )     /* bootleg, Marvel Vs. Capcom: Clash of Super Heroes (USA 980123 Phoenix Edition) (bootleg) */
+	DRIVER( sfa3ud )     /* bootleg, Street Fighter Alpha 3 (USA 980904 Phoenix Edition) (bootleg) */
+	DRIVER( sfz3jr2d )   /* bootleg, Street Fighter Zero 3 (Japan 980629 Phoenix Edition) (bootleg) */
+	DRIVER( gigawingd )  /* bootleg, Giga Wing (USA 990222 Phoenix Edition) (bootleg) */
+	DRIVER( gigawingjd ) /* bootleg, Giga Wing (Japan 990223 Phoenix Edition) (bootleg) */
+	DRIVER( 1944d )      /* bootleg, 1944: The Loop Master (USA 000620 Phoenix Edition) (bootleg) */
+	DRIVER( dimahoud )   /* bootleg, Dimahoo (USA 000121 Phoenix Edition) (bootleg) */
+	DRIVER( mmatrixd )   /* bootleg, Mars Matrix: Hyper Solid Shooting (USA 000412 Phoenix Edition) (bootleg) */
+	DRIVER( progearud )  /* bootleg, Progear (USA 010117 Phoenix Edition) (bootleg) */
+	DRIVER( progearjd )  /* bootleg, Progear no Arashi (Japan 010117 Phoenix Edition) (bootleg) */
+	DRIVER( progearjbl ) /* bootleg, Progear no Arashi (Japan 010117) (decrypted bootleg) */
+	DRIVER( pzloop2jd )  /* bootleg, Puzz Loop 2 (Japan 010226 Phoenix Edition) (bootleg) */
+	DRIVER( hsf2d )      /* bootleg, Hyper Street Fighter II: The Anniversary Edition (Asia 040202 Phoenix Edition) (bootleg)  */
+	#endif
 	/* Capcom CPS3 games */
 	/* 10/1996 Warzard */
 	/*  2/1997 Street Fighter III - New Generation */
@@ -2493,6 +2667,7 @@ V-V                           TP-027
 	DRIVER( hatena )	/* 28/02/1990 (QUIZ 2) (c) 1990 Capcom (Japan) */
 	DRIVER( spang )		/* 14/09/1990 (c) 1990 Mitchell (World) */
 	DRIVER( sbbros )	/* 01/10/1990 (c) 1990 Mitchell + Capcom (US) not listed on Capcom's site */
+	DRIVER( mstworld )  /* TCH bootleg 1994 */
 	DRIVER( marukin )	/* 17/10/1990 (c) 1990 Yuga (Japan) */
 	DRIVER( qtono1 )	/* 25/12/1990 (QUIZ 3) (c) 1991 Capcom (Japan) */
 	/*  4/1991 Ashita Tenki ni Naare (golf) */
@@ -2746,6 +2921,7 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( transfrm )	/* 834-5803 (c) 1986 */
 	DRIVER( astrofl )	/* 834-5803 (c) 1986 */
 	DRIVER( ridleofp )	/* (c) 1986 Sega / Nasco */
+  DRIVER( megrescu )	/* (c) 1987 Sega / Exa */
 	DRIVER( opaopa )    /* (c) 1987 */
 	DRIVER( opaopan )   /* (c) 1987 */
 	DRIVER( tetrisse )  /* (c) 1988 */
@@ -2777,7 +2953,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( aliensyj )	/* (c) 1987 (protected. Japan) */
 	DRIVER( astorm )	/* (c) 1990 (protected) */
 	DRIVER( astorm2p )	/* (c) 1990 (protected 2 Players) */
-	DRIVER( auraila )	/* (c) 1990 Sega / Westone (protected) */
+	DRIVER( aurail1 )	/* (c) 1990 Sega / Westone (protected) */
+	DRIVER( aurailj )	/* (c) 1990 Sega / Westone (protected) */
 	DRIVER( bayrouta )	/* (c) 1989 (protected) */
 	DRIVER( bayrtbl1 )	/* (c) 1989 (protected) (bootleg) */
 	DRIVER( bayrtbl2 )	/* (c) 1989 (protected) (bootleg) */
@@ -2799,6 +2976,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( tetrisa )	/* (c) 1988 (protected) */
 	DRIVER( wb3a )		/* (c) 1988 Sega / Westone (protected) */
 
+	DRIVER( aquario )
+	DRIVER( hamaway )
 	DRIVER( aceattac )	/* (protected) */
 	DRIVER( afighter )	/* (protected) */
 	DRIVER( bloxeed )	/* (protected) */
@@ -2807,6 +2986,11 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( cottona )	/* (protected) */
 	DRIVER( ddcrew )	/* (protected) */
 	DRIVER( dunkshot )	/* (protected) */
+	DRIVER( dunkshota )	/* (protected) */
+	DRIVER( dunkshoto )	/* (protected) */
+	DRIVER( defense )	/* (protected) */
+	DRIVER( sdib )		/* (protected) */
+	DRIVER( sjryuko )	/* (protected) */
 	DRIVER( exctleag )  /* (protected) */
 	DRIVER( lghost )	/* (protected) */
 	DRIVER( loffire )	/* (protected) */
@@ -2814,19 +2998,26 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( ryukyu )	/* (protected) */
 	DRIVER( suprleag )  /* (protected) */
 	DRIVER( thndrbld )	/* (protected) */
-	DRIVER( thndrbdj )  /* (protected?) */
+	DRIVER( thndrbld1 ) /* (protected?) */
 
 	/* Working */
+	DRIVER( abcop )  /* 1990 (decrypted) */
 	DRIVER( aburner )	/* (c) 1987 */
 	DRIVER( aburner2 )  /* (c) 1987 */
-	DRIVER( alexkida )	/* (c) 1986 */
+	DRIVER( afightera )	/* (c) 1986 (Unprotected) */
+	DRIVER( alexkidd1 )	/* (c) 1986 */
 	DRIVER( aliensyn )	/* (c) 1987 */
 	DRIVER( altbeas2 )	/* (c) 1988 */
 	DRIVER( altbeast )	/* (c) 1988 */
 	DRIVER( astormbl )	/* bootleg */
 	DRIVER( atomicp )	/* (c) 1990 Philko */
+	DRIVER( snapper )	/* (c) 1990 Philko */
 	DRIVER( aurail )	/* (c) 1990 Sega / Westone */
+	DRIVER( aurail1d )	/* (c) 1990 Sega / Westone */
+	DRIVER( aurailjd )	/* (c) 1990 Sega / Westone */
 	DRIVER( bayroute )	/* (c) 1989 Sunsoft / Sega */
+	DRIVER( cottond )
+	DRIVER( bulletd )
 	DRIVER( bodyslam )	/* (c) 1986 */
 	DRIVER( dduxbl )	/* (c) 1989 (Datsu bootleg) */
 	DRIVER( dumpmtmt )	/* (c) 1986 (Japan) */
@@ -2853,6 +3044,7 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( quartet2 )	/* (c) 1986 */
 	DRIVER( quartt2j )	/* (c) 1986 */
 	DRIVER( quartetj )	/* (c) 1986 */
+  DRIVER( rachero )  /* 1989 (decrypted) */
 	DRIVER( riotcity )	/* (c) 1991 Sega / Westone */
 	DRIVER( sdi )		/* (c) 1987 */
 	DRIVER( shangonb )	/* (c) 1992 (but bootleg) */
@@ -2863,6 +3055,7 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( shdancrb )	/* (c) 1989 */
 	DRIVER( shinobi )	/* (c) 1987 */
 	DRIVER( shinobl )	/* (c) 1987 (but bootleg) */
+  DRIVER( smgp )  /* 1989 (decrypted) */
 	DRIVER( sonicbom )	/* (c) 1987 */
 	DRIVER( tetrisbl )	/* (c) 1988 (but bootleg) */
 	DRIVER( timscanr )	/* (c) 1987 */
@@ -2875,6 +3068,7 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( wb3 )		/* (c) 1988 Sega / Westone */
 	DRIVER( wb3bl )		/* (c) 1988 Sega / Westone (but bootleg) */
 	DRIVER( wrestwar )	/* (c) 1989 */
+	DRIVER( fantzn2x )	/* (c) 2008 */
 
 /*
 Sega System 24 game list
@@ -2915,30 +3109,31 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( svs )		/* (c) 1994 */
 	DRIVER( jleague )	/* (c) 1994 (Japan) */
 	DRIVER( brival )	/* (c) 1992 (Japan) */
-	DRIVER( radm )
+	DRIVER( radm )    /* (c) 1991 */
 	DRIVER( radr )		/* (c) 1991 */
-	DRIVER( f1en )
+	DRIVER( f1en )    /* (c) 1991 */
 	DRIVER( alien3 )	/* (c) 1993 */
 	DRIVER( sonic )		/* (c) 1992 (Japan) */
 	DRIVER( sonicp )	/* (c) 1992 (Japan) */
 	DRIVER( jpark )		/* (c) 1994 */
-	DRIVER( ga2 )		/* (c) 1992 */
+	DRIVER( ga2 )		  /* (c) 1992 */
 	DRIVER( ga2j )		/* (c) 1992 */
 	DRIVER( spidey )	/* (c) 1991 */
 	DRIVER( spideyj )	/* (c) 1991 (Japan) */
 	DRIVER( arabfgt )	/* (c) 1991 */
 	DRIVER( arescue )	/* (c) 1992 */
-	DRIVER( f1lap )     /* (c) 1993 (World) */
-	DRIVER( f1lapj )    /* (c) 1993 (Japan) */
-	DRIVER( dbzvrvs )
-	DRIVER( darkedge )
-	DRIVER( slipstrm )	/* Capcom */
+	DRIVER( f1lap )   /* (c) 1993 (World) */
+	DRIVER( f1lapj )  /* (c) 1993 (Japan) */
+	DRIVER( dbzvrvs ) /* (c) 1994 */
+	DRIVER( darkedge ) /* (c) 1992 */
+	DRIVER( slipstrm ) /* (c) 1995 (Brazil) Capcom */
+  DRIVER( slipstrh ) /* (c) 1995 (Hispanic) Capcom */
 
 	/* Sega Multi System 32 games */
 	DRIVER( orunners )	/* (c) 1992 (US) */
 	DRIVER( harddunk )	/* (c) 1994 (World) */
 	DRIVER( harddunj )	/* (c) 1994 (Japan) */
-	DRIVER( titlef )
+	DRIVER( titlef )    /* (c) 1992 */
 	DRIVER( scross )	/* (c) 1992 (World) */
 
 	/* Sega ST-V games */
@@ -3026,6 +3221,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tfrceac )	/* (c) 1990 Sega / Technosoft */
 	DRIVER( tfrceacj )	/* (c) 1990 Sega / Technosoft */
 	DRIVER( tfrceacb )	/* bootleg */
+	DRIVER( tfrceacjpb ) /* Prototype Bootleg */
 	DRIVER( ribbit )	/* (c) 1991 Sega */
 	DRIVER( tantr )		/* (c) 1992 Sega */
 	DRIVER( tantrkor )	/* (c) 1993 Sega */
@@ -3055,10 +3251,14 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( puckpkmn )	/* (c) 2000 Genie */
 	DRIVER( jzth )		/* (c) 2000 <unknown> */
 	DRIVER( sbubsm )	/* (c) 1996 Sun Mixing */
-  DRIVER( barek3mb ) /* (c) 1994 bootleg / Sega */  
+  DRIVER( barek3mb ) /* (c) 1994 bootleg / Sega */
   DRIVER( aladmdb ) /*  (c) 1993 bootleg / Sega */
-  DRIVER( barek2ch ) /* (c) 1994 bootleg / Sega */ 
-    
+  DRIVER( barek2ch ) /* (c) 1994 bootleg / Sega */
+  DRIVER( sonic2mb ) /* (c) 1993 bootleg / Sega */
+  DRIVER( sonic3mb ) /* (c) 1993 bootleg / Sega */
+  DRIVER( jparkmb )  /* (c) 1993 bootleg / Sega */
+  DRIVER( twinktmb )  /* (c) 1993 bootleg / Sega */
+
 	/* Sega MegaTech, the number shown ia on the label of the instruction rom */
 	DRIVER( mt_beast )	/* 01 */
 	DRIVER( mt_shar2 )	/* 02 */
@@ -3148,6 +3348,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( mmonkey )	/* (c) 1982 Technos Japan + Roller Tron */
 	/* cassette system, parent is decocass */
 	DRIVER( ctsttape )	/* ? */
+  DRIVER( chwy )		  /* 02 (c) 1980 */
+	DRIVER( cmanhat  )  /* 03 (c) 1981 */
 	DRIVER( cterrani )	/* 04 (c) 1981 */
 	DRIVER( castfant )	/* 07 (c) 1981 */
 	DRIVER( csuperas )	/* 09 (c) 1981 */
@@ -3173,18 +3375,20 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( cgraplp2 )	/* 28? (c) 1983 */
 	DRIVER( clapapa )	/* 29 (c) 1983 */
 	DRIVER( clapapa2 )	/* 29 (c) 1983 */ /* this one doesn't display lapapa anyehere */
+  DRIVER( cskater )   /* 30 (c) 1983 */
 	DRIVER( cnightst )	/* 32 (c) 1983 */
 	DRIVER( cnights2 )	/* 32 (c) 1983 */
 	DRIVER( cprosocc )	/* 33 (c) 1983 */
+  DRIVER( csdtenis )  /* 34 (c) 1983 */
 	DRIVER( cprobowl )	/* ?? (c) 1983 */
 	DRIVER( cscrtry )	/* 38 (c) 1984 */
 	DRIVER( cscrtry2 )	/* 38 (c) 1984 */
 	DRIVER( cppicf )	/* 39 (c) 1984 */
 	DRIVER( cppicf2 )	/* 39 (c) 1984 */
 	DRIVER( cfghtice )	/* 40 (c) 1984 */
+  DRIVER( coozumou )  /* 43 (c) 1984 */
 	DRIVER( cbdash )	/* 44 (c) 1985 */
 	/* the following don't work at all */
-	DRIVER( chwy )		/* ?? (c) 198? */
 	DRIVER( cflyball ) /* ?? (c) 198? */
 	DRIVER( czeroize ) /* ?? (c) 198? */
 
@@ -3383,6 +3587,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( nslasher )	/* MBH (c) 1994 Data East Corporation  */
 	DRIVER( nslasherj )	/* MBH (c) 1994 Data East Corporation  */
 	DRIVER( nslashers )	/* MBH (c) 1994 Data East Corporation  */
+  DRIVER( nslasheru )	/* MBH (c) 1994 Data East Corporation  */
 	/* MBI ?? */
 	/* MBJ ?? */
 	/* MBK ?? */
@@ -3453,6 +3658,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( rygar2 )	/* 6002 - (c) 1986 Tecmo */
 	DRIVER( rygarj )	/* 6002 - (c) 1986 Tecmo */
 	DRIVER( gemini )	/* (c) 1987 Tecmo */
+  DRIVER( backfirt )	/* 6217 - (c) 1988 Tecmo */
 	DRIVER( silkworm )	/* 6217 - (c) 1988 Tecmo */
 	DRIVER( silkwrm2 )	/* 6217 - (c) 1988 Tecmo */
 	DRIVER( tbowl )		/* 6206 - (c) 1987 Tecmo */
@@ -3474,8 +3680,10 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( fstarfrc )	/* (c) 1992 Tecmo */
 	DRIVER( ginkun )	/* (c) 1995 Tecmo */
 	DRIVER( riot )	        /* (c) 1992 NMK */
-	DRIVER( deroon )
-	DRIVER( tkdensho )
+	DRIVER( deroon )    /* (c) 1996 Tecmo */
+	DRIVER( deroon2 )   /* (c) 1996 Tecmo */
+	DRIVER( tkdensho )  /* (c) 1996 Tecmo */
+	DRIVER( tkdensha )  /* (c) 1996 Tecmo */
   DRIVER( drgnbowl )  /* (c) 1992 Nics */
 
 	/* Konami bitmap games */
@@ -3767,6 +3975,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( puzldama )	/* GX315 (c) 1994 (Japan) */
 	DRIVER( gokuparo )	/* GX321 (c) 1994 (Japan) */
 	DRIVER( fantjour )	/* GX321 */
+	DRIVER( dragoona )
 	DRIVER( dragoonj )	/* GX417 (c) 1995 (Japan) */
 	DRIVER( tbyahhoo )	/* GX424 (c) 1995 (Japan) */
 	DRIVER( tkmmpzdm )	/* GX515 (c) 1995 (Japan) */
@@ -3939,6 +4148,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( centipb2 )	/* (bootleg) */
 	DRIVER( millpac )	/* Valadon */
 	DRIVER( magworm )	/* (bootleg) */
+	DRIVER( mazeinv )	/* (proto)			(c) 1981 */
 	DRIVER( milliped )	/* 136013			(c) 1982 */
 	DRIVER( qwak )	 	/* (proto)			(c) 1982 */
 	DRIVER( runaway )	/* (proto)          (c) 1982 */
@@ -4172,6 +4382,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	/* Escape from the Planet of Robot Monsters */
 	DRIVER( eprom )		/* 136069			(c) 1989 */
 	DRIVER( eprom2 )	/* 136069			(c) 1989 */
+  DRIVER( guts )	  /* prototype */
 	/* Skull and Crossbones */
 	DRIVER( skullxbo )	/* 136072			(c) 1989 */
 	DRIVER( skullxb4 )	/* 136072			(c) 1989 */
@@ -4211,6 +4422,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( shuuz )		/* 136083			(c) 1990 */
 	DRIVER( shuuz2 )	/* 136083			(c) 1990 */
 	DRIVER( batman )	/* 136085			(c) 1991 */
+	DRIVER( marblmd2 )
 	DRIVER( roadriot )	/* 136089			(c) 1991 */
 	DRIVER( offtwall )	/* 136090			(c) 1991 */
 	DRIVER( offtwalc )	/* 136090			(c) 1991 */
@@ -4555,14 +4767,14 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( nbajamt1 )	/* (c) 1994 Midway */
 	DRIVER( nbajamt2 )	/* (c) 1994 Midway */
 	DRIVER( nbajamt3 )	/* (c) 1994 Midway */
+	DRIVER( nbajamtr )	/* 2022 DemiGodX */
 	DRIVER( revx )		/* (c) 1994 Midway */
 	DRIVER( mk3 )		/* (c) 1994 Midway */
 	DRIVER( mk3r20 )	/* (c) 1994 Midway */
 	DRIVER( mk3r10 )	/* (c) 1994 Midway */
 	DRIVER( umk3 )		/* (c) 1994 Midway */
 	DRIVER( umk3r11 )	/* (c) 1994 Midway */
-	DRIVER( umk3pb1 )		/* hack plus beta 1*/
-	DRIVER( umk3pb2 )		/* hack plus beta 2*/
+	DRIVER( umk3p )		/* hack plus beta 2*/
 	DRIVER( wwfmania )	/* (c) 1995 Midway */
 	DRIVER( openice )	/* (c) 1995 Midway */
 	DRIVER( nbahangt )	/* (c) 1996 Midway */
@@ -4766,6 +4978,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( kickoff )	/* (c) 1988 (Japan) */
 	DRIVER( tshingen )	/* (c) 1988 (Japan) */
 	DRIVER( tshingna )	/* (c) 1988 (Japan) */
+  DRIVER( kazan )	    /* (c) 1988 (World) */
 	DRIVER( iganinju )	/* (c) 1988 (Japan) */
 	DRIVER( astyanax )	/* (c) 1989 */
 	DRIVER( lordofk )	/* (c) 1989 (Japan) */
@@ -4779,7 +4992,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( avspirit )	/* (c) 1991 */
 	DRIVER( inyourfa )  /* (c) 1991 (US, prototype) */
 	DRIVER( phantasm )	/* (c) 1991 (Japan) */
-	DRIVER( edf )		/* (c) 1991 */
+	DRIVER( edf )		    /* (c) 1991 */
+  DRIVER( edfu )		  /* (c) 1991 (North America) */
 	DRIVER( 64street )	/* (c) 1991 */
 	DRIVER( 64streej )	/* (c) 1991 (Japan) */
 	DRIVER( soldamj )	/* (c) 1992 (Japan) */
@@ -5223,6 +5437,8 @@ Other Sun games
 	/* Playmark games */
 	DRIVER( sslam )		/* (c) 1993 */
 	DRIVER( sslama )	/* (c) 1993 */
+  DRIVER( powerbal ) /* (c) 1994 */
+  DRIVER( hrdtimes ) /* (c) 1994 */
 	DRIVER( bigtwin )	/* (c) 1995 */
 	DRIVER( wbeachvl )	/* (c) 1995 */
 
@@ -5283,6 +5499,7 @@ Other Sun games
 	DRIVER( paradise )	/* (c) >1994 Yun Sung */
 	DRIVER( tgtball )	/* (c) 1995 Yun Sung */
 	DRIVER( tgtballa )	/* (c) 1995 Yun Sung */
+  DRIVER( penky )	    /* (c) 1995 Yun Sung */
 	DRIVER( torus ) 	/* (c) 1996 Yun Sung */
 	DRIVER( madball )	/* (c) 1998 Yun Sung */
 	DRIVER( madballn )	/* (c) 1997 Yun Sung */
@@ -5322,6 +5539,7 @@ Other Sun games
 	DRIVER( redhawk )	  /* (c) 1997 */
 	DRIVER( grdnstrm )	/* (c) 1998 */
 	DRIVER( bubl2000 )	/* (c) 1998 Tuning */
+  DRIVER( spec2k )    /* (c) 2000 Yonatech */
 
 	/* ESD games */
 	/* http://www.esdgame.co.kr/english/ */
@@ -5334,6 +5552,7 @@ Other Sun games
 	DRIVER( mchampdxa )	/* (c) 1999 ESD (ver. 1126) */
 	DRIVER( deluxe5 )	/* (c) 2000 ESD (ver. 0107) */
 	DRIVER( tangtang )	/* (c) 2000 ESD (ver. 0526) */
+  DRIVER( firehawk )  /* (c) 2001 ESD */
 	DRIVER( swatpolc )	/* (c) 2001 ESD */
 
 	/* Dyna Electronics / Dynax / Nakanihon games */
@@ -5406,7 +5625,10 @@ Other Sun games
 	DRIVER( kov115 )	/* (c) 1999 */
 	DRIVER( kovsh )		/* (c) 1999 */
 	DRIVER( photoy2k )	/* (c) 1999 */
-	DRIVER( puzlstar )      /* (c) 1999 */
+	DRIVER( puzlstar )  /* (c) 1999 */
+  DRIVER( puzzli2 )   /* (c) 1999 */
+  DRIVER( puzzli2s )  /* (c) 2001 */
+  DRIVER( py2k2 )     /* (c) 2001 */
 
 	/* RamTek games */
 	DRIVER( hitme )		/* [1976 Ramtek] */
@@ -5425,6 +5647,7 @@ Other Sun games
 	DRIVER( speedspn )	/* (c) 1994 */
 	DRIVER( kickgoal )	/* (c) 1995 */
 	DRIVER( actionhw )	/* (c) 1995 */
+  DRIVER( topdrive )  /* (c) 1995 */
 
 	/* U.S. Games games */
 	DRIVER( usg32 )
@@ -5460,6 +5683,7 @@ Other Sun games
 	DRIVER( countrun )
 	DRIVER( countrnb )
 	DRIVER( countrb2 )
+  DRIVER( countrunb3 )
 
 	/* Alba games */
 	DRIVER( rmhaihai )	/* (c) 1985 Alba */
@@ -5541,6 +5765,7 @@ Other Sun games
 	DRIVER( sprcros2 )	/* (c) 1986 GM Shoji */
 	DRIVER( mugsmash )	/* (c) Electronic Devices (Italy) / 3D Games (England) */
 	DRIVER( stlforce )	/* (c) 1994 Electronic Devices (Italy) / Ecogames S.L. (Spain) */
+	DRIVER( mortalr )
 	DRIVER( fantland )	/* (c) 1987 Electronic Devices Italy */
 	DRIVER( galaxygn )	/* (c) 1989 Electronic Devices Italy */
 	DRIVER( borntofi )	/* (c) 1987 International Games */
@@ -5850,7 +6075,10 @@ Other Sun games
 	DRIVER( kf10thep)       /* bootleg of kof2002 */
 	DRIVER( kf2k5uni)       /* bootleg of kof2002 */
 	DRIVER( lasthope )      /* (c) 2005 NG:DEV.TEAM */
-  DRIVER( xeno )      /* (c) 2019 Bitmap Bureau */
+  DRIVER( knightsch )     /* (c) 2014 Neobitz */
+	DRIVER( xeno )          /* (c) 2019 Bitmap Bureau */
+	DRIVER( hypernoid )     /* 2021 M.Priewe */
+	DRIVER( cyborgforce )   /* (c) 2023 Neo Byte Force Ltd */
 
 	/* SemiCom 68020 based hardware */
 	DRIVER( baryon )    /* (c) 1997 SemiCom / Tirano */
@@ -5882,15 +6110,18 @@ Other Sun games
 	DRIVER( espgal )
 
 	/* Sega Model 1 Hardware */
-	DRIVER( vf )
+	DRIVER( vr ) /* (c) 1992 Sega */
+	DRIVER( vf ) /* (c) 1993 Sega */
 
   /* Oriental Soft */
-	DRIVER( 1945kiii )	/* (c) 2000 Oriental */
+	DRIVER( 1945kiii )  /* (c) 2000 Oriental */
 	DRIVER( flagrall )  /* (c) 1996 Promat? */
 
   /* Current Tech */
-	DRIVER( mirax )	  /* (c) Current Technologies */
+	DRIVER( mirax )   /* (c) Current Technologies */
 	DRIVER( miraxa )  /* (c) Current Technologies */
 
-
+	DRIVER( roundup5 )
+	DRIVER( bigfight )
+	DRIVER( cyclwarr )
 #endif	/* DRIVER_RECURSIVE */

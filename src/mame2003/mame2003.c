@@ -145,14 +145,15 @@ static void retro_audio_buff_status_cb(bool active, unsigned occupancy, bool und
 
 void retro_set_audio_buff_status_cb(void)
 {
+  log_cb(RETRO_LOG_INFO, "options.frameskip:%d\n",options.frameskip);
   if (options.frameskip > 0 && options.frameskip >= 12)
   {
+      buf_status_cb.callback = &retro_audio_buff_status_cb;
 
       if (!environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_BUFFER_STATUS_CALLBACK,
             &buf_status_cb))
       {
-         if (log_cb)
-            log_cb(RETRO_LOG_WARN, "Frameskip disabled - frontend does not support audio buffer status monitoring.\n");
+         log_cb(RETRO_LOG_WARN, "Frameskip disabled - frontend does not support audio buffer status monitoring.\n");
 
          retro_audio_buff_active    = false;
          retro_audio_buff_occupancy = 0;
@@ -160,7 +161,7 @@ void retro_set_audio_buff_status_cb(void)
       }
       else
       log_cb(RETRO_LOG_INFO, "Frameskip Enabled\n");
-  }
+   }
    else
       environ_cb(RETRO_ENVIRONMENT_SET_AUDIO_BUFFER_STATUS_CALLBACK,NULL);
 
@@ -235,50 +236,9 @@ void retro_set_environment(retro_environment_t cb)
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
   mame2003_video_get_geometry(&info->geometry);
-  if(options.machine_timing)
-  {
-    if (Machine->drv->frames_per_second < 60.0 )
-      info->timing.fps = 60.0;
-    else
-      info->timing.fps = Machine->drv->frames_per_second; /* qbert is 61 fps */
 
-    if ( (Machine->drv->frames_per_second * 1000 < options.samplerate) || ( Machine->drv->frames_per_second < 60) )
-    {
-      info->timing.sample_rate = Machine->drv->frames_per_second * 1000;
-      log_cb(RETRO_LOG_INFO, LOGPRE "Sample timing rate too high for framerate required dropping to %f\n",  Machine->drv->frames_per_second * 1000);
-    }
-
-    else
-    {
-      info->timing.sample_rate = options.samplerate;
-      log_cb(RETRO_LOG_INFO, LOGPRE "Sample rate set to %d\n",options.samplerate);
-    }
-  }
-
-  else
-  {
-    info->timing.fps = Machine->drv->frames_per_second;
-
-    if ( Machine->drv->frames_per_second * 1000 < options.samplerate)
-    {
-      if ( Machine->drv->frames_per_second * 1000 > 44100)
-        info->timing.sample_rate = 44100;
-      else if ( Machine->drv->frames_per_second * 1000 > 30000)
-        info->timing.sample_rate = 30000;
-      else if ( Machine->drv->frames_per_second * 1000 > 22050)
-        info->timing.sample_rate = 22050;
-      else if ( Machine->drv->frames_per_second * 1000 > 11025)
-        info->timing.sample_rate = 11025;
-      else if ( Machine->drv->frames_per_second * 1000 > 8000)
-        info->timing.sample_rate = 8000;
-      else
-        info->timing.sample_rate = Machine->drv->frames_per_second * 1000;
-    }
-
-    else
-     info->timing.sample_rate = options.samplerate;
-  }
-
+  info->timing.fps = Machine->drv->frames_per_second;
+  info->timing.sample_rate = options.samplerate ;
 }
 
 
@@ -319,7 +279,7 @@ bool retro_load_game(const struct retro_game_info *game)
       options.romset_filename_noext = driver_lookup;
       break;
     }
-    if(driverIndex == total_drivers -2) // we could fix the total drives in drivers c but the it pointless its taken into account here
+    if(driverIndex == total_drivers -2) /* we could fix the total drives in drivers c but the it pointless its taken into account here */
     {
       log_cb(RETRO_LOG_ERROR, LOGPRE "Driver index counter: %d. Game driver not found for %s!\n", driverIndex, driver_lookup);
       return false;
@@ -412,6 +372,25 @@ int16_t get_pointer_delta(int16_t coord, int16_t *prev_coord)
    return delta;
 }
 
+void pause_action_generic(void)
+{
+  updatescreen();
+}
+
+/* initialized in cpu_pre_run() */
+void cpu_pause(bool pause)
+{
+  if (pause)
+    pause_action = pause_action_generic;
+  else /* resume and reset behavior */
+  {
+    toggle_showgfx = false;
+    pause_action = 0;
+  }
+}
+
+extern UINT8 frameskip_counter;
+
 void retro_run (void)
 {
   bool updated = false;
@@ -434,8 +413,17 @@ void retro_run (void)
       cpunum_set_clockscale(0, options.cpu_clock_scale);
     }
   }
-
   mame_frame();
+  if(frameskip_counter <= 11)
+    frameskip_counter++;
+
+  else
+    frameskip_counter = 0;
+
+ frameskip_counter = (frameskip_counter ) % 12;
+  
+ /*log_cb(RETRO_LOG_DEBUG, LOGPRE "frameskip_counter %d\n",frameskip_counter);*/
+ 
 }
 
 void retro_unload_game(void)
@@ -502,7 +490,15 @@ bool retro_serialize(void *data, size_t size)
 
 bool retro_unserialize(const void * data, size_t size)
 {
-    int cpunum;
+	int cpunum;
+
+	/* disable automatic savestate loading */
+	if (cpu_getcurrentframe() == 0) 
+	{
+        log_cb(RETRO_LOG_WARN, LOGPRE "Core is incompatible with automatic savestate loading.\n");
+        return false;
+	}
+
 	/* if successful, load it */
 	if ( (retro_serialize_size() ) && ( data ) && ( size ) && ( !state_save_load_begin((void*)data, size) ) )
 	{
@@ -564,35 +560,8 @@ bool retro_unserialize(const void * data, size_t size)
 
 int osd_start_audio_stream(int stereo)
 {
-  if (options.machine_timing)
-  {
-    if ( ( Machine->drv->frames_per_second * 1000 < options.samplerate) || (Machine->drv->frames_per_second < 60) )
-      Machine->sample_rate = Machine->drv->frames_per_second * 1000;
 
-    else Machine->sample_rate = options.samplerate;
-  }
-
-  else
-  {
-    if ( Machine->drv->frames_per_second * 1000 < options.samplerate)
-    {
-      if ( Machine->drv->frames_per_second * 1000 > 44100)
-        Machine->sample_rate = 44100;
-      else if ( Machine->drv->frames_per_second * 1000 > 30000)
-        Machine->sample_rate = 30000;
-      else if ( Machine->drv->frames_per_second * 1000 > 22050)
-        Machine->sample_rate = 22050;
-      else if ( Machine->drv->frames_per_second * 1000 > 11025)
-        Machine->sample_rate = 11025;
-      else if ( Machine->drv->frames_per_second * 1000 > 8000)
-        Machine->sample_rate = 8000;
-      else
-        Machine->sample_rate = Machine->drv->frames_per_second * 1000;
-    }
-
-    else
-      Machine->sample_rate = options.samplerate;
-  }
+  Machine->sample_rate = options.samplerate;
 
   delta_samples = 0.0f;
   usestereo = stereo ? 1 : 0;
@@ -613,7 +582,7 @@ int osd_start_audio_stream(int stereo)
 int osd_update_audio_stream(INT16 *buffer)
 {
 	int i,j;
-	if ( Machine->sample_rate !=0 && buffer )
+	if ( Machine->sample_rate !=0 && buffer)
 	{
 #ifdef PORTANDROID
         if(usestereo){
@@ -630,6 +599,7 @@ int osd_update_audio_stream(INT16 *buffer)
         cb_itf.cb_frame_audio_update(cb_context.frame_index, samples_per_frame<<2);
 #else
    		memcpy(samples_buffer, buffer, samples_per_frame * (usestereo ? 4 : 2));
+
 		if (usestereo)
 			audio_batch_cb(samples_buffer, samples_per_frame);
 		else
@@ -643,12 +613,11 @@ int osd_update_audio_stream(INT16 *buffer)
 		}
 
 #endif
-
-		//process next frame
+		/*process next frame */
 
 		if ( samples_per_frame  != orig_samples_per_frame ) samples_per_frame = orig_samples_per_frame;
 
-		// dont drop any sample frames some games like mk will drift with time
+		/* dont drop any sample frames some games like mk will drift with time */
 
 		delta_samples += (Machine->sample_rate / Machine->drv->frames_per_second) - orig_samples_per_frame;
 		if ( delta_samples >= 1.0f )
@@ -667,6 +636,26 @@ int osd_update_audio_stream(INT16 *buffer)
 		}
 	}
 	return samples_per_frame;
+}
+
+
+void osd_update_silent_stream(void)
+{
+	int length = samples_per_frame * (usestereo ? 4 : 2);
+
+	if (Machine->sample_rate !=0)
+	{
+		if (usestereo)
+		{
+			memset(samples_buffer, 0, length);
+			audio_batch_cb(samples_buffer, samples_per_frame);
+		}
+		else
+		{
+			memset(conversion_buffer, 0, length * 2);
+			audio_batch_cb(conversion_buffer,samples_per_frame);
+		}
+	}
 }
 
 
@@ -837,8 +826,15 @@ void retro_describe_controls(void)
       if(ctrl_ipt_code == CODE_NONE) continue;
 
       if(ctrl_ipt_code >= IPT_BUTTON1 && ctrl_ipt_code <= IPT_BUTTON10)
+      {
+        if( ctrl_ipt_code==IPT_BUTTON6 && options.content_flags[CONTENT_HAS_PEDAL] ) goto skip;
+        if( ctrl_ipt_code==IPT_BUTTON5 && options.content_flags[CONTENT_HAS_PEDAL2]) goto skip;
+
         if((ctrl_ipt_code - IPT_BUTTON1 + 1) > options.content_flags[CONTENT_BUTTON_COUNT])
           continue; /* button has a higher index than supported by the driver */
+
+        skip:; //bypass button count check
+      }
 
       /* try to get the corresponding ID for this control in libretro.h  */
       /* from the retropad section, or INT_MAX if not valid */
@@ -847,6 +843,10 @@ void retro_describe_controls(void)
       {
         /* First try to get specific name */
         control_name = game_driver->ctrl_dat->get_name(ctrl_ipt_code);
+
+        /* override control name for pedals */
+        if( ctrl_ipt_code==IPT_BUTTON6 && options.content_flags[CONTENT_HAS_PEDAL] ) control_name = "Pedal";
+        if( ctrl_ipt_code==IPT_BUTTON5 && options.content_flags[CONTENT_HAS_PEDAL2]) control_name = "Pedal2";
 
         if(string_is_empty(control_name))
         {
@@ -1228,12 +1228,12 @@ const struct JoystickInfo *osd_get_joy_list(void)
  */
 int osd_is_joy_pressed(int joycode)
 {
-  unsigned player_number = calc_player_number(joycode);
-  unsigned port          = player_number - 1;
+  unsigned port          = calc_player_number(joycode) - 1;
   unsigned osd_code      = decode_osd_joycode(joycode);
   unsigned retro_code    = INT_MAX;
 
   if (!retro_running)                                   return 0; /* input callback has not yet been polled */
+
   if (options.input_interface == RETRO_DEVICE_KEYBOARD) return 0; /* disregard joystick input */
 
   /*log_cb(RETRO_LOG_DEBUG, "MAME is polling joysticks -- joycode: %i      player_number: %i      osd_code: %i\n", joycode, player_number, osd_code);*/
@@ -1244,20 +1244,19 @@ int osd_is_joy_pressed(int joycode)
     return input_cb(port, RETRO_DEVICE_JOYPAD, 0, retro_code);
 
   /* pointer, mouse, or lightgun states if selected by core option */
-  if (options.xy_device == RETRO_DEVICE_POINTER || options.xy_device == RETRO_DEVICE_MOUSE)
+  if (options.xy_device != RETRO_DEVICE_NONE)
   {
     retro_code = get_retro_code("mouse", osd_code);
     if (retro_code != INT_MAX)
     {
-      if (options.xy_device == RETRO_DEVICE_MOUSE)
-        return input_cb(port, RETRO_DEVICE_MOUSE, 0, retro_code);
-      if (options.xy_device == RETRO_DEVICE_POINTER && retro_code == RETRO_DEVICE_ID_MOUSE_LEFT)
-        return input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_PRESSED);
+      if (retro_code == RETRO_DEVICE_ID_MOUSE_LEFT)
+      {
+        if (input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_PRESSED))
+          return 1; /* check if pointer is pressed */
+      }
+      return input_cb(port, RETRO_DEVICE_MOUSE, 0, retro_code);
     }
-  }
 
-  else if (options.xy_device == RETRO_DEVICE_LIGHTGUN)
-  {
     retro_code = get_retro_code("lightgun", osd_code);
     if (retro_code != INT_MAX)
     {
@@ -1349,8 +1348,8 @@ void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode 
   for(axis = 0; axis < MAX_ANALOG_AXES; axis++)
   {
     int osd_code;
-    int deadzone = round(((float)options.deadzone / 100) * 128);
     value = 0;
+
     if(analogjoy_input[axis] != CODE_NONE)
     {
       osd_code = decode_osd_joycode(analogjoy_input[axis]);
@@ -1366,9 +1365,6 @@ void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode 
 
       else if(osd_code == OSD_ANALOG_RIGHT_NEGATIVE_Y || osd_code == OSD_ANALOG_RIGHT_POSITIVE_Y)
         value = rescale_analog(input_cb(player, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y));
-
-      /* check against deadzone */
-      if(abs(value) <= deadzone) value = 0; /* falls within the deadzone, report as zero */
 
       /* opposite when reversing axis mapping */
       if((osd_code % 2) == 0) /* if osd_code is an even number */
@@ -1443,7 +1439,8 @@ void osd_xy_device_read(int player, int *deltax, int *deltay, const char* type)
     else if (options.xy_device == RETRO_DEVICE_LIGHTGUN)
     {
       /* simulated lightgun reload hack */
-      if(input_cb(player, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_RELOAD))
+      if(input_cb(player, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_RELOAD) ||
+         input_cb(player, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN) )
       {
         *deltax = -128;
         *deltay = -128;
@@ -1629,6 +1626,9 @@ const struct KeyboardInfo retroKeys[] =
     EMITX(MODE),
     EMITX(COMPOSE),
 
+    EMITX(VOLUME_DOWN),
+    EMITX(VOLUME_UP),
+
     EMITX(HELP),
     EMIT2(PRINT, PRTSCR),
     EMITX(SYSREQ),
@@ -1674,77 +1674,71 @@ static void remove_slash (char* temp)
     log_cb(RETRO_LOG_DEBUG, LOGPRE "Trailing slash removal was not necessary path: %s.\n", temp);
 }
 
+#if (HAS_CYCLONE || HAS_DRZ80)
+int check_list(char *name)
+{
+   int found=0;
+   int counter=0;
+   while (fe_drivers[counter].name[0])
+   {
+      if  (strcmp(name,fe_drivers[counter].name)==0)
+      {
+         log_cb(RETRO_LOG_INFO, "frontend_list match {\"%s\", %d },\n",fe_drivers[counter].name,fe_drivers[counter].cores, fe_drivers[counter].cores);
+         return fe_drivers[counter].cores;
+      }
+      counter++;
+   }
+   /* todo do a z80 and 68k check to inform its not on the list if matched*/
+ 
+   for (counter=0;counter<MAX_CPU;counter++)
+   {
+      unsigned int *type=(unsigned int *)&(Machine->drv->cpu[counter].cpu_type);
+
+      if (*type==CPU_Z80)  log_cb(RETRO_LOG_INFO, "game:%s has no frontend_list.h match and has a z80\n",name);
+      if (*type==CPU_M68000) log_cb(RETRO_LOG_INFO, "game:%s has no frontend_list.h match and has a M68000\n",name);
+   }
+   return 0;
+}
+#endif
+
 static void configure_cyclone_mode (int driverIndex)
 {
   /* Determine how to use cyclone if available to the platform */
 
 #if (HAS_CYCLONE || HAS_DRZ80)
   int i;
-  int use_cyclone = 1;
-  int use_drz80 = 1;
-  int use_drz80_snd = 1;
+  int use_cyclone = 0;
+  int use_drz80 = 0;
+  int use_drz80_snd = 0;
 
-  /* cyclone mode core option: 0=disabled, 1=default, 2=Cyclone, 3=DrZ80, 4=Cyclone+DrZ80, 5=DrZ80(snd), 6=Cyclone+DrZ80(snd) */
-  switch (options.cyclone_mode)
+  if (options.cyclone_mode == 6) 
+    i=check_list(drivers[driverIndex]->name);
+  else 
+    i=options.cyclone_mode;
+  /* ASM cores: 0=None,1=Cyclone,2=DrZ80,3=Cyclone+DrZ80,4=DrZ80(snd),5=Cyclone+DrZ80(snd) */
+  switch (i)
   {
-    case 0:
-      use_cyclone = 0;
-      use_drz80_snd = 0;
-      use_drz80 = 0;
+    /* nothing needs done for case 0 */
+    case 1:
+      use_cyclone = 1;
       break;
 
-    case 1:
-      for (i=0;i<NUMGAMES;i++)
-      {
-        /* ASM cores: 0=disabled, 1=Cyclone, 2=DrZ80, 3=Cyclone+DrZ80, 4=DrZ80(snd), 5=Cyclone+DrZ80(snd) */
-        if (strcmp(drivers[driverIndex]->name,fe_drivers[i].name)==0)
-        {
-          switch (fe_drivers[i].cores)
-          {
-            case 0:
-              use_cyclone = 0;
-              use_drz80_snd = 0;
-              use_drz80 = 0;
-              break;
-            case 1:
-              use_drz80_snd = 0;
-              use_drz80 = 0;
-              break;
-            case 2:
-              use_cyclone = 0;
-              break;
-            case 4:
-              use_cyclone = 0;
-              use_drz80 = 0;
-              break;
-            case 5:
-              use_drz80 = 0;
-              break;
-            default:
-              break;
-          }
-
-          break; /* end for loop */
-        }
-      }
-      break; /* end case 1 */
-
     case 2:
-      use_drz80_snd = 0;
-      use_drz80 = 0;
+      use_drz80 = 1;
       break;
 
     case 3:
-      use_cyclone = 0;
+      use_cyclone = 1;
+      use_drz80=1;
+      break;
+
+    case 4:
+      use_drz80_snd = 1;
       break;
 
     case 5:
-      use_cyclone = 0;
-      use_drz80 = 0;
-      break;
-
-    case 6:
-      use_drz80 = 0;
+      use_cyclone = 1;
+      use_drz80_snd = 1;
       break;
 
     default:
@@ -1759,17 +1753,12 @@ static void configure_cyclone_mode (int driverIndex)
     {
       unsigned int *type=(unsigned int *)&(Machine->drv->cpu[i].cpu_type);
 
-#ifdef NEOMAME
-      if (*type==CPU_M68000)
-#else
+
       if (*type==CPU_M68000 || *type==CPU_M68010 )
-#endif
       {
         *type=CPU_CYCLONE;
         log_cb(RETRO_LOG_INFO, LOGPRE "Replaced CPU_CYCLONE\n");
       }
-
-      if (!(*type)) break;
     }
   }
 #endif
@@ -1781,7 +1770,7 @@ static void configure_cyclone_mode (int driverIndex)
     for (i=0;i<MAX_CPU;i++)
     {
       unsigned int *type=(unsigned int *)&(Machine->drv->cpu[i].cpu_type);
-      if (type==CPU_Z80)
+      if (*type==CPU_Z80)
       {
         *type=CPU_DRZ80;
         log_cb(RETRO_LOG_INFO, LOGPRE "Replaced Z80\n");
@@ -1794,8 +1783,8 @@ static void configure_cyclone_mode (int driverIndex)
   {
     for (i=0;i<MAX_CPU;i++)
     {
-      int *type=(int*)&(Machine->drv->cpu[i].cpu_type);
-      if (type==CPU_Z80 && Machine->drv->cpu[i].cpu_flags&CPU_AUDIO_CPU)
+     unsigned int *type=(unsigned int *)&(Machine->drv->cpu[i].cpu_type);
+     if (*type==CPU_Z80 && Machine->drv->cpu[i].cpu_flags&CPU_AUDIO_CPU)
       {
         *type=CPU_DRZ80;
         log_cb(RETRO_LOG_INFO, LOGPRE "Replaced Z80 sound\n");

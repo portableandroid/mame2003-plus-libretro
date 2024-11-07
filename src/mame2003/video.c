@@ -130,7 +130,7 @@ void mame2003_video_init_orientation(void)
    {
       if (environ_cb(RETRO_ENVIRONMENT_SET_ROTATION, &rotate_mode) )
       {
-        log_cb(RETRO_LOG_INFO, LOGPRE "RetroArch will perform the rotation\n");
+        log_cb(RETRO_LOG_INFO, LOGPRE "RetroArch will perform the rotation.\n");
 
         rotate_mode = (orientation == ROT270) ? 1 : rotate_mode;
         rotate_mode = (orientation == ROT180) ? 2 : rotate_mode;
@@ -141,21 +141,21 @@ void mame2003_video_init_orientation(void)
       }
 
       else
-        log_cb(RETRO_LOG_INFO, LOGPRE "This port of RetroArch does not support rotation or it has been disabled. Mame will rotate internally\n");
+        log_cb(RETRO_LOG_INFO, LOGPRE "This port of RetroArch does not support rotation or it has been disabled. Mame will rotate internally.\n");
 
    }
    else
-     log_cb(RETRO_LOG_INFO, LOGPRE "RetroArch does not support this type of rotation, using mame internal rotation instead\n");
+     log_cb(RETRO_LOG_INFO, LOGPRE "RetroArch does not support this type of rotation, using mame internal rotation instead.\n");
 
    tate_mode = options.tate_mode;
 #ifndef PORTANDROID
    /* Set up native orientation flags that aren't handled by libretro */
    if (orientation & ORIENTATION_SWAP_XY) video_hw_transpose = true; /*dont set this to false if RA changes the flags else vertical games swap the xy*/
-#endif
+#endif   
    video_flip_x = orientation & ORIENTATION_FLIP_X;
    video_flip_y = orientation & ORIENTATION_FLIP_Y;
    video_swap_xy = orientation & ORIENTATION_SWAP_XY;
-   log_cb(RETRO_LOG_INFO,"mame internal: video_flip_x:%u video_flip_y:%u video_swap_xy:%u video_hw_transpose:%u\n",video_flip_x,video_flip_y,video_swap_xy,video_hw_transpose);
+   log_cb(RETRO_LOG_DEBUG,"mame internal: video_flip_x:%u video_flip_y:%u video_swap_xy:%u video_hw_transpose:%u\n",video_flip_x,video_flip_y,video_swap_xy,video_hw_transpose);
    Machine->ui_orientation = options.ui_orientation;
 
 
@@ -374,7 +374,6 @@ static void frame_convert(struct mame_display *display)
 extern bool retro_audio_buff_underrun;
 extern bool retro_audio_buff_active;
 extern unsigned retro_audio_buff_occupancy;
-extern void (*pause_action)(void);
 
 const int frameskip_table[12][12] =
    { { 0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -390,20 +389,19 @@ const int frameskip_table[12][12] =
      { 0,1,1,1,1,1,0,1,1,1,1,1 },
      { 0,1,1,1,1,1,1,1,1,1,1,1 } };
 
- unsigned frameskip_counter = 0;
+UINT8 frameskip_counter = 0;
+
 int osd_skip_this_frame(void)
 {
-	static unsigned auto_frameskip_counter = 0;
-
 	bool skip_frame = 0;
 
-	if (pause_action)  return 0;  // dont skip pause action hack (rendering mame info screens or you wont see them and not know to press a key)
+	if (pause_action)  return 0;  /* dont skip pause action hack (rendering mame info screens or you wont see them and not know to press a key) */
 
 #ifdef PORTANDROID
    return cb_context.video_skip;
-#else
+#endif
 
-//auto frame skip options
+/*auto frame skip options */
 	if(options.frameskip >0 && options.frameskip >= 12)
 	{
 		if ( retro_audio_buff_active)
@@ -411,38 +409,24 @@ int osd_skip_this_frame(void)
 			switch ( options.frameskip)
 			{
 				case 12: /* auto */
-					skip_frame = retro_audio_buff_underrun;
+					skip_frame = retro_audio_buff_underrun ? 1 : 0;
 				break;
 				case 13: /* aggressive */
-					skip_frame = (retro_audio_buff_occupancy < 33);
+					skip_frame = (retro_audio_buff_occupancy < 33)  ? 1 : 0;
 				break;
 				case 14: /* max */
-					skip_frame = (retro_audio_buff_occupancy < 50);
+					skip_frame = (retro_audio_buff_occupancy < 50)  ? 1 : 0;
 				break;
 				default:
-					skip_frame = false;
+					skip_frame = options.frameskip;
 				break;
-         }
-			if (skip_frame)
-			{
-				if(auto_frameskip_counter <= 40)
-				{
-					auto_frameskip_counter++;;
-				}
-				else
-				{
-					auto_frameskip_counter = 0;// control will return 0 at the end
-					skip_frame=0;
-				}
 			}
 		}
 	}
-	else //manual frameskip includes disabled check
-	{
-		skip_frame = frameskip_table[options.frameskip][frameskip_counter];
-	}
+	else /*manual frameskip */
+	 skip_frame = frameskip_table[options.frameskip][frameskip_counter];
+
 	return skip_frame;
-#endif
 }
 
 void osd_update_video_and_audio(struct mame_display *display)
@@ -514,7 +498,7 @@ void osd_update_video_and_audio(struct mame_display *display)
 
    gotFrame = 1;
 
-   frameskip_counter = (frameskip_counter + 1) % 12;
+  
    RETRO_PERFORMANCE_STOP(perf_cb, update_video_and_audio);
 }
 

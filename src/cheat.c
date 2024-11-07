@@ -385,6 +385,11 @@ is selected
 
 #define OSD_READKEY_KLUDGE	1
 
+#define NAME_MAX_LENGTH		255
+#define DESC_MAX_LENGTH		255
+#define STR_(X) #X
+#define STR(X) STR_(X)
+
 /**** Macros *****************************************************************/
 
 /*	easy bitfield extraction and setting */
@@ -7709,17 +7714,12 @@ static UINT8 DefaultEnableRegion(SearchRegion * region, SearchInfo * info)
 				(!region->writeHandler->base))
 				return 1;
 
-			{
-				extern struct GameDriver	driver_neogeo;
-
 				/* for neogeo, search bank one*/
-				if(	(Machine->gamedrv->clone_of == &driver_neogeo) &&
+				if(	(options.content_flags[CONTENT_NEOGEO]) &&
 					(info->targetType == kRegionType_CPU) &&
 					(info->targetIdx == 0) &&
 					(handler == MWA_BANK1))
 					return 1;
-			}
-
 
 #if HAS_TMS34010
 
@@ -8302,8 +8302,8 @@ static void LoadCheatDatabase()
 	foundCheatDatabase = 1;
 
 	/* make the format strings*/
-	sprintf(formatString, ":%s:%s", Machine->gamedrv->name, "%x:%x:%x:%x:%[^:\n\r]:%[^:\n\r]");
-	sprintf(oldFormatString, "%s:%s", Machine->gamedrv->name, "%d:%x:%x:%d:%[^:\n\r]:%[^:\n\r]");
+	sprintf(formatString, ":%s:%s", Machine->gamedrv->name, "%x:%x:%x:%x:%" STR(NAME_MAX_LENGTH) "[^:\n\r]:%" STR(DESC_MAX_LENGTH) "[^:\n\r]");
+	sprintf(oldFormatString, "%s:%s", Machine->gamedrv->name, "%d:%x:%x:%d:%" STR(NAME_MAX_LENGTH) "[^:\n\r]:%" STR(DESC_MAX_LENGTH) "[^:\n\r]");
 
 	while(intfstream_gets(in_file, buf, 2048))
 	{
@@ -8311,8 +8311,8 @@ static void LoadCheatDatabase()
 		int			address;
 		int			data;
 		int			extendData;
-		char		name[256];
-		char		description[256];
+		char		name[NAME_MAX_LENGTH+1];
+		char		description[DESC_MAX_LENGTH+1];
 
 		int			argumentsMatched;
 
