@@ -421,9 +421,9 @@ void retro_run (void)
     frameskip_counter = 0;
 
  frameskip_counter = (frameskip_counter ) % 12;
-  
+
  /*log_cb(RETRO_LOG_DEBUG, LOGPRE "frameskip_counter %d\n",frameskip_counter);*/
- 
+
 }
 
 void retro_unload_game(void)
@@ -493,7 +493,7 @@ bool retro_unserialize(const void * data, size_t size)
 	int cpunum;
 
 	/* disable automatic savestate loading */
-	if (cpu_getcurrentframe() == 0) 
+	if (cpu_getcurrentframe() == 0)
 	{
         log_cb(RETRO_LOG_WARN, LOGPRE "Core is incompatible with automatic savestate loading.\n");
         return false;
@@ -645,6 +645,9 @@ void osd_update_silent_stream(void)
 
 	if (Machine->sample_rate !=0)
 	{
+#ifdef PORTANDROID
+        memset(cb_context.audio_buffer, 0, samples_per_frame << 2);
+#else
 		if (usestereo)
 		{
 			memset(samples_buffer, 0, length);
@@ -655,6 +658,7 @@ void osd_update_silent_stream(void)
 			memset(conversion_buffer, 0, length * 2);
 			audio_batch_cb(conversion_buffer,samples_per_frame);
 		}
+#endif
 	}
 }
 
@@ -1689,7 +1693,7 @@ int check_list(char *name)
       counter++;
    }
    /* todo do a z80 and 68k check to inform its not on the list if matched*/
- 
+
    for (counter=0;counter<MAX_CPU;counter++)
    {
       unsigned int *type=(unsigned int *)&(Machine->drv->cpu[counter].cpu_type);
@@ -1711,9 +1715,9 @@ static void configure_cyclone_mode (int driverIndex)
   int use_drz80 = 0;
   int use_drz80_snd = 0;
 
-  if (options.cyclone_mode == 6) 
+  if (options.cyclone_mode == 6)
     i=check_list(drivers[driverIndex]->name);
-  else 
+  else
     i=options.cyclone_mode;
   /* ASM cores: 0=None,1=Cyclone,2=DrZ80,3=Cyclone+DrZ80,4=DrZ80(snd),5=Cyclone+DrZ80(snd) */
   switch (i)

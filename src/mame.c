@@ -817,7 +817,7 @@ static void init_game_options(void)
   Machine->ui_orientation = options.ui_orientation;
 
   Machine->sample_rate = options.samplerate;
- 
+
 }
 
 
