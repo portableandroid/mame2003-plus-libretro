@@ -6371,7 +6371,7 @@ DRIVER_INIT( sonic3mb )
   install_mem_read16_handler (0, 0x300000, 0x300001, sonic3mb_prot_r);
 	
 	genesis_region = 0x00; /* read via io */
-		
+	
 	cpu_setbank(3, memory_region(REGION_CPU1) );
 	cpu_setbank(4, &genesis_68k_ram[0]);
 
@@ -6381,7 +6381,7 @@ DRIVER_INIT( sonic3mb )
 READ16_HANDLER( jparkmb_r )
 {
 	if (activecpu_get_pc()==0x1e327a)
-		return readinputport(4); /* TODO: coins don't respond well */
+		return (readinputport(4)) ? 0x88 : 0; /* coin hack - should be using PIC instead */
 	if (activecpu_get_pc()==0x1e3254) return 0x0000; /* what's this? dips? */
 	/* logerror("jparkmb_r : %06x\n",m_maincpu->pc()); */
 	return 0x0000;
@@ -6404,7 +6404,7 @@ DRIVER_INIT( jparkmb )
 READ16_HANDLER( twinktmb_r )
 {
 	if (activecpu_get_pc()==0x02f81e)
-		return readinputport(4); /* TODO: coins don't respond well */
+		return (readinputport(4)) ? 0x88 : 0; /* coin hack - should be using PIC instead */
 
 	if (activecpu_get_pc()==0x02f84e) return 0x0000; /* what's this? dips? */
 
@@ -6491,7 +6491,7 @@ GAMEX( 2000, jzth,     0,        jzth,     jzth,     puckpkmn, ROT0, "<unknown>"
 /* Bootlegs Using Genesis Hardware */
 GAME ( 1993, aladmdb,  0,        barek3,   aladbl,   aladbl,   ROT0, "bootleg / Sega",         "Aladdin (bootleg of Japanese Megadrive version)" )
 GAME ( 1993, sonic2mb, 0,        barek2ch, sonic2mb, sonic2mb, ROT0, "bootleg / Sega",         "Sonic The Hedgehog 2 (bootleg of Megadrive version)" )
-GAME ( 1993, sonic3mb, 0,        barek2ch, sonic3mb, sonic3mb, ROT0, "bootleg / Sega",         "Sonic The Hedgehog 3 (bootleg of Megadrive version)" )
+GAMEX( 1993, sonic3mb, 0,        barek2ch, sonic3mb, sonic3mb, ROT0, "bootleg / Sega",         "Sonic The Hedgehog 3 (bootleg of Megadrive version)", GAME_IMPERFECT_GRAPHICS )
 GAME ( 1993, jparkmb,  0,        barek2ch, jparkmb,  jparkmb,  ROT0, "bootleg / Sega",         "Jurassic Park (bootleg of Megadrive version)" )
 GAME ( 1993, twinktmb, 0,        barek2ch, jparkmb,  twinktmb, ROT0, "bootleg / Sega",         "Twinkle Tale (bootleg of Megadrive version)" )
 GAME ( 1994, barek2ch, 0,        barek2ch, barek2ch, barek2ch, ROT0, "bootleg / Sega",         "Bare Knuckle II (Chinese bootleg of Megadrive version)" )

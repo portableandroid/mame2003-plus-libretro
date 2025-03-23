@@ -58,9 +58,6 @@ TODO:
 - Cocktail mode is supported, but tilemap.c has problems with asymmetrical
   visible areas.
 - Macross2 dip switches (the ones currently listed match macross)
-- Macross2 background is wrong in level 2 at the end of the vertical scroll.
-  The tilemap layout is probably different from the one I used, the dimensions
-  should be correct but the page order is likely different.
 - Music timing in nouryoku is a little off.
 - DSW's in Tdragon2
 - In Bioship, there's an occasional flicker of one of the sprites composing big
@@ -143,6 +140,10 @@ extern data16_t *nmk_bgvideoram,*nmk_fgvideoram,*nmk_txvideoram;
 extern data16_t *gunnail_scrollram, *gunnail_scrollramy;
 extern data16_t tharrier_scroll;
 
+void NMK112_set_paged_table( int chip, int value );
+
+WRITE_HANDLER( NMK112_okibank_w );
+
 READ16_HANDLER( nmk_bgvideoram_r );
 WRITE16_HANDLER( nmk_bgvideoram_w );
 READ16_HANDLER( nmk_fgvideoram_r );
@@ -159,7 +160,7 @@ WRITE16_HANDLER( bioship_bank_w );
 WRITE16_HANDLER( mustang_scroll_w );
 WRITE16_HANDLER( vandyke_scroll_w );
 WRITE16_HANDLER( twinactn_scroll_w );
-
+WRITE16_HANDLER( manybloc_scroll_w );
 
 VIDEO_START( gunnail );
 VIDEO_START( macross );
@@ -331,6 +332,47 @@ static WRITE16_HANDLER( bjtwin_oki6295_bankswitch_w )
 }
 
 
+#define MAXCHIPS 2
+#define TABLESIZE 0x100
+#define BANKSIZE 0x10000
+
+/* which chips have their sample address table divided into pages */
+static int has_paged_table[MAXCHIPS] = { 1, 1 };
+
+static UINT8 current_bank[8] = { ~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0 };
+
+void NMK112_set_paged_table( int chip, int value )
+{
+	has_paged_table[chip] = value;
+}
+
+WRITE_HANDLER( NMK112_okibank_w )
+{
+	int chip	=	(offset & 4) >> 2;
+	int banknum	=	offset & 3;
+
+	unsigned char *rom	=	memory_region(REGION_SOUND1 + chip);
+	int size			=	memory_region_length(REGION_SOUND1 + chip) - 0x40000;
+	int bankaddr		=	(data * BANKSIZE) % size;
+
+	if (current_bank[offset] == data) return;
+	current_bank[offset] = data;
+
+	/* copy the samples */
+	if ((has_paged_table[chip]) && (banknum == 0))
+		memcpy(rom + 0x400, rom + 0x40000 + bankaddr+0x400, BANKSIZE-0x400);
+	else
+		memcpy(rom + banknum * BANKSIZE, rom + 0x40000 + bankaddr, BANKSIZE);
+
+	/* also copy the sample address table, if it is paged on this chip */
+	if (has_paged_table[chip])
+	{
+		rom += banknum * TABLESIZE;
+		memcpy(rom, rom + 0x40000 + bankaddr, TABLESIZE);
+	}
+}
+
+
 /***************************************************************************/
 
 static MEMORY_READ16_START( vandyke_readmem )
@@ -369,9 +411,7 @@ static MEMORY_READ16_START( manybloc_readmem )
 	{ 0x090000, 0x093fff, nmk_bgvideoram_r },
 	{ 0x09c000, 0x09cfff, MRA16_RAM }, /* Scroll? */
 	{ 0x09d000, 0x09d7ff, nmk_txvideoram_r },
-	{ 0x0f0000, 0x0f7fff, MRA16_RAM },
-	{ 0x0f8000, 0x0f8fff, MRA16_RAM },
-	{ 0x0f9000, 0x0fffff, MRA16_RAM },
+	{ 0x0f0000, 0x0fffff, MRA16_RAM },
 MEMORY_END
 
 static MEMORY_WRITE16_START( manybloc_writemem )
@@ -382,13 +422,10 @@ static MEMORY_WRITE16_START( manybloc_writemem )
 	{ 0x08001c, 0x08001d, MWA16_NOP },			/* See notes at the top of the driver */
 	{ 0x08001e, 0x08001f, soundlatch_word_w },
 	{ 0x088000, 0x0883ff, paletteram16_RRRRGGGGBBBBRGBx_word_w, &paletteram16 },
-	{ 0x08c000, 0x08c007, nmk_scroll_w },
 	{ 0x090000, 0x093fff, nmk_bgvideoram_w, &nmk_bgvideoram },
-	{ 0x09c000, 0x09cfff, MWA16_RAM }, /* Scroll? */
+	{ 0x09c000, 0x09cfff, manybloc_scroll_w, &gunnail_scrollram },
 	{ 0x09d000, 0x09d7ff, nmk_txvideoram_w, &nmk_txvideoram },
-	{ 0x0f0000, 0x0f7fff, MWA16_RAM },	/* Work RAM */
-	{ 0x0f8000, 0x0f8fff, MWA16_RAM, &spriteram16, &spriteram_size },
-	{ 0x0f9000, 0x0fffff, MWA16_RAM, &nmk16_mainram },
+	{ 0x0f0000, 0x0fffff, MWA16_RAM, &nmk16_mainram },
 MEMORY_END
 
 static MEMORY_READ_START( manybloc_sound_readmem )
@@ -548,9 +585,11 @@ static MEMORY_WRITE16_START( acrobatm_writemem )
     { 0x00000, 0x3ffff, MWA16_ROM },
 	{ 0x80000, 0x8ffff, MWA16_RAM, &nmk16_mainram },
 	{ 0xc0014, 0xc0015, nmk_flipscreen_w },
+	{ 0xc0016, 0xc0017, MWA16_NOP },
+	{ 0xc0018, 0xc0019, nmk_tilebank_w },
+	{ 0xc001e, 0xc001f, NMK004_w },
 	{ 0xc4000, 0xc45ff, paletteram16_RRRRGGGGBBBBxxxx_word_w, &paletteram16 },
 	{ 0xc8000, 0xc8007, nmk_scroll_w },
-	{ 0xc001e, 0xc001f, NMK004_w },
 	{ 0xcc000, 0xcffff, nmk_bgvideoram_w, &nmk_bgvideoram },
 	{ 0xd4000, 0xd47ff, nmk_txvideoram_w, &nmk_txvideoram },
 MEMORY_END
@@ -1110,6 +1149,36 @@ static MEMORY_WRITE16_START( raphero_writemem )
 	{ 0x171000, 0x171fff, nmk_txvideoram_w },	/* mirror */
 	{ 0x1f0000, 0x1fffff, MWA16_RAM, &nmk16_mainram },	/* Work RAM again */
 MEMORY_END
+
+static WRITE_HANDLER( raphero_sound_rombank_w )
+{
+	int bank = data & 7;
+	cpu_setbank(1,memory_region(REGION_CPU2) + 0x10000 + (bank * 0x4000));
+}
+
+static MEMORY_READ_START( raphero_sound_readmem )
+    { 0x0000, 0x7fff, MRA_ROM },
+	{ 0x8000, 0xbfff, MRA_BANK1 },
+    { 0xc000, 0xc000, YM2203_status_port_0_r },
+	{ 0xc001, 0xc001, YM2203_read_port_0_r },
+	{ 0xc800, 0xc800, OKIM6295_status_0_r },
+	{ 0xc808, 0xc808, OKIM6295_status_1_r },
+	{ 0xd800, 0xd800, soundlatch_r },	// main cpu
+	{ 0xe000, 0xffff, MRA_RAM },
+MEMORY_END
+
+static MEMORY_WRITE_START( raphero_sound_writemem )
+    { 0x0000, 0x7fff, MWA_ROM },
+	{ 0xc000, 0xc000, YM2203_control_port_0_w },
+	{ 0xc001, 0xc001, YM2203_write_port_0_w },
+	{ 0xc800, 0xc800, OKIM6295_data_0_w },
+	{ 0xc808, 0xc808, OKIM6295_data_1_w },
+	{ 0xc810, 0xc817, NMK112_okibank_w },
+    { 0xd000, 0xd000, raphero_sound_rombank_w },
+	{ 0xd800, 0xd800, soundlatch2_w },	// main cpu
+	{ 0xe000, 0xffff, MWA_RAM },
+MEMORY_END
+
 
 static MEMORY_READ_START( macross2_sound_readmem )
     { 0x0000, 0x7fff, MRA_ROM },
@@ -3287,7 +3356,7 @@ static MACHINE_DRIVER_START( manybloc )
 	MDRV_CPU_ADD(M68000, 10000000) /* 10? MHz - check */
 	MDRV_CPU_MEMORY(manybloc_readmem,manybloc_writemem)
 	MDRV_CPU_VBLANK_INT(nmk_interrupt,2)
-	MDRV_CPU_PERIODIC_INT(irq1_line_hold,56)/* is this is too high it breaks the game on this one, too low sprites flicker */
+	MDRV_CPU_PERIODIC_INT(irq1_line_hold,60)/* is this is too high it breaks the game on this one, too low sprites flicker */
 
 	MDRV_CPU_ADD(Z80, 3000000)
 	MDRV_CPU_FLAGS(CPU_AUDIO_CPU)
@@ -3746,12 +3815,9 @@ static MACHINE_DRIVER_START( raphero )
 	MDRV_CPU_VBLANK_INT(irq4_line_hold,1)
 	MDRV_CPU_PERIODIC_INT(irq1_line_hold,112)/* ???????? */
 
-/*	MDRV_CPU_ADD(Z80, 4000000) */ /* tmp90c841 ?*/
-/*<ianpatt> looks like the tmp90c841 is a microcontroller from toshiba compatible with the z80 instruction set*/
-/*<ianpatt> and luckily it isn't one of the versions with embedded ROM*/
-/*	MDRV_CPU_FLAGS(CPU_AUDIO_CPU)  // 4 MHz ? /*/
-/*	MDRV_CPU_MEMORY(macross2_sound_readmem,macross2_sound_writemem)*/
-/*	MDRV_CPU_PORTS(macross2_sound_readport,macross2_sound_writeport)*/
+	MDRV_CPU_ADD(Z80, 8000000)
+	MDRV_CPU_FLAGS(CPU_AUDIO_CPU)
+	MDRV_CPU_MEMORY(raphero_sound_readmem,raphero_sound_writemem)
 
 	MDRV_FRAMES_PER_SECOND(56) /* measured*/
 	MDRV_VBLANK_DURATION(TIME_IN_USEC(2500))
@@ -4676,8 +4742,9 @@ ROM_START( raphero )
 	ROM_REGION( 0x80000, REGION_CPU1, 0 )		/* 68000 code */
 	ROM_LOAD16_WORD_SWAP( "rhp94099.3",      0x00000, 0x80000, CRC(ec9b4f05) SHA1(e5bd797620dc449fd78b41d87e9ba5a764eb8b44) )
 
-	ROM_REGION( 0x20000, REGION_CPU2, 0 )		/* tmp90c841 ??? sound code/data */
+	ROM_REGION( 0x30000, REGION_CPU2, 0 )		/* tmp90c841 */
 	ROM_LOAD( "rhp94099.2",    0x00000, 0x20000, CRC(fe01ece1) SHA1(c469fb79f2774089848c814f92ddd3c9e384050f) )
+	ROM_RELOAD(                0x10000, 0x20000 )
 
 	ROM_REGION( 0x020000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "rhp94099.1",    0x000000, 0x020000, CRC(55a7a011) SHA1(87ded56bfdd38cbf8d3bd8b3789831f768550a12) )	/* 8x8 tiles */
@@ -4690,12 +4757,13 @@ ROM_START( raphero )
 	ROM_LOAD16_WORD_SWAP( "rhp94099.9", 0x200000, 0x200000, CRC(ea2e47f0) SHA1(97dfa8f95f27b36deb5ce1c80e3d727bad24e52b) )	/* 16x16 tiles */
 	ROM_LOAD16_WORD_SWAP( "rhp94099.10",0x400000, 0x200000, CRC(512cb839) SHA1(4a2c5ac88e4bf8a6f07c703277c4d33e649fd192) )	/* 16x16 tiles */
 
-	ROM_REGION( 0x400000, REGION_SOUND1, 0 )	/* OKIM6295 samples */
-	ROM_LOAD( "rhp94099.5", 0x000000, 0x200000, CRC(515eba93) SHA1(c35cb5f31f4bc7327be5777624af168f9fb364a5) )	/* all banked */
-	ROM_LOAD( "rhp94099.6", 0x200000, 0x200000, CRC(f1a80e5a) SHA1(218bd7b0c3d8b283bf96b95bf888228810699370) )	/* all banked */
-
-	ROM_REGION( 0x240000, REGION_SOUND2, 0 )	/* OKIM6295 samples */
-	ROM_LOAD( "rhp94099.7", 0x040000, 0x200000, CRC(0d99547e) SHA1(2d9630bd55d27010f9d1d2dbdbd07ac265e8ebe6) )	/* all banked */
+	ROM_REGION( 0x440000, REGION_SOUND1, 0 )	/* OKIM6295 samples */
+	ROM_LOAD( "rhp94099.6", 0x040000, 0x200000, CRC(f1a80e5a) SHA1(218bd7b0c3d8b283bf96b95bf888228810699370) )  /* all banked */
+	ROM_LOAD( "rhp94099.7", 0x240000, 0x200000, CRC(0d99547e) SHA1(2d9630bd55d27010f9d1d2dbdbd07ac265e8ebe6) )  /* all banked */
+ 
+	ROM_REGION( 0x440000, REGION_SOUND2, 0 )	/* OKIM6295 samples */
+	ROM_LOAD( "rhp94099.5", 0x040000, 0x200000, CRC(515eba93) SHA1(c35cb5f31f4bc7327be5777624af168f9fb364a5) )	/* all banked */
+	ROM_LOAD( "rhp94099.6", 0x240000, 0x200000, CRC(f1a80e5a) SHA1(218bd7b0c3d8b283bf96b95bf888228810699370) )	/* all banked */
 
 	ROM_REGION( 0x0300, REGION_PROMS, 0 )
 	ROM_LOAD( "prom1.u19",      0x0000, 0x0100, CRC(4299776e) SHA1(683d14d2ace14965f0fcfe0f0540c1b77d2cece5) ) /* unknown */
@@ -4813,17 +4881,19 @@ ROM_START( manybloc )
 	ROM_LOAD16_BYTE( "9-u53b.bin",  0x040000, 0x20000, CRC(dfcfa040) SHA1(f1561defe9746afdb1a5327d0a4435a6f3e87a77) )
 	ROM_LOAD16_BYTE( "11-u85b.bin", 0x040001, 0x20000, CRC(fe747dd5) SHA1(6ba57a45f4d77e2574de95d4a2f0718c601e7214) )
 
-	ROM_REGION( 0x40000, REGION_SOUND1, 0 )	/* OKIM6295 samples */
-	ROM_LOAD( "6-u131.bin", 0x000000, 0x40000, CRC(79a4ae75) SHA1(f7609d0ca18b4af8c5f37daa1795a7a6c6d768ae) )
+	ROM_REGION( 0xa0000, REGION_SOUND1, 0 )	/* OKIM6295 samples */
+	ROM_LOAD( "6-u131.bin",  0x00000, 0x20000, CRC(79a4ae75) SHA1(f7609d0ca18b4af8c5f37daa1795a7a6c6d768ae) )
+	ROM_CONTINUE(            0x40000, 0x20000 )	/* banked */
+	ROM_LOAD( "7-u132.bin",  0x60000, 0x40000, CRC(21db875e) SHA1(e1d96155b6d8825f7c449f276d02f9769258345d) )	/* banked */
 
-	ROM_REGION( 0x40000, REGION_SOUND2, 0 )	/* OKIM6295 samples */
-	ROM_LOAD( "7-u132.bin", 0x000000, 0x40000, CRC(21db875e) SHA1(e1d96155b6d8825f7c449f276d02f9769258345d) )
+	ROM_REGION( 0xa0000, REGION_SOUND2, ROMREGION_ERASE00 )	/* OKIM6295 samples */
+	/* empty */
 
-	ROM_REGION( 0x20220, REGION_PROMS, 0 )
-	ROM_LOAD( "u7.bpr",      0x0000, 0x0100, CRC(cfdbb86c) SHA1(588822f6308a860937349c9106c2b4b1a75823ec) )	/* unknown */
-	ROM_LOAD( "u120.bpr",      0x0100, 0x0100, CRC(576c5984) SHA1(6e9b7f30de0d91cb766a62abc5888ec9af085a27) )	/* unknown */
-	ROM_LOAD( "u200.bpr",      0x0200, 0x0020, CRC(1823600b) SHA1(7011156ebcb815b176856bd67898ce655ea1b5ab) )	/* unknown */
-	ROM_LOAD( "u10.bpr",      0x0100, 0x0200, CRC(8e9b569a) SHA1(1d8d633fbeb72d5e55ad4b282df02e9ca5e240eb) )	/* unknown */
+	ROM_REGION( 0x0420, REGION_PROMS, 0 )
+	ROM_LOAD( "u200.bpr",    0x0000, 0x0020, CRC(1823600b) SHA1(7011156ebcb815b176856bd67898ce655ea1b5ab) )	/* unknown */
+	ROM_LOAD( "u7.bpr",      0x0020, 0x0100, CRC(cfdbb86c) SHA1(588822f6308a860937349c9106c2b4b1a75823ec) )	/* unknown */
+	ROM_LOAD( "u10.bpr",     0x0120, 0x0200, CRC(8e9b569a) SHA1(1d8d633fbeb72d5e55ad4b282df02e9ca5e240eb) )	/* unknown */
+	ROM_LOAD( "u120.bpr",    0x0320, 0x0100, CRC(576c5984) SHA1(6e9b7f30de0d91cb766a62abc5888ec9af085a27) )	/* unknown */
 ROM_END
 
 ROM_START( twinactn )

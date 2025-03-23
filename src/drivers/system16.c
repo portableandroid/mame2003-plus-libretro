@@ -3941,6 +3941,7 @@ ROM_START( passshtb )
 	ROM_LOAD( "epr11860.a10", 0x20000, 0x08000, CRC(10263746) SHA1(1f981fb185c6a9795208ecdcfba36cf892a99ed5) )
 	ROM_LOAD( "epr11861.a11", 0x28000, 0x08000, CRC(38b54a71) SHA1(68ec4ef5b115844214ff2213be1ce6678904fbd2) )
 ROM_END
+
 /***************************************************************************/
 
 static MEMORY_READ16_START( passsht_readmem )

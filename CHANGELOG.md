@@ -35,10 +35,12 @@ The list of direct contributors to the MAME 2003-Plus github repository can be f
 * Botanic (English / Spanish set 1)
 * Bronx (Cycle Shooting bootleg)
 * Bubble Bobble 2 - The Return Of Super Drunk (prototype)
+* Bubble Buster
 * Buccaneers
 * Bullet (unprotected of FD1094 317-0041 set)" )
 * Cabal (World, Joystick version)
 * Calorie Kun vs Moguranian
+* Center Court
 * Chain Reaction
 * Charlie Ninja
 * Chase Bombers
@@ -115,6 +117,7 @@ The list of direct contributors to the MAME 2003-Plus github repository can be f
 * Invasion
 * Joe & Mac Returns
 * Jolly Jogger
+* Jurassic Park (Bootleg Of Megadrive Version)
 * Juezhan Tianhuang
 * Jump Kun
 * Kabuki-Z (World)
@@ -158,6 +161,7 @@ The list of direct contributors to the MAME 2003-Plus github repository can be f
 * Pack'n Bang Bang
 * Parallel Turn
 * Party Time: Gonta the Diver II / Ganbare! Gonta!! 2 * Mature *
+* Passing Shot (Japan 2 players) 
 * Penky
 * Photo Y2K 2
 * Pirate Treasure
@@ -201,6 +205,7 @@ The list of direct contributors to the MAME 2003-Plus github repository can be f
 * Snapper
 * Sonic Boom
 * Sonic The Hedgehog 2 (Bootleg Of Megadrive Version)
+* Sonic The Hedgehog 3 (Bootleg Of Megadrive Version)
 * Space Fever High Splitter
 * Space Launcher
 * Space Raider
@@ -241,6 +246,7 @@ The list of direct contributors to the MAME 2003-Plus github repository can be f
 * Twin Cobra 2
 * Twin Action
 * Twinkle
+* Twinkle Tale (Bootleg Of Megadrive Version)
 * Tylz
 * Ufo Senshi Yohko Chan
 * Varia Metal
@@ -334,6 +340,7 @@ The list of direct contributors to the MAME 2003-Plus github repository can be f
 
 * Bubble Bobble Lost Cave
 * Bubble Bobble Ultra
+* Captain Barrel
 * Cyborg Force
 * Do DonPachi (Arrange Ver. 1.1) (trap15, hack)
 * Dogou Souken / Victory Road (joystick hack bootleg)
@@ -436,6 +443,7 @@ The list of direct contributors to the MAME 2003-Plus github repository can be f
 * Photo Y2k - Romset `photoy2k`
 * Pigskin 621AD - Romset `pigskin`
 * Power Drive - Romset `powerdrv`
+* Prebillian - `pbillian`
 * Pro Baseball Skill Tryout - `tryout`
 * Puzzle King (PacMan 2 with Tetris & HyperMan 2 & Snow Bros - `4in1boot`
 * Rabbit - Romset `rabbit` - no sound
@@ -483,6 +491,7 @@ The list of direct contributors to the MAME 2003-Plus github repository can be f
 * Two Tigers - Romset `twotiger`
 * Under Fire - Romset `undrfire`
 * U.S. Classic - Romset `usclssic` - colors fixed
+* VS. Hot Smash - `hotsmash`
 * Wonder Boy in Monster Land (Japan New Ver.) - Romset `wbml`
 * Wonder Boy in Monster Land (Japan Old Ver.) - Romset `wbmljo`
 * Xenophobe - Romset `xenophob`
@@ -625,6 +634,7 @@ The list of direct contributors to the MAME 2003-Plus github repository can be f
 * Tecmo Bowl
 * The Legend OF Silkroad
 * Thief
+* Title Fight
 * Tough Turf (Japan)
 * Tower Of Druaga
 * Toypop
@@ -1115,3 +1125,16 @@ Gun & Fronter, Metal Black, Ninja Kids, and Pulirula [arcadez]
 * Fixed dip switches for Super Pac-man added new sound roms for Pac & Pal and new graphical roms which fix bad colours in Pac-man & Chomp Chomp [MAMEDev, arcadez]
 * Added the proper sprite roms for Final Lap 2 game now playable and hooked up the road colour clut proms for the Final Lap games and Suzuka 8 Hours [arcadez]
 * Fixed some missing line scrolling graphical effects in Magical Cat Adventure and Nostradamus [MAMEDev, arcadez]
+* Added three more Megadrive arcade bootlegs to segac2 namely Jurassic Park, Sonic 3 and Twinkle Tale [MAMEDev, arcadez, mahoneyt944]
+* Improved the gfx significantly for Sega's Title Fight [mahoneyt944]
+* Fixed missing and or incorrect sounds with a two player game in Title Fight [arcadez]
+* Added support for a decrypted version of Passing Shot and a rare prototype of the same game called Center Court to segas16b driver [grant2258]
+* Added Captain Barrel by Neobyteforce to the neogeo driver [arcadez]
+* Backported some graphical fixes for SNK's Joyful Road / Munch Mobile from later MAME [arcadez]
+* Added RNG protection which handles random events during boss battles improving the emulation
+* for Data East's Secret Agent / Sly Spy [arcadez, Mahoneyt944]
+* Improved the protection for Data East's Express Raider to prevent the game stalling on level 2 [MAMEDev, arcadez]
+* Added support for Bubble Buster a unique version of Puzzle Bobble with totally different gameplay and music [arcadez, FBNDev]
+* Fixed the attract mode for 64th Street, Chimera Beast, pengo, updated the pengo sets and fixed the gameover annimation for Vapor Trail [grant2258]
+* Added reset playfield dip switch option in Space Wars [mahoneyt944]
+* Merged pbillian.c and superqix.c updating to MAME90 which improves the emulation and sound for Prebillian and VS. Hot Smash both games now playable [arcadez, grant2258]

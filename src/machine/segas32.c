@@ -44,6 +44,75 @@ static void MemWrite16_16(offs_t address, UINT16 data)
  ******************************************************************************
  ******************************************************************************/
 
+#define xxxx 0x00
+
+const unsigned char ga2_opcode_table[256] = {
+		xxxx,xxxx,0xEA,xxxx,xxxx,0x8B,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xFA,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0x3B,xxxx,0x49,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,0xE8,xxxx,xxxx,0x75,xxxx,xxxx,xxxx,xxxx,0x3A,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,0x8D,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xBF,xxxx,0x88,xxxx,
+		xxxx,xxxx,xxxx,0x81,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		0x02,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xBC,
+		xxxx,xxxx,xxxx,0x8A,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0x83,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xB8,0x26,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xB5,xxxx,0xEB,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xB2,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,0xC3,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xB9,0xBB,xxxx,0x43,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,0x8E,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xBE,xxxx,0x80,xxxx,xxxx
+};
+
+#undef xxxx
+
+void nec_v25_cpu_decrypt(const unsigned char *opcode_table)
+{
+	int i;
+	unsigned char *rom = memory_region(REGION_CPU3);
+	UINT8* decrypted = auto_malloc(0x100000);
+	UINT8* temp = malloc(0x100000);
+
+	/* set CPU3 opcode base */
+	memory_set_opcode_base(2,decrypted);
+
+	/* make copy of ROM so original can be overwritten */
+	memcpy(temp, rom, 0x10000);
+
+	for(i = 0; i < 0x10000; i++)
+	{
+	        int j = BITSWAP16(i, 14, 11, 15, 12, 13, 4, 3, 7, 5, 10, 2, 8, 9, 6, 1, 0);
+
+		/* normal ROM data with address swap undone */
+		rom[i] = temp[j];
+
+		/* decryped opcodes with address swap undone */
+		decrypted[i] = opcode_table[ temp[j] ];
+	}
+
+	memcpy(rom+0xf0000, rom, 0x10000);
+	memcpy(decrypted+0xf0000, decrypted, 0x10000);
+
+	free(temp);
+}
+
+void decrypt_ga2_protrom(void)
+{
+	nec_v25_cpu_decrypt(ga2_opcode_table);
+}
+
+WRITE16_HANDLER( system32_dpram_w )
+{
+	/* does it ever actually write.. */
+}
+
+READ16_HANDLER( system32_dpram_r )
+{
+	return (system32_dpram[offset])|(system32_dpram[offset+1]<<8);
+}
+
+#if 1 /* simulation */
 READ16_HANDLER(ga2_sprite_protection_r)
 {
 	static unsigned int prot[16] =
@@ -67,6 +136,7 @@ READ16_HANDLER(ga2_wakeup_protection_r)
 		"wake up! GOLDEN AXE The Revenge of Death-Adder! ";
 	return prot[offset];
 }
+#endif
 
 
 /******************************************************************************
@@ -213,6 +283,35 @@ WRITE16_HANDLER(brival_protboard_w)
  ******************************************************************************
  ******************************************************************************/
 
+#define xxxx 0x00
+
+const unsigned char arf_opcode_table[256] = {
+		xxxx,xxxx,0x43,xxxx,xxxx,xxxx,0x83,xxxx,xxxx,xxxx,0xEA,xxxx,xxxx,0xBC,0x73,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		0x3A,xxxx,xxxx,0xBE,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0x80,xxxx,
+		xxxx,0xB5,xxxx,xxxx,xxxx,xxxx,xxxx,0x26,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xE8,0x8D,xxxx,0x8B,xxxx,
+		xxxx,xxxx,xxxx,0xFA,xxxx,0x8A,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xBA,0x88,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xBB,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0x75,xxxx,0xBF,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0x03,0x3B,0x8E,0x74,xxxx,xxxx,0x81,xxxx,
+		xxxx,xxxx,xxxx,0xC3,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xB9,0xB2,xxxx,xxxx,xxxx,xxxx,0x49,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0xEB,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,
+		xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,xxxx,0x02,0xB8
+};
+
+#undef xxxx
+
+void decrypt_arabfgt_protrom(void)
+{
+	nec_v25_cpu_decrypt(arf_opcode_table);
+}
+
+#if 1 /* simulation */
 /* protection ram is 8-bits wide and only occupies every other address*/
 READ16_HANDLER(arabfgt_protboard_r)
 {
@@ -244,6 +343,7 @@ READ16_HANDLER(arf_wakeup_protection_r)
 		"wake up! ARF!                                   ";
 	return prot[offset];
 }
+#endif
 
 
 /******************************************************************************
