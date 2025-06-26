@@ -16,7 +16,7 @@
 /*#define LOG_LOAD */
 
 
-char *chd_error_text[] =
+const char *chd_error_text[] =
 {
 	"CHDERR_NONE",
 	"CHDERR_NO_INTERFACE",
@@ -322,7 +322,7 @@ static struct GameSample *read_wav_sample(mame_file *f, const char *gamename, co
 
 		/* allocate the game sample */
 		if(b_data == 1)
-			result = auto_malloc(sizeof(struct GameSample) + length);
+			result = malloc(sizeof(struct GameSample) + length);
 		else
 			result = malloc(sizeof(struct GameSample));
 
@@ -422,7 +422,7 @@ static struct GameSample *read_wav_sample(mame_file *f, const char *gamename, co
 		}
 
 		if (b_data == 1)
-			result = auto_malloc(sizeof(struct GameSample) + (flac_file.total_samples * (flac_file.bits_per_sample / 8)));
+			result = malloc(sizeof(struct GameSample) + (flac_file.total_samples * (flac_file.bits_per_sample / 8)));
 		else
 			result = malloc(sizeof(struct GameSample));
 
@@ -520,7 +520,7 @@ struct GameSamples *readsamples(const char **samplenames,const char *basename)
 
 	if (!i) return 0;
 
-	if ((samples = auto_malloc(sizeof(struct GameSamples) + (i-1)*sizeof(struct GameSample))) == 0)
+	if ((samples = malloc(sizeof(struct GameSamples) + (i-1)*sizeof(struct GameSample))) == 0)
 		return 0;
 
 	samples->total = i;
@@ -1539,7 +1539,7 @@ static int read_rom_data(struct rom_load_data *romdata, const struct RomModule *
 			return 0;
 		numbytes -= bytesleft;
 
-		log_cb(RETRO_LOG_DEBUG, LOGPRE "  Copying to %08X\n", (int)base);
+		log_cb(RETRO_LOG_DEBUG, LOGPRE "  Copying to %08lX\n", (FPTR)base);
 
 		/* unmasked cases */
 		if (datamask == 0xff)
@@ -1624,7 +1624,7 @@ static int fill_rom_data(struct rom_load_data *romdata, const struct RomModule *
 	}
 
 	/* fill the data (filling value is stored in place of the hashdata) */
-	memset(base, (UINT32)ROM_GETHASHDATA(romp) & 0xff, numbytes);
+	memset(base, (FPTR)ROM_GETHASHDATA(romp) & 0xff, numbytes);
 	return 1;
 }
 
@@ -1638,7 +1638,7 @@ static int copy_rom_data(struct rom_load_data *romdata, const struct RomModule *
 	UINT8 *base = romdata->regionbase + ROM_GETOFFSET(romp);
 	int srcregion = ROM_GETFLAGS(romp) >> 24;
 	UINT32 numbytes = ROM_GETLENGTH(romp);
-	UINT32 srcoffs = (UINT32)ROM_GETHASHDATA(romp);  /* srcoffset in place of hashdata */
+	UINT32 srcoffs = (UINT32)(FPTR)ROM_GETHASHDATA(romp);
 	UINT8 *srcbase;
 
 	/* make sure we copy within the region space */
@@ -1970,7 +1970,7 @@ int rom_load(const struct RomModule *romp)
 		/* remember the base and length */
 		romdata.regionlength = memory_region_length(regiontype);
 		romdata.regionbase = memory_region(regiontype);
-		log_cb(RETRO_LOG_DEBUG, LOGPRE "Allocated %X bytes @ %08X\n", romdata.regionlength, (int)romdata.regionbase);
+		log_cb(RETRO_LOG_DEBUG, LOGPRE "Allocated %X bytes @ %08lX\n", romdata.regionlength, (FPTR)romdata.regionbase);
 
 		/* clear the region if it's requested */
 		if (ROMREGION_ISERASE(region))

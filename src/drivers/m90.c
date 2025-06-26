@@ -32,7 +32,6 @@ Notes:
 static int bankaddress;
 
 extern unsigned char *m90_video_data;
-extern int m90_game_kludge;
 
 VIDEO_UPDATE( m90 );
 VIDEO_UPDATE( m90_bootleg );
@@ -1244,39 +1243,34 @@ ROM_START( dicegame )
 	ROM_LOAD( "dice-v0.ic20",    0x0000, 0x20000, CRC(04dc9196) SHA1(3e3ecbf0e2b6e691f9894698aaf41a64ec7b41f1) )
 ROM_END
 
+/*
+Switch the Irem M90 games over to using 
+the new decryption style
+*/
+extern const UINT8* v25v35_decryptiontable;
+
+
 static DRIVER_INIT( hasamu )
 {
-	m90_game_kludge=0;
-	irem_cpu_decrypt(0,gunforce_decryption_table);
+    v25v35_decryptiontable = gunforce_decryption_table;
 }
 
 static DRIVER_INIT( bombrman )
 {
-	m90_game_kludge=0;
-	irem_cpu_decrypt(0,bomberman_decryption_table);
+    v25v35_decryptiontable = bomberman_decryption_table;
 }
 
-/* Bomberman World executes encrypted code from RAM! */
-static WRITE_HANDLER (bbmanw_ram_write)
-{
-	unsigned char *RAM = memory_region(REGION_CPU1);
-	RAM[0x0a0c00+offset]=data;
-	RAM[0x1a0c00+offset]=dynablaster_decryption_table[data];
-}
 
 static DRIVER_INIT( bbmanw )
 {
-	m90_game_kludge=0;
-	irem_cpu_decrypt(0,dynablaster_decryption_table);
-
-	install_mem_write_handler(0, 0xa0c00, 0xa0cff, bbmanw_ram_write);
+    v25v35_decryptiontable = dynablaster_decryption_table;
 }
+
 
 static DRIVER_INIT( quizf1 )
 {
-	m90_game_kludge=0;
-	irem_cpu_decrypt(0,lethalth_decryption_table);
-
+    v25v35_decryptiontable = lethalth_decryption_table;
+	
 	bankaddress = 0;
 	set_m90_bank();
 
@@ -1284,39 +1278,33 @@ static DRIVER_INIT( quizf1 )
 	state_save_register_func_postload(set_m90_bank);
 }
 
+
 static DRIVER_INIT( gussun )
 {
-	m90_game_kludge=2;
-	irem_cpu_decrypt(0,gussun_decryption_table);
+   v25v35_decryptiontable = gussun_decryption_table;
 }
 
 static DRIVER_INIT( riskchal )
 {
-	m90_game_kludge=1;
-	irem_cpu_decrypt(0,gussun_decryption_table);
+    v25v35_decryptiontable = gussun_decryption_table;
 }
 
 static DRIVER_INIT( matchit2 )
 {
-	m90_game_kludge=0;
-	irem_cpu_decrypt(0,matchit2_decryption_table);
+	v25v35_decryptiontable = matchit2_decryption_table;
 }
 
-static DRIVER_INIT( dicegame )
-{
-	m90_game_kludge=0;
-}
 
 GAMEX(1991, hasamu,   0,        m90,      hasamu,   hasamu,   ROT0, "Irem", "Hasamu (Japan)", GAME_NO_COCKTAIL )
 GAMEX(1991, bbmanw,   0,        bbmanw,   bbmanw,   bbmanw,   ROT0, "Irem", "Bomber Man World (World)", GAME_NO_COCKTAIL )
 GAMEX(1991, bbmanwj,  bbmanw,   bombrman, bbmanw,   bbmanw,   ROT0, "Irem", "Bomber Man World (Japan)", GAME_NO_COCKTAIL )
-GAMEX(1991, dicegame, 0,        dicegame, dicegame, dicegame, ROT0, "bootleg (Tuning)", "Dice - The Dice Game!", GAME_NO_COCKTAIL )
+GAMEX(1991, dicegame, 0,        dicegame, dicegame, 0,        ROT0, "bootleg (Tuning)", "Dice - The Dice Game!", GAME_NO_COCKTAIL )
 GAMEX(1992, dynablst, 0,        bombrman, dynablst, bombrman, ROT0, "Irem (licensed from Hudson Soft)", "Dynablaster (World)", GAME_NO_COCKTAIL )
 GAMEX(1992, bombrman, dynablst, bombrman, bombrman, bombrman, ROT0, "Irem (licensed from Hudson Soft)", "Bomberman (Japan)", GAME_NO_COCKTAIL )
 GAMEX(1992, dynablsb, dynablst, bootleg,  bombrman, 0,        ROT0, "bootleg", "Dynablaster (bootleg)", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
 GAMEX(1992, atompunk, bbmanw,   bbmanw,   bbmanw,   bbmanw,   ROT0, "Irem America", "New Atomic Punk - Global Quest (US)", GAME_NO_COCKTAIL )
 GAMEX(1992, quizf1,   0,        quizf1,   quizf1,   quizf1,   ROT0, "Irem", "Quiz F-1 1,2finish", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
 GAMEX(1993, riskchal, 0,        riskchal, riskchal, riskchal, ROT0, "Irem", "Risky Challenge", GAME_NO_COCKTAIL )
-GAMEX(1993, gussun,   riskchal, riskchal, riskchal, gussun,   ROT0, "Irem", "Gussun Oyoyo (Japan)", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
+GAMEX(1993, gussun,   riskchal, riskchal, riskchal, gussun,   ROT0, "Irem", "Gussun Oyoyo (Japan)", GAME_NO_COCKTAIL )
 GAMEX(1993, matchit2, 0,        quizf1,   matchit2, matchit2, ROT0, "Tamtex", "Match It II", GAME_NO_COCKTAIL )
 GAMEX(1993, shisen2,  matchit2, quizf1,   shisen2,  matchit2, ROT0, "Tamtex", "Shisensho II", GAME_NO_COCKTAIL )

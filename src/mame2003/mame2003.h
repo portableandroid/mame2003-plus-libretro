@@ -43,11 +43,15 @@ extern "C" {
 #define CLIB_DECL
 #endif
 
-#ifdef __LP64__
-#define FPTR unsigned long   /* 64bit: sizeof(void *) is sizeof(long)  */
-#else
-#define FPTR unsigned int
+/* fallback for c89 compilers only msvc as far as I know */
+#if defined _MSC_VER
+   #ifdef _WIN64
+      typedef unsigned __int64  uintptr_t;
+   #else
+      typedef _W64 unsigned int uintptr_t;
+   #endif
 #endif
+#define FPTR uintptr_t
 
 /***************************************************************************
 

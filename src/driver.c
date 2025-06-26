@@ -1427,6 +1427,7 @@ const struct GameDriver *test_drivers[] =
 	DRIVER( flstoryj )	/* A45 (c) 1985 Taito Corporation (Japan) */
 	DRIVER( onna34ro )	/* A52 (c) 1985 Taito Corporation (Japan) */
 	DRIVER( onna34ra )	/* A52 (c) 1985 Taito Corporation (Japan) */
+	DRIVER( victnine )	/* A16 (c) 1985 Taito Corporation (Japan) */
 	DRIVER( rumba )	    /* ??? (c) 1984 Taito Corporation (Japan) */
 	DRIVER( gladiatr )	/* ??? (c) 1986 Taito America Corporation (US) */
 	DRIVER( ogonsiro )	/* ??? (c) 1986 Taito Corporation (Japan) */
@@ -5157,6 +5158,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( glass )		/* (c) 1993 - Ref 931021 */
 	DRIVER( glasskr )	/* (c) 1994 - Ref 931021 Anime girls, unprotected */
 	DRIVER( targeth )	/* (c) 1994 - Ref 940531 */
+	DRIVER( quickshts )	/* (c) 1994 - Ref 940531 */
 	DRIVER( thoop2 )	/* (c) 1994 - Ref ??? */
 	DRIVER( aligator )	/* (c) 1994 - Ref 940411 */
 	DRIVER( aligatun )	/* (c) 1994 - Ref 940411 (unprotected) */
@@ -6087,6 +6089,7 @@ Other Sun games
 	DRIVER( hypernoid )     /* 2021 M.Priewe */
 	DRIVER( cyborgforce )   /* (c) 2023 Neo Byte Force Ltd */
 	DRIVER( captainbarrel ) /* (c) 2024 Neo Byte Force Ltd */
+  DRIVER( gladmort )      /* (c) 2024 Pixelheart / ChipsOnSteroids */
 
 	/* SemiCom 68020 based hardware */
 	DRIVER( baryon )    /* (c) 1997 SemiCom / Tirano */

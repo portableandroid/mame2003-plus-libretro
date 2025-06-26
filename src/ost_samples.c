@@ -10,10 +10,10 @@
 
 /* ost configuration */
 static int  ost_support = OST_SUPPORT_DISABLED;
-static int  sa_volume   = 100;
-static int  last_left   = 0;
-static int  last_right  = 0;
-static bool fadingMusic = false;
+static int  sa_volume;
+static int  last_left;
+static int  last_right;
+static bool fadingMusic;
 static bool schedule_default_sound;
 
 
@@ -47,6 +47,7 @@ static bool routine_outrun     (int data);
 static bool routine_robocop    (int data);
 static bool routine_sf1        (int data);
 static bool routine_sf2        (int data);
+static bool routine_shinobi    (int data);
 
 
 const char *const contra_sample_set_names[] =
@@ -467,6 +468,32 @@ const char *const sf2_sample_set_names[] =
 	0
 };
 
+const char *const shinobi_sample_set_names[] =
+{
+	"*shinobi",
+	"m2-01",
+	"m2-02",
+	"m3-01",
+	"m3-02",
+	"m4-01",
+	"m4-02",
+	"clear-01",
+	"clear-02",
+	"bossc-01",
+	"bossc-02",
+	"bonus-01",
+	"bonus-02",
+	"m5-01",
+	"m5-02",
+	"continue-01",
+	"continue-02",
+	"boss-01",
+	"boss-02",
+	"m1-01",
+	"m1-02",
+	0
+};
+
 
 struct Samplesinterface ost_contra =
 {
@@ -545,6 +572,13 @@ struct Samplesinterface ost_sf2 =
 	sf2_sample_set_names
 };
 
+struct Samplesinterface ost_shinobi =
+{
+	2,	/* 2 channels*/
+	100, /* volume*/
+	shinobi_sample_set_names
+};
+
 
 bool ost_support_enabled(int ost)
 {
@@ -558,10 +592,30 @@ bool ost_support_enabled(int ost)
 }
 
 
+void ost_init(void)
+{
+  /* stop samples if playing */
+  ost_stop_samples();
+
+  /* ost configuration */
+  sa_volume   = 100;
+  last_left   = 0;
+  last_right  = 0;
+  fadingMusic = false;
+
+  /* game specific variables */
+  ddragon_stage       = 0;
+  ff_alternate_song_1 = false;
+  ff_alternate_song_2 = false;
+  start_counter       = 0;
+}
+
+
 void install_ost_support(struct InternalMachineDriver *machine, int ost)
 {
   /* set */
   ost_support = ost;
+  MDRV_SOUND_ATTRIBUTES(SOUND_SUPPORTS_STEREO)
 
   switch(ost)
   {
@@ -573,14 +627,11 @@ void install_ost_support(struct InternalMachineDriver *machine, int ost)
     case OST_SUPPORT_DDRAGON:
       MDRV_SOUND_ADD_TAG("OST Samples", SAMPLES, ost_ddragon)
       generate_ost_sound = routine_ddragon;
-      ddragon_stage = 0;
       break;
 
     case OST_SUPPORT_FFIGHT:
       MDRV_SOUND_ADD_TAG("OST Samples", SAMPLES, ost_ffight)
       generate_ost_sound = routine_ffight;
-      ff_alternate_song_1 = false;
-      ff_alternate_song_2 = false;
       break;
 
     case OST_SUPPORT_IKARI:
@@ -601,13 +652,11 @@ void install_ost_support(struct InternalMachineDriver *machine, int ost)
     case OST_SUPPORT_NBA_JAM:
       MDRV_SOUND_ADD_TAG("OST Samples", SAMPLES, ost_nba_jam)
       generate_ost_sound = routine_nba_jam;
-      start_counter = 0;
       break;
 
     case OST_SUPPORT_OUTRUN:
       MDRV_SOUND_ADD_TAG("OST Samples", SAMPLES, ost_outrun)
       generate_ost_sound = routine_outrun;
-      start_counter = 0;
       break;
 
     case OST_SUPPORT_ROBOCOP:
@@ -623,6 +672,11 @@ void install_ost_support(struct InternalMachineDriver *machine, int ost)
     case OST_SUPPORT_SF2:
       MDRV_SOUND_ADD_TAG("OST Samples", SAMPLES, ost_sf2)
       generate_ost_sound = routine_sf2;
+      break;
+
+    case OST_SUPPORT_SHINOBI:
+      MDRV_SOUND_ADD_TAG("OST Samples", SAMPLES, ost_shinobi)
+      generate_ost_sound = routine_shinobi;
       break;
   }
 }
@@ -832,10 +886,9 @@ static bool routine_ddragon(int data)
 
 		/* Title screen. */
 		case 0x1:
-			if(!ost_last_played(0, 1) && ddragon_stage != 4) {
-				ddragon_stage = 0;
+			if(!ost_last_played(0, 1) && ddragon_stage == 0)
 				ost_start_samples(0, 1, 1);
-			}
+
 			else if(ddragon_stage == 4) /* Final boss fight. */
 				ost_start_samples(22, 23, 1);
 			break;
@@ -1007,7 +1060,7 @@ static bool routine_ffight(int data)
 			ost_start_samples(32, 33, 1);
 			break;
 
-		/* homosexual cheesy ending music*/
+		/* cheesy ending music*/
 		case 0x54:
 			ost_start_samples(48, 49, 1);
 			break;
@@ -2039,6 +2092,79 @@ static bool routine_sf2(int data)
 		case 0xf2:
 		case 0xf7:
 			ost_stop_samples();
+			break;
+
+		default:
+			schedule_default_sound = true;
+			break;
+	}
+
+	ost_mix_samples();
+
+	return schedule_default_sound;
+}
+
+static bool routine_shinobi(int data)
+{
+	/* initialize ost config */
+	schedule_default_sound = false;
+
+	switch (data) {
+		/* Time to stop the music */
+		case 0x0:
+			/* Extend stage clear and boss clear music */
+			if( !ost_last_played(6, 7) && !ost_last_played(8, 9) )
+				ost_stop_samples();
+			break;
+
+		/* Mission 2 */
+		case 0x90:
+			ost_start_samples(0, 1, 1);
+			break;
+
+		/* Mission 3 */
+		case 0x91:
+			ost_start_samples(2, 3, 1);
+			break;
+
+		/* Mission 4 */
+		case 0x92:
+			ost_start_samples(4, 5, 1);
+			break;
+
+		/* Stage Clear */
+		case 0x93:
+			ost_start_samples(6, 7, 0);
+			break;
+
+		/* Boss Clear */
+		case 0x94:
+			ost_start_samples(8, 9, 0);
+			break;
+
+		/* Bonus Stage */
+		case 0x95:
+			ost_start_samples(10, 11, 1);
+			break;
+
+		/* Mission 5 */
+		case 0x97:
+			ost_start_samples(12, 13, 1);
+			break;
+
+		/* Continue */
+		case 0x98:
+			ost_start_samples(14, 15, 0);
+			break;
+
+		/* Boss */
+		case 0x99:
+			ost_start_samples(16, 17, 1);
+			break;
+
+		/* Mission 1 */
+		case 0x9A:
+			ost_start_samples(18, 19, 1);
 			break;
 
 		default:

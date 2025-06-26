@@ -148,7 +148,7 @@ VIDEO_UPDATE( targeth )
 	tilemap_set_scrolly(pant[0], 0, targeth_vregs[0]);
 	tilemap_set_scrollx(pant[0], 0, targeth_vregs[1] + 0x04);
 	tilemap_set_scrolly(pant[1], 0, targeth_vregs[2]);
-	tilemap_set_scrollx(pant[1], 0, targeth_vregs[3]);
+	tilemap_set_scrollx(pant[1], 0, targeth_vregs[3] + 0x00);
 
 	tilemap_draw(bitmap,cliprect,pant[1],0,0);
 	tilemap_draw(bitmap,cliprect,pant[0],0,0);
@@ -161,11 +161,11 @@ VIDEO_UPDATE( targeth )
 		/* 1P Gun */
 		posx = readinputport(0) & 0x1ff;
 		posy = readinputport(1) & 0x0ff;
-		draw_crosshair(1, bitmap, posx - 0x17, posy + 1, cliprect);
+		draw_crosshair(1, bitmap, posx - 0x16, posy -6, cliprect);
 
 		/* 2P Gun */
 		posx = readinputport(2) & 0x1ff;
 		posy = readinputport(3) & 0x0ff;
-		draw_crosshair(2, bitmap, posx - 0x17, posy + 1, cliprect);
+		draw_crosshair(2, bitmap, posx - 0x16, posy -6 , cliprect);
 	}
 }
