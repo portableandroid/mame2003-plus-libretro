@@ -474,6 +474,7 @@ static WRITE16_HANDLER( neo_z80_w )
 	cpu_boost_interleave(0, TIME_IN_USEC(20));
 }
 
+
 static int mjneogo_select;
 
 static WRITE16_HANDLER ( mjneogeo_w )
@@ -481,9 +482,123 @@ static WRITE16_HANDLER ( mjneogeo_w )
 	mjneogo_select = data;
 }
 
+int neogeo_has_trackball;
+static int ts;
+
+static WRITE16_HANDLER( trackball_select_16_w )
+{
+	ts = data & 1;
+}
+
+static READ16_HANDLER( controller1_16_r )
+{
+	UINT16 res;
+
+	if (neogeo_has_trackball)
+		res = (readinputport(ts?7:0) << 8) + readinputport(3);
+	else
+		res = (readinputport(0) << 8) + readinputport(3);
+
+	return res;
+}
+static READ16_HANDLER( controller2_16_r )
+{
+	UINT16 res;
+
+	res = (readinputport(1) << 8);
+
+	return res;
+}
+static READ16_HANDLER( controller3_16_r )
+{
+	if (memcard_status == 0)
+		return (readinputport(2) << 8);
+	else
+		return ((readinputport(2) << 8)&0x8FFF);
+}
+static READ16_HANDLER( controller4_16_r )
+{
+	return (readinputport(6) & ~(readinputport(5) & 0x40));
+}
+
+static READ16_HANDLER( popbounc1_16_r )
+{
+	UINT16 res;
+
+	res = (readinputport(ts?0:7) << 8) + readinputport(3);
+
+	return res;
+}
+
+static READ16_HANDLER( popbounc2_16_r )
+{
+	UINT16 res;
+
+	res = (readinputport(ts?1:8) << 8);
+
+	return res;
+}
+
+static WRITE16_HANDLER(neogeo_syscontrol_w)
+{
+	offset &=0x7f;
+
+	switch (offset<<1)
+	{
+		case 0x00: trackball_select_16_w(0,data,mem_mask);break;
+
+		case 0x30: break; // LEDs (latch)
+		case 0x40: break; // LEDs (send)
+
+
+		case 0x50: pd4990a_control_16_w(0,data,mem_mask);break;
+		case 0x60: break; // coin counters
+		case 0x62: break; // coin counters
+		case 0x64: break; // coin lockout
+		case 0x66: break;// coun lockout
+
+		case 0xd0: pd4990a_control_16_w(0,data,mem_mask);break;
+
+		case 0xe0: break;// coin counters
+		case 0xe2: break;// coin counters
+		case 0xe4: break;// coin lockout
+		case 0xe6: break;// coun lockout
+
+		default: /* put warning message here */ break;
+	}
+}
+
+static WRITE16_HANDLER( neogeo_syscontrol2_w )
+{
+	offset &=0xf;
+
+	switch (offset<<1)
+	{
+		/* BIOS Select */
+		case 0x00: break;
+		case 0x02: neogeo_select_bios_vectors(0,data,mem_mask); break;
+		case 0x04: break;
+		case 0x06: break;
+		case 0x08: break;
+		case 0x0a: neo_board_fix_16_w(0,data,mem_mask);break;
+		case 0x0c: neogeo_sram16_lock_w(0,data,mem_mask);break;
+		case 0x0e:neogeo_setpalbank1_16_w(0,data,mem_mask);break;
+		/*GAME Select */
+		case 0x10: break;
+		case 0x12: neogeo_select_game_vectors(0,data,mem_mask);break;
+		case 0x14: break;
+		case 0x16: break;
+		case 0x18: break;
+		case 0x1a: neo_game_fix_16_w(0,data,mem_mask);break;
+		case 0x1c: neogeo_sram16_unlock_w(0,data,mem_mask);break;
+		case 0x1e: neogeo_setpalbank0_16_w(0,data,mem_mask);break;
+	}
+}
+
+
 static READ16_HANDLER ( mjneogeo_r )
 {
-	data16_t res;
+	UINT16 res;
 
 /*
 cpu #0 (PC=00C18B9A): unmapped memory word write to 00380000 = 0012 & 00FF
@@ -497,19 +612,19 @@ cpu #0 (PC=00C18C40): unmapped memory word write to 00380000 = 0000 & 00FF
 	switch (mjneogo_select)
 	{
 		case 0x00:
-		res = 0; /* nothing?*/
+		res = 0; // nothing?
 		break;
 		case 0x09:
-		res = (readinputport(7) << 8); /* a,b,c,d,e,g ....*/
+		res = (readinputport(7) << 8); // a,b,c,d,e,g ....
 		break;
 		case 0x12:
-		res = (readinputport(8) << 8); /* h,i,j,k,l ...*/
+		res = (readinputport(8) << 8); // h,i,j,k,l ...
 		break;
 		case 0x1b:
-		res = (readinputport(0) << 8); /* player 1 normal inputs?*/
+		res = (readinputport(0) << 8); // player 1 normal inputs?
 		break;
 		case 0x24:
-		res = (readinputport(9) << 8); /* call etc.*/
+		res = (readinputport(9) << 8); // call etc.
 		break;
 		default:
 		break;
@@ -518,64 +633,6 @@ cpu #0 (PC=00C18C40): unmapped memory word write to 00380000 = 0000 & 00FF
 	return res + readinputport(3);
 }
 
-
-
-int neogeo_has_trackball;
-static int ts;
-
-static WRITE16_HANDLER( trackball_select_16_w )
-{
-	ts = data & 1;
-}
-
-static READ16_HANDLER( controller1_16_r )
-{
-	data16_t res;
-
-	if (neogeo_has_trackball)
-		res = (readinputport(ts?7:0) << 8) + readinputport(3);
-	else
-		res = (readinputport(0) << 8) + readinputport(3);
-
-	return res;
-}
-static READ16_HANDLER( controller2_16_r )
-{
-	data16_t res;
-
-	res = (readinputport(1) << 8);
-
-	return res;
-}
-static READ16_HANDLER( controller3_16_r )
-{
-	if (memcard_status==0)
-		return (readinputport(2) << 8);
-	else
-		return ((readinputport(2) << 8)&0x8FFF);
-}
-static READ16_HANDLER( controller4_16_r )
-{
-	return (readinputport(6) & ~(readinputport(5) & 0x40));
-}
-
-static READ16_HANDLER( popbounc1_16_r )
-{
-	data16_t res;
-
-	res = (readinputport(ts?0:7) << 8) + readinputport(3);
-
-	return res;
-}
-
-static READ16_HANDLER( popbounc2_16_r )
-{
-	data16_t res;
-
-	res = (readinputport(ts?1:8) << 8);
-
-	return res;
-}
 
 static WRITE16_HANDLER( neo_bankswitch_w )
 {
@@ -631,7 +688,7 @@ static READ16_HANDLER( neo_control_16_r )
 	res =	((current_rastercounter << 7) & 0xff80) |	/* raster counter */
 			(neogeo_frame_counter & 0x0007);			/* frame counter */
 
-	log_cb(RETRO_LOG_DEBUG, LOGPRE "PC %06x: neo_control_16_r (%04x)\n",activecpu_get_pc(),res);
+	//log_cb(RETRO_LOG_DEBUG, LOGPRE "PC %06x: neo_control_16_r (%04x)\n",activecpu_get_pc(),res);
 	return res;
 }
 
@@ -667,6 +724,19 @@ static WRITE16_HANDLER( neo_irq2pos_16_w )
 	}
 }
 
+static READ16_HANDLER(controller1and4_16_r)
+{
+	UINT16 retvalue=0;
+
+	switch ((offset<<1)&0x80)
+	{
+		case 0x00: retvalue = controller1_16_r(0,mem_mask);break;
+		case 0x80: retvalue = controller4_16_r(0,mem_mask);break;
+	}
+
+	return retvalue;
+}
+
 
 /******************************************************************************/
 
@@ -675,11 +745,10 @@ static MEMORY_READ16_START( neogeo_readmem )
 	{ 0x100000, 0x10ffff, MRA16_BANK1 },		/* Ram bank 1 */
 	{ 0x200000, 0x2fffff, MRA16_BANK4 },		/* Rom bank 2 */
 
-	{ 0x300000, 0x300001, controller1_16_r },
-	{ 0x300080, 0x300081, controller4_16_r },	/* Test switch in here */
+	{ 0x300000, 0x31ffff, controller1and4_16_r },
 	{ 0x320000, 0x320001, timer16_r },			/* Coins, Calendar, Z80 communication */
-	{ 0x340000, 0x340001, controller2_16_r },
-	{ 0x380000, 0x380001, controller3_16_r },
+	{ 0x340000, 0x35ffff, controller2_16_r },
+	{ 0x380000, 0x39ffff, controller3_16_r },
 	{ 0x3c0000, 0x3c0001, neogeo_vidram16_data_r }, /* Baseball Stars */
 	{ 0x3c0002, 0x3c0003, neogeo_vidram16_data_r },
 	{ 0x3c0004, 0x3c0005, neogeo_vidram16_modulo_r },
@@ -687,8 +756,7 @@ static MEMORY_READ16_START( neogeo_readmem )
 	{ 0x3c0006, 0x3c0007, neo_control_16_r },
 	{ 0x3c000a, 0x3c000b, neogeo_vidram16_data_r }, /* Puzzle de Pon */
 
-	{ 0x400000, 0x401fff, neogeo_paletteram16_r },
-	{ 0x6a0000, 0x6a1fff, MRA16_RAM },
+	{ 0x400000, 0x7fffff, neogeo_paletteram16_r },
 	{ 0x800000, 0x800fff, neogeo_memcard16_r }, /* memory card */
 	{ 0xc00000, 0xc1ffff, MRA16_BANK3 },		/* system bios rom */
 	{ 0xd00000, 0xd0ffff, neogeo_sram16_r },	/* 64k battery backed SRAM */
@@ -705,23 +773,8 @@ static MEMORY_WRITE16_START( neogeo_writemem )
 	{ 0x2ffff0, 0x2fffff, neo_bankswitch_w },	/* NOTE THIS CHANGE TO END AT FF !!! */
 	{ 0x300000, 0x300001, watchdog_reset16_w },
 	{ 0x320000, 0x320001, neo_z80_w },				/* Sound CPU */
-	{ 0x380000, 0x380001, trackball_select_16_w },	/* Used by bios, unknown */
-	{ 0x380030, 0x380031, MWA16_NOP },				/* Used by bios, unknown */
-	{ 0x380040, 0x380041, MWA16_NOP },				/* Output leds */
-	{ 0x380050, 0x380051, pd4990a_control_16_w },
-	{ 0x380060, 0x380063, MWA16_NOP },				/* Used by bios, unknown */
-	{ 0x3800e0, 0x3800e3, MWA16_NOP },				/* Used by bios, unknown */
-
-	{ 0x3a0000, 0x3a0001, MWA16_NOP },
-	{ 0x3a0010, 0x3a0011, MWA16_NOP },
-	{ 0x3a0002, 0x3a0003, neogeo_select_bios_vectors },
-	{ 0x3a0012, 0x3a0013, neogeo_select_game_vectors },
-	{ 0x3a000a, 0x3a000b, neo_board_fix_16_w }, /* Select board FIX char rom */
-	{ 0x3a001a, 0x3a001b, neo_game_fix_16_w },	/* Select game FIX char rom */
-	{ 0x3a000c, 0x3a000d, neogeo_sram16_lock_w },
-	{ 0x3a001c, 0x3a001d, neogeo_sram16_unlock_w },
-	{ 0x3a000e, 0x3a000f, neogeo_setpalbank1_16_w },
-	{ 0x3a001e, 0x3a001f, neogeo_setpalbank0_16_w },	/* Palette banking */
+	{ 0x380000, 0x39ffff, neogeo_syscontrol_w },		/* Coin Counters, LEDs, Clock etc. */
+	{ 0x3a0000, 0x3affff, neogeo_syscontrol2_w},		/* BIOS / Game select etc. */
 
 	{ 0x3c0000, 0x3c0001, neogeo_vidram16_offset_w },
 	{ 0x3c0002, 0x3c0003, neogeo_vidram16_data_w },
@@ -732,8 +785,7 @@ static MEMORY_WRITE16_START( neogeo_writemem )
 	{ 0x3c000c, 0x3c000d, neo_irqack_w },		/* IRQ acknowledge */
 /*	{ 0x3c000e, 0x3c000f },*/  /* Unknown, see control_r /*/ 
 
-	{ 0x400000, 0x401fff, neogeo_paletteram16_w },	/* COLOR RAM BANK1*/
-	{ 0x6a0000, 0x6a1fff, MWA16_RAM },	/* COLOR RAM BANK0 (used only in startup tests?)*/
+	{ 0x400000, 0x7fffff, neogeo_paletteram16_w },	/* COLOR RAM BANK1*/
 	{ 0x800000, 0x800fff, neogeo_memcard16_w }, 	/* mem card */
 	{ 0xd00000, 0xd0ffff, neogeo_sram16_w, &neogeo_sram16 },	/* 64k battery backed SRAM */
 MEMORY_END
@@ -7177,6 +7229,26 @@ ROM_START( hypernoid )
 	ROM_LOAD16_BYTE( "447.c2", 0x000001, 0x200000, CRC(36f35df2) SHA1(22715561d5383263e41563fcb060f83a0c544531) )
 ROM_END
 
+ROM_START( teot ) // Beta 7
+	ROM_REGION( 0x900000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "323j.p1", 0x000000, 0x100000, CRC(c0ae0a56) SHA1(d5817755641c5b105c1191b3a1f0dbca64060878) )
+	ROM_LOAD16_WORD_SWAP( "323h.p2", 0x100000, 0x800000, CRC(68dc7463) SHA1(e304187c3343d6a3f4dcad05ab68a1e73434079c) )
+
+	NEO_SFIX_128K( "323g.s1", CRC(6d05f74b) SHA1(1643bcf32249d3d90c230ccac09c8026dbd62960) )
+
+	NEO_BIOS_SOUND_64K( "323j.m1", CRC(0c17ccac) SHA1(39b33f6e6dc96012161cdb452a162495355dd73c) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_SOUNDONLY )
+	ROM_LOAD( "323g.v1",   0x000000, 0x800000, CRC(d2911e9c) SHA1(ca53ebda1ae2a339dfceda509c334bc4be24d7a2) )
+	ROM_LOAD( "323g.v2",   0x800000, 0x800000, CRC(49e3afe6) SHA1(0c37f171035baa4392b28df5de3261f084727a47) )
+
+  NO_DELTAT_REGION
+
+	ROM_REGION( 0x2000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "323h.c1",   0x0000000, 0x1000000, CRC(2fdbfbef) SHA1(3bc2f207538893f71a7f14800dc9f11f1788c5bf) )
+	ROM_LOAD16_BYTE( "323h.c2",   0x0000001, 0x1000000, CRC(4b953a79) SHA1(4851352e7f499f3cef20415072a0df7dc0c53bed) )
+ROM_END
+
 /* Cyborg Force
   Neo Byte Force Ltd, 20230409
 */
@@ -7263,6 +7335,127 @@ ROM_START( gladmort )
 	ROM_REGION( 0x2800000, REGION_GFX3, 0 )
 	ROM_LOAD16_BYTE( "503.c1",   0x0000000, 0x1400000, CRC(c7d367cc) SHA1(91a5241ba793c367e06341c951e9fb43726d0944) )
 	ROM_LOAD16_BYTE( "503.c2",   0x0000001, 0x1400000, CRC(2c39b98e) SHA1(da26d5073fe483650cbcacf595b4410e4f5f4787) )
+ROM_END
+
+// 505: Double Dragon One demo by La Casa De Ruivo, released by Neo Byte Force
+ROM_START( doubled1 ) // 2025-01-03
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "505.p1", 0x000000, 0x100000, CRC(518ac649) SHA1(e0052477cec58eef6506ea7c2d1ec5000a39ffdd) )
+	ROM_LOAD16_WORD_SWAP( "505.p2", 0x100000, 0x400000, CRC(87cf345c) SHA1(6c6997fc092fe8f8a45690344318be59955daa89) )
+
+	NEO_SFIX_128K( "505.s1", CRC(9886a683) SHA1(f079a61942321a0abdf6acd451e9ac7d84cb252b) )
+
+	NEO_BIOS_SOUND_64K( "505.m1", CRC(d20925ae) SHA1(c0deac17eb9ef93896e93e7b2cbacb5214f0da1b) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_SOUNDONLY )
+	ROM_LOAD( "505.v1",   0x000000, 0x800000, CRC(197b6305) SHA1(8ab6c573c5116fd7dedf9157c308dac4d45b2599) )
+	ROM_LOAD( "502.v2",   0x800000, 0x800000, CRC(8135d5a8) SHA1(186a516ed0fbc1d39f96385513de2ad662511559) ) // same as in Cyborg Force
+
+    NO_DELTAT_REGION
+
+	ROM_REGION( 0x2000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "505.c1",   0x0000000, 0x1000000, CRC(905b6f78) SHA1(48caa05ee9aafc2c93c96c628e84f1feeaa52c98) )
+	ROM_LOAD16_BYTE( "505.c2",   0x0000001, 0x1000000, CRC(c677a62f) SHA1(298d98391ffe5b66e95a6ee5c7e54731b10d6827) )
+ROM_END
+
+ROM_START( doubled1a ) // 2025-01-23, GAME#14A3
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "505a.p1", 0x000000, 0x100000, CRC(1203e56d) SHA1(c0ff7e5f14d172934ef0f64441d9776fe93b2b35) )
+	ROM_LOAD16_WORD_SWAP( "505a.p2", 0x100000, 0x400000, CRC(614c501e) SHA1(665abb8f977a43aacd3cecdc8afcdab88d7bb9fb) )
+
+	NEO_SFIX_128K( "505a.s1", CRC(2882cffd) SHA1(8d0c3dd888e82a1afdfae8a676d181283b4406d7) )
+
+	NEO_BIOS_SOUND_64K( "505.m1", CRC(d20925ae) SHA1(c0deac17eb9ef93896e93e7b2cbacb5214f0da1b) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_SOUNDONLY )
+	ROM_LOAD( "505.v1",   0x000000, 0x800000, CRC(197b6305) SHA1(8ab6c573c5116fd7dedf9157c308dac4d45b2599) )
+	ROM_LOAD( "502.v2",   0x800000, 0x800000, CRC(8135d5a8) SHA1(186a516ed0fbc1d39f96385513de2ad662511559) ) // same as in Cyborg Force
+
+    NO_DELTAT_REGION
+
+	ROM_REGION( 0x2000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "505a.c1",   0x0000000, 0x1000000, CRC(db1d77da) SHA1(98586100414d75dd794b62d4fedcdb626cf12612) )
+	ROM_LOAD16_BYTE( "505a.c2",   0x0000001, 0x1000000, CRC(340f0428) SHA1(e35c8dbd3cbdc39d63630e7bffcf14ca5238a265) )
+ROM_END
+
+ROM_START( doubled1b ) // 2025-02-17
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "505b.p1", 0x000000, 0x100000, CRC(0dd47ea6) SHA1(b792a538d7653f7cba53541e8bbe95c9e1db6ca0) )
+	ROM_LOAD16_WORD_SWAP( "505b.p2", 0x100000, 0x400000, CRC(719b98e6) SHA1(b0a95156c48e54ee7f51cbda3abb293a61f9b007) )
+
+	NEO_SFIX_128K( "505b.s1", CRC(bbb20072) SHA1(0197ba8d3a382f4d022f9573f3c6e6e4cf1fc25f) )
+
+	NEO_BIOS_SOUND_64K( "505b.m1", CRC(128a9f84) SHA1(4bf52b9babaabf1f6d96b305732168b5b4d9d259) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_SOUNDONLY )
+	ROM_LOAD( "505b.v1",   0x000000, 0x800000, CRC(5018b7a9) SHA1(86adce8b24e551d42a2594f39124cffd17364f6e) )
+	ROM_LOAD( "502b.v2",   0x800000, 0x800000, CRC(f5c8192f) SHA1(dcef8c78bee1a8e88aa3f45ce9c8e5ab212d9238) )
+
+    NO_DELTAT_REGION
+
+	ROM_REGION( 0x2000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "505b.c1",   0x0000000, 0x1000000, CRC(d4c50841) SHA1(c806d0f01fe29984efa49e8c524c86f6e2de8b0e) )
+	ROM_LOAD16_BYTE( "505b.c2",   0x0000001, 0x1000000, CRC(728eb8ae) SHA1(a2e9d020cb940ea4ebdb1946eb3ab136c643da17) )
+ROM_END
+
+ROM_START( doubled1c ) // 2025-06-29
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "505c.p1", 0x000000, 0x100000, CRC(83d2ec24) SHA1(8af79b15115a82c545aecb2020806cea90cc69a2) )
+	ROM_LOAD16_WORD_SWAP( "505c.p2", 0x100000, 0x400000, CRC(7e5ed6b8) SHA1(cae16c7d27512f94a242bff167393a2c56c0220d) )
+
+	NEO_SFIX_128K( "505c.s1", CRC(714afb4b) SHA1(63b69781585e503e7fa6a62bcf1e6742f8cb3921) )
+
+	NEO_BIOS_SOUND_64K( "505c.m1", CRC(43295479) SHA1(5f08b91444e89f918cd239019b6df540b5d158fc) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_SOUNDONLY )
+	ROM_LOAD( "505c.v1",   0x000000, 0x800000, CRC(f01e97dc) SHA1(3bfb92c2cfb937ddf02299b6ac14c6851b6c1f11) )
+	ROM_LOAD( "505c.v2",   0x800000, 0x800000, CRC(79156c41) SHA1(8f8835139390c021b201384c304d235300b47af7) )
+
+    NO_DELTAT_REGION
+
+	ROM_REGION( 0x2000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "505c.c1",   0x0000000, 0x1000000, CRC(fd883db8) SHA1(9b5c2e916a38438290d9b82eb7b5f34e8b27f660) )
+	ROM_LOAD16_BYTE( "505c.c2",   0x0000001, 0x1000000, CRC(718050d3) SHA1(4bab6c856a8e91d4d8dab12257211e6c6e82b306) )
+ROM_END
+
+ROM_START( doubled1d ) // 2025-09-03
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "505d.p1", 0x000000, 0x100000, CRC(e7923280) SHA1(5a8aba8a267499c1aff4a8d16a704de0423f00cd) )
+	ROM_LOAD16_WORD_SWAP( "505c.p2", 0x100000, 0x400000, CRC(7e5ed6b8) SHA1(cae16c7d27512f94a242bff167393a2c56c0220d) )
+
+	NEO_SFIX_128K( "505c.s1", CRC(714afb4b) SHA1(63b69781585e503e7fa6a62bcf1e6742f8cb3921) )
+
+	NEO_BIOS_SOUND_64K( "505c.m1", CRC(43295479) SHA1(5f08b91444e89f918cd239019b6df540b5d158fc) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_SOUNDONLY )
+	ROM_LOAD( "505c.v1",   0x000000, 0x800000, CRC(f01e97dc) SHA1(3bfb92c2cfb937ddf02299b6ac14c6851b6c1f11) )
+	ROM_LOAD( "505c.v2",   0x800000, 0x800000, CRC(79156c41) SHA1(8f8835139390c021b201384c304d235300b47af7) )
+
+    NO_DELTAT_REGION
+
+	ROM_REGION( 0x2000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "505c.c1",   0x0000000, 0x1000000, CRC(fd883db8) SHA1(9b5c2e916a38438290d9b82eb7b5f34e8b27f660) )
+	ROM_LOAD16_BYTE( "505c.c2",   0x0000001, 0x1000000, CRC(718050d3) SHA1(4bab6c856a8e91d4d8dab12257211e6c6e82b306) )
+ROM_END
+
+ROM_START( doubled1e ) // 2025-09-14
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "505e.p1", 0x000000, 0x100000, CRC(5991da92) SHA1(c7387217e28c03483ea5d92fa062bb834f8d0534) )
+	ROM_LOAD16_WORD_SWAP( "505c.p2", 0x100000, 0x400000, CRC(7e5ed6b8) SHA1(cae16c7d27512f94a242bff167393a2c56c0220d) )
+
+	NEO_SFIX_128K( "505c.s1", CRC(714afb4b) SHA1(63b69781585e503e7fa6a62bcf1e6742f8cb3921) )
+
+	NEO_BIOS_SOUND_64K( "505c.m1", CRC(43295479) SHA1(5f08b91444e89f918cd239019b6df540b5d158fc) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_SOUNDONLY )
+	ROM_LOAD( "505c.v1",   0x000000, 0x800000, CRC(f01e97dc) SHA1(3bfb92c2cfb937ddf02299b6ac14c6851b6c1f11) )
+	ROM_LOAD( "505c.v2",   0x800000, 0x800000, CRC(79156c41) SHA1(8f8835139390c021b201384c304d235300b47af7) )
+
+    NO_DELTAT_REGION
+
+	ROM_REGION( 0x2000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "505c.c1",   0x0000000, 0x1000000, CRC(fd883db8) SHA1(9b5c2e916a38438290d9b82eb7b5f34e8b27f660) )
+	ROM_LOAD16_BYTE( "505c.c2",   0x0000001, 0x1000000, CRC(718050d3) SHA1(4bab6c856a8e91d4d8dab12257211e6c6e82b306) )
 ROM_END
 
 /******************************************************************************/
@@ -8168,6 +8361,9 @@ GAMEB( 2019, xeno,        neogeo, neogeo, neogeo, neogeo, neogeo,   ROT0, "Bitma
 /* M.Priewe */
 GAMEB( 2021, hypernoid,   neogeo, neogeo, neogeo, neogeo, neogeo,   ROT0, "M.Priewe", "Hypernoid (2021-11-28)", &neogeo_ctrl, NULL )
 
+/* OzzyOuzo */
+GAMEB( 2022, teot,        neogeo, neogeo, neogeo, neogeo, neogeo,   ROT0, "OzzyOuzo", "The Eye of Typhoon (Tsunami Edition, beta 7)", &neogeo_ctrl, NULL ) 
+
 /* NEO.BYTE.FORCE */
 GAMEB( 2023, cyborgforce, neogeo, neogeo, neogeo, neogeo, neogeo,   ROT0, "Neo Byte Force Ltd", "Cyborg Force", &neogeo_ctrl, NULL )
 
@@ -8177,6 +8373,13 @@ GAMEB( 2024, captainbarrel, neogeo, neogeo, neogeo, neogeo, neogeo, ROT0, "Neo B
 /* Pixelheart / ChipsOnSteroids */
 GAMEB( 2024, gladmort,    neogeo,  neogeo,  neogeo, neogeo, neogeo, ROT0, "Pixelheart / ChipsOnSteroids", "Gladmort", &neogeo_ctrl, NULL ) 
 
+/* La Casa De Ruivo / Neo Byte Force */
+GAMEB( 2025, doubled1,    neogeo,  neogeo,  neogeo, neogeo, neogeo, ROT0, "La Casa De Ruivo / Neo Byte Force", "Double Dragon One demo (2025-01-03)", &neogeo_ctrl, NULL )
+GAMEB( 2025, doubled1a,   doubled1,neogeo,  neogeo, neogeo, neogeo, ROT0, "La Casa De Ruivo / Neo Byte Force", "Double Dragon One demo (2025-01-23)", &neogeo_ctrl, NULL )
+GAMEB( 2025, doubled1b,   doubled1,neogeo,  neogeo, neogeo, neogeo, ROT0, "La Casa De Ruivo / Neo Byte Force", "Double Dragon One demo (2025-02-17)", &neogeo_ctrl, NULL )
+GAMEB( 2025, doubled1c,   doubled1,neogeo,  neogeo, neogeo, neogeo, ROT0, "La Casa De Ruivo / Neo Byte Force", "Double Dragon One demo (2025-06-29)", &neogeo_ctrl, NULL )
+GAMEB( 2025, doubled1d,   doubled1,neogeo,  neogeo, neogeo, neogeo, ROT0, "La Casa De Ruivo / Neo Byte Force", "Double Dragon One beta 2 (2025-09-03)", &neogeo_ctrl, NULL )
+GAMEB( 2025, doubled1e,   doubled1,neogeo,  neogeo, neogeo, neogeo, ROT0, "La Casa De Ruivo / Neo Byte Force", "Double Dragon One beta 3 (2025-09-14)", &neogeo_ctrl, NULL )
 
 #if 0
 GAMEB( 2000, bangbedp, bangbead,  neogeo, raster, neogeo, neogeo,   ROT0, "Visco", "Bang Bead (prototype)", &neogeo_ctrl, NULL )

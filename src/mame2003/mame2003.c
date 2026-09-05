@@ -609,7 +609,7 @@ int osd_update_audio_stream(INT16 *buffer)
 			int integer_delta = (int)delta_samples;
 			if (integer_delta <= 16 )
 			{
-				log_cb(RETRO_LOG_DEBUG,"sound: Delta added value %d added to frame\n",integer_delta);
+				//log_cb(RETRO_LOG_DEBUG,"sound: Delta added value %d added to frame\n",integer_delta);
 				samples_per_frame += integer_delta;
 			}
 			else if(integer_delta >= 16) log_cb(RETRO_LOG_INFO, "sound: Delta not added to samples_per_frame too large integer_delta: %d\n", integer_delta);
@@ -1399,16 +1399,8 @@ void osd_xy_device_read(int player, int *deltax, int *deltay, const char* type)
 
   if (strcmp(type, "relative") == 0)
   {
-    if(options.dial_swap_xy)
-    {
-      *deltax = input_cb(player, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_Y);
-      *deltay = input_cb(player, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_X);
-    }
-    else
-    {
-      *deltax = input_cb(player, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_X);
-      *deltay = input_cb(player, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_Y);
-    }
+    *deltax = input_cb(player, RETRO_DEVICE_MOUSE, 0, options.dial_swap_xy ? RETRO_DEVICE_ID_MOUSE_Y : RETRO_DEVICE_ID_MOUSE_X);
+    *deltay = input_cb(player, RETRO_DEVICE_MOUSE, 0, options.dial_swap_xy ? RETRO_DEVICE_ID_MOUSE_X : RETRO_DEVICE_ID_MOUSE_Y);
   }
 
   else if (strcmp(type, "absolute") == 0)

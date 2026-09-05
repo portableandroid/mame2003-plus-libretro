@@ -478,7 +478,7 @@ static void update_irq_state(void)
 	/* loop over interrupt vectors, finding the highest priority one with */
 	/* an unmasked interrupt pending */
 	for (vector = 0; vector < 5; vector++)
-		if (effirq & (1 << vector))
+		if (BIT(effirq, vector))
 		{
 			cpu_set_irq_line_and_vector(0, 0, ASSERT_LINE, vector);
 			break;
@@ -713,8 +713,8 @@ static void common_io_chip_w(int which, offs_t offset, UINT16 data, UINT16 mem_m
 				EEPROM_set_clock_line((data & 0x40) ? ASSERT_LINE : CLEAR_LINE);
 			}
 
-			coin_counter_w(1 + 2*which, data & 0x02);
-			coin_counter_w(0 + 2*which, data & 0x01);
+			coin_counter_w(1 + 2*which, BIT(data, 1));
+			coin_counter_w(0 + 2*which, BIT(data, 0));
 			break;
 
 		/* tile banking */
@@ -943,7 +943,7 @@ static void update_sound_irq_state(void)
 	/* loop over interrupt vectors, finding the highest priority one with */
 	/* an unmasked interrupt pending */
 	for (vector = 0; vector < 3; vector++)
-		if (effirq & (1 << vector))
+		if (BIT(effirq, vector))
 		{
 			cpu_set_irq_line_and_vector(1, 0, ASSERT_LINE, 2 * vector);
 			break;
@@ -980,14 +980,14 @@ static void clear_sound_irq(int which)
 static WRITE_HANDLER( sound_int_control_lo_w )
 {
 	/* odd offsets are interrupt acks */
-	if (offset & 1)
+	if (BIT(offset, 0))
 	{
 		sound_irq_input &= data;
 		update_sound_irq_state();
 	}
 
 	/* high offsets signal an IRQ to the v60 */
-	if (offset & 4)
+	if (BIT(offset, 2))
 		signal_v60_irq(MAIN_IRQ_SOUND);
 }
 
@@ -1736,7 +1736,8 @@ INPUT_PORTS_START( f1lap )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_SPECIAL )	/* EEPROM data*/
 
 	PORT_START	/* 0xc00000 - port 1 */
 	PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_BUTTON1, "Gear Up",   IP_KEY_DEFAULT, IP_JOY_DEFAULT )
@@ -2524,9 +2525,15 @@ static struct GfxLayout bgcharlayout =
 	16*64
 };
 
-static struct GfxDecodeInfo gfxdecodeinfo[] =
+static struct GfxDecodeInfo gfx_segas32[] =
 {
-	{ REGION_GFX1, 0, &bgcharlayout,   0x00, 0x3ff  },
+	{ REGION_GFX1, 0, &bgcharlayout,   0, 0x400  },
+	{ -1 } /* end of array */
+};
+
+static struct GfxDecodeInfo gfx_multi32[] =
+{
+	{ REGION_GFX1, 0, &bgcharlayout,   0, 0x800  },
 	{ -1 } /* end of array */
 };
 
@@ -2562,8 +2569,8 @@ static MACHINE_DRIVER_START( system32 )
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_RGB_DIRECT )
 	MDRV_SCREEN_SIZE(52*8, 28*8)
 	MDRV_VISIBLE_AREA(0*8, 52*8-1, 0*8, 28*8-1)
-	MDRV_GFXDECODE(gfxdecodeinfo)
-	MDRV_PALETTE_LENGTH(16384)
+	MDRV_GFXDECODE(gfx_segas32)
+	MDRV_PALETTE_LENGTH(0x4000)
 
 	MDRV_VIDEO_START(system32)
 	MDRV_VIDEO_UPDATE(system32)
@@ -2606,8 +2613,8 @@ static MACHINE_DRIVER_START( multi32 )
 	MDRV_SCREEN_SIZE(52*8*2, 28*8)
 	MDRV_VISIBLE_AREA(0*8, 52*8*2-1, 0*8, 28*8-1)
 
-	MDRV_GFXDECODE(gfxdecodeinfo)
-	MDRV_PALETTE_LENGTH(32768)
+	MDRV_GFXDECODE(gfx_multi32)
+	MDRV_PALETTE_LENGTH(0x8000)
 
 	MDRV_VIDEO_START(multi32)
 	MDRV_VIDEO_UPDATE(multi32)
@@ -3498,7 +3505,7 @@ static DRIVER_INIT ( alien3 )
 
 static DRIVER_INIT ( brival )
 {
-	system32_protram = auto_malloc (0x1000);
+	system32_protram = auto_malloc(sizeof(UINT16)*(0x1000/2));
 	install_mem_read16_handler (0, 0x20ba00, 0x20ba07, brival_protection_r);
 	install_mem_write16_handler(0, 0xa00000, 0xa00fff, brival_protboard_w);
 }
@@ -3532,15 +3539,17 @@ static READ16_HANDLER( dual_pcb_masterslave )
 	return 0; /* 0/1 master/slave */
 }
 
-static DRIVER_INIT ( f1sl )
+static DRIVER_INIT ( f1lap )
 {
 	install_io_analog();
 
-	dual_pcb_comms = auto_malloc(0x1000);
+	dual_pcb_comms = auto_malloc(sizeof(UINT16)*(0x1000/2));
 	install_mem_read16_handler (0, 0x800000, 0x800fff,  dual_pcb_comms_r);
 	install_mem_write16_handler(0, 0x800000, 0x800fff,  dual_pcb_comms_w);
 	install_mem_read16_handler (0, 0x801000, 0x801003,  dual_pcb_masterslave);
 	system32_prot_vblank = f1lap_fd1149_vblank;
+
+	f1lap_kludge = true;
 }
 
 static DRIVER_INIT ( arf )
@@ -3583,7 +3592,28 @@ static DRIVER_INIT ( radr )
 	opaquey_hack = true;
 }
 
+static WRITE16_HANDLER( f1en_comms_echo_w )
+{
+	/* pretend that slave is following master op, enables attract mode video with sound */
+	if (ACCESSING_LSB)
+		cpu_writemem24lew( 0x810049, data );
+}
+
 static DRIVER_INIT ( f1en )
+{
+	install_io_analog();
+
+	dual_pcb_comms = auto_malloc(sizeof(UINT16)*(0x1000/2));
+	memset(dual_pcb_comms, 0xff, 0x1000/2);
+
+	install_mem_read16_handler (0, 0x810000, 0x810fff, dual_pcb_comms_r);
+	install_mem_write16_handler(0, 0x810000, 0x810fff, dual_pcb_comms_w);
+	install_mem_read16_handler (0, 0x818000, 0x818003, dual_pcb_masterslave);
+
+	install_mem_write16_handler(0, 0x810048, 0x810049, f1en_comms_echo_w);
+}
+
+static DRIVER_INIT ( slipstrm )
 {
 	install_io_analog();
 }
@@ -3603,25 +3633,25 @@ static READ16_HANDLER( arescue_handshake_r )
 	return 0;
 }
 
-static READ16_HANDLER( arescue_81000f_r )
+static READ16_HANDLER( arescue_slavebusy_r )
 {
-	return 1; /* 0/1 2player/1player*/
+	return 0x100; /* prevents master trying to sync to slave */
 }
 
 static DRIVER_INIT( arescue )
 {
 	install_io_analog();
 
-	install_mem_read16_handler (0, 0xa00000, 0xa00006, arescue_dsp_r); /* protection */
-	install_mem_write16_handler(0, 0xa00000, 0xa00006, arescue_dsp_w);
+	install_mem_read16_handler (0, 0xa00000, 0xa00007, arescue_dsp_r); /* protection */
+	install_mem_write16_handler(0, 0xa00000, 0xa00007, arescue_dsp_w);
 
-	dual_pcb_comms = auto_malloc(0x2000);
+	dual_pcb_comms = auto_malloc(sizeof(UINT16)*(0x1000/2));
 	install_mem_read16_handler (0, 0x810000, 0x810fff, dual_pcb_comms_r);
 	install_mem_write16_handler(0, 0x810000, 0x810fff, dual_pcb_comms_w);
 	install_mem_read16_handler (0, 0x818000, 0x818003, dual_pcb_masterslave);
 
-	install_mem_read16_handler (0, 0x810001, 0x810001, arescue_handshake_r); /* handshake */
-	install_mem_read16_handler (0, 0x81000f, 0x81000f, arescue_81000f_r);	/* 1player game */
+	install_mem_read16_handler (0, 0x810000, 0x810001, arescue_handshake_r);
+	install_mem_read16_handler (0, 0x81000e, 0x81000f, arescue_slavebusy_r);
 }
 
 static DRIVER_INIT( darkedge )
@@ -3676,12 +3706,12 @@ GAMEX(1994, jpark,    0,        system32,     jpark,    jpark,    ROT0, "Sega", 
 GAMEX(1994, svf,      0,        system32,     svf,      0,        ROT0, "Sega", "Super Visual Football - European Sega Cup", GAME_IMPERFECT_GRAPHICS )
 GAMEX(1994, svs,      svf,      system32,     svf,      0,        ROT0, "Sega", "Super Visual Soccer - Sega Cup (US)", GAME_IMPERFECT_GRAPHICS )
 GAMEX(1994, jleague,  svf,      system32,     svf,      jleague,  ROT0, "Sega", "The J.League 1994 (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAMEX(1993, f1lap,    0,        system32,     f1lap,    f1sl,     ROT0, "Sega", "F1 Super Lap (World)", GAME_IMPERFECT_GRAPHICS )
-GAMEX(1993, f1lapj,   f1lap,    system32,     f1lap,    f1sl,     ROT0, "Sega", "F1 Super Lap (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAMEX(1993, f1lap,    0,        system32,     f1lap,    f1lap,    ROT0, "Sega", "F1 Super Lap (World)", GAME_IMPERFECT_GRAPHICS )
+GAMEX(1993, f1lapj,   f1lap,    system32,     f1lap,    f1lap,    ROT0, "Sega", "F1 Super Lap (Japan)", GAME_IMPERFECT_GRAPHICS )
 GAMEX(1993, darkedge, 0,        system32,     darkedge, darkedge, ROT0, "Sega", "Dark Edge", GAME_IMPERFECT_GRAPHICS )
 GAMEX(1994, dbzvrvs,  0,        system32,     system32, dbzvrvs,  ROT0, "Sega / Banpresto", "Dragon Ball Z V.R.V.S.", GAME_IMPERFECT_GRAPHICS )
-GAMEX(1995, slipstrm, 0,        system32,     slipstrm, f1en,     ROT0, "Capcom", "Slipstream (Brazil)", GAME_IMPERFECT_GRAPHICS )
-GAMEX(1995, slipstrh, slipstrm, system32,     slipstrm, f1en,     ROT0, "Capcom", "Slipstream (Hispanic)", GAME_IMPERFECT_GRAPHICS )
+GAMEX(1995, slipstrm, 0,        system32,     slipstrm, slipstrm, ROT0, "Capcom", "Slipstream (Brazil)", GAME_IMPERFECT_GRAPHICS )
+GAMEX(1995, slipstrh, slipstrm, system32,     slipstrm, slipstrm, ROT0, "Capcom", "Slipstream (Hispanic)", GAME_IMPERFECT_GRAPHICS )
 
 /* Multi32 games */
 GAMEX(1992, orunners, 0,        multi32,      orunners, 0,        ROT0, "Sega", "Outrunners (US)", GAME_IMPERFECT_GRAPHICS )
